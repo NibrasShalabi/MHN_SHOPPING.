@@ -60,7 +60,7 @@ class _ExpandableSectionState extends State<ExpandableSection> {
                       duration: AppDurations.fast,
                       child: const Icon(
                         Icons.keyboard_arrow_down,
-                        color: AppColors.gold,
+                        color: AppColors.iconPrimary,
                         size: AppConstants.iconMd,
                       ),
                     ),

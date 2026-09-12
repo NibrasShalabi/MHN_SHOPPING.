@@ -11,6 +11,7 @@ import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/custom/custom_dialog.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/surface_card.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 import '../widgets/cart_item_tile.dart';
@@ -44,11 +45,43 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  Future<void> _openCheckoutSheet(BuildContext context, CartState state) {
+    return showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surfaceWine,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppConstants.radiusXl)),
+      ),
+      builder: (sheetContext) {
+        // A StatefulBuilder, not the page's own setState, drives the
+        // checkbox inside the sheet: the sheet is a separate route, so it
+        // needs its own rebuild trigger. The page's _termsAccepted still
+        // updates alongside it, so the trigger bar and a re-opened sheet
+        // both reflect the latest choice.
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            return _CheckoutSheet(
+              state: state,
+              termsAccepted: _termsAccepted,
+              onTermsChanged: (value) {
+                setState(() => _termsAccepted = value);
+                setSheetState(() {});
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
+      appBar: AppConstants.isWideScreen(context)
+          ? null
+          : AppBar(
         backgroundColor: AppColors.surfaceWine,
         elevation: 0,
         bottom: const AppBarBottomBorder(),
@@ -61,7 +94,7 @@ class _CartPageState extends State<CartPage> {
               if (state.isEmpty) return const SizedBox.shrink();
               return IconButton(
                 tooltip: AppStrings.shareCart,
-                icon: const Icon(Icons.share_outlined, color: AppColors.gold),
+                icon: const Icon(Icons.share_outlined, color: AppColors.iconPrimary),
                 onPressed: () => _shareCart(context, state),
               );
             },
@@ -107,10 +140,9 @@ class _CartPageState extends State<CartPage> {
                   },
                 ),
               ),
-              _CheckoutBar(
+              _CheckoutTrigger(
                 state: state,
-                termsAccepted: _termsAccepted,
-                onTermsChanged: (value) => setState(() => _termsAccepted = value),
+                onTap: () => _openCheckoutSheet(context, state),
               ),
             ],
           );
@@ -155,13 +187,70 @@ class _EmptyCart extends StatelessWidget {
   }
 }
 
-/// Total + checkout button, pinned so it stays reachable with a long list.
-class _CheckoutBar extends StatelessWidget {
+/// Slim pinned bar — quick total + a handle that opens the full details
+/// as a bottom sheet, instead of holding the whole checkout block open
+/// on-screen at all times.
+class _CheckoutTrigger extends StatelessWidget {
+  final CartState state;
+  final VoidCallback onTap;
+
+  const _CheckoutTrigger({required this.state, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surfaceWine,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: AppColors.border, width: AppConstants.borderThin),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingMd,
+                vertical: AppConstants.spacingSm,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(AppStrings.total, style: AppTextStyles.caption),
+                      Text(
+                        '${state.subtotal.toStringAsFixed(0)} ${AppStrings.currencySy}',
+                        style: AppTextStyles.heading2,
+                      ),
+                    ],
+                  ),
+                  CustomButton(
+                    label: AppStrings.proceedToCheckout,
+                    icon: Icons.keyboard_arrow_up,
+                    onPressed: onTap,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Full checkout details — total breakdown, terms, submit — opened from
+/// [_CheckoutTrigger] as a modal sheet rather than pinned on-screen.
+class _CheckoutSheet extends StatelessWidget {
   final CartState state;
   final bool termsAccepted;
   final ValueChanged<bool> onTermsChanged;
 
-  const _CheckoutBar({
+  const _CheckoutSheet({
     required this.state,
     required this.termsAccepted,
     required this.onTermsChanged,
@@ -169,77 +258,101 @@ class _CheckoutBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceWine,
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: AppConstants.borderThin),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppConstants.spacingMd,
+          AppConstants.spacingSm,
+          AppConstants.spacingMd,
+          AppConstants.spacingMd + MediaQuery.of(context).viewInsets.bottom,
         ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.all(AppConstants.spacingMd),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _SummaryRow(
-                label: AppStrings.subtotal,
-                value: '${state.subtotal.toStringAsFixed(0)} ${AppStrings.currencySy}',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Drag handle — signals "this sheet can be dismissed", the
+            // usual convention for a modal sheet.
+            Center(
+              child: Container(
+                width: AppConstants.spacingXl,
+                height: AppConstants.borderThin * 3,
+                margin: const EdgeInsets.only(bottom: AppConstants.spacingMd),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                ),
               ),
-              const SizedBox(height: AppConstants.spacingXs),
-              // Shipping is quoted by the courier per area, so the amount
-              // isn't known here. Naming the line anyway is what stops the
-              // subtotal from being mistaken for the final bill.
-              _SummaryRow(
-                label: AppStrings.shipping,
-                value: AppStrings.shippingNote,
-                isMuted: true,
+            ),
+            SurfaceCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingMd,
+                vertical: AppConstants.spacingMd,
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: AppConstants.spacingSm),
-                child: Divider(color: AppColors.border, height: 1),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    AppStrings.total,
-                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(AppStrings.total, style: AppTextStyles.caption),
+                            const SizedBox(height: AppConstants.spacingXs),
+                            Text(
+                              '${state.subtotal.toStringAsFixed(0)} ${AppStrings.currencySy}',
+                              style: AppTextStyles.heading1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.receipt_long_outlined,
+                        color: AppColors.gold,
+                        size: AppConstants.iconLg,
+                      ),
+                    ],
                   ),
-                  Flexible(
-                    child: Text(
-                      '${state.subtotal.toStringAsFixed(0)} ${AppStrings.currencySy}+',
-                      style: AppTextStyles.heading2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  const SizedBox(height: AppConstants.spacingSm),
+                  // Shipping is quoted by the courier per area (or paid
+                  // on delivery — copy TBD), so it's kept out of the
+                  // total above rather than folded into a number that
+                  // isn't final yet.
+                  _SummaryRow(
+                    label: AppStrings.shipping,
+                    value: AppStrings.shippingNote,
+                    isMuted: true,
                   ),
                 ],
               ),
-              const SizedBox(height: AppConstants.spacingSm),
-              _TermsCheckbox(value: termsAccepted, onChanged: onTermsChanged),
-              const SizedBox(height: AppConstants.spacingSm),
-              CustomButton(
-                label: AppStrings.proceedToCheckout,
-                icon: Icons.chat_outlined,
-                width: double.infinity,
-                // Disabled until the terms are ticked.
-                //
-                // TODO(logic-phase): this is a UX gate, NOT the real one.
-                // The acceptance flag has to be written on the order
-                // document and re-checked in the Cloud Function that
-                // creates it — otherwise a tampered client can submit an
-                // order with no recorded consent to pay.
-                //
-                // TODO(logic-phase): create the order server-side FIRST,
-                // then open WhatsApp with its id. Sending the message
-                // without a persisted order means a lost chat is a lost
-                // order, and the total in the text must come from the
-                // server, never from this screen's arithmetic.
-                onPressed: termsAccepted ? () => _sendOrderToWhatsapp(context, state) : null,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: AppConstants.spacingMd),
+            _TermsCheckbox(value: termsAccepted, onChanged: onTermsChanged),
+            const SizedBox(height: AppConstants.spacingSm),
+            CustomButton(
+              label: AppStrings.proceedToCheckout,
+              icon: Icons.chat_outlined,
+              width: double.infinity,
+              // Disabled until the terms are ticked.
+              //
+              // TODO(logic-phase): this is a UX gate, NOT the real one.
+              // The acceptance flag has to be written on the order
+              // document and re-checked in the Cloud Function that
+              // creates it — otherwise a tampered client can submit an
+              // order with no recorded consent to pay.
+              //
+              // TODO(logic-phase): create the order server-side FIRST,
+              // then open WhatsApp with its id. Sending the message
+              // without a persisted order means a lost chat is a lost
+              // order, and the total in the text must come from the
+              // server, never from this screen's arithmetic.
+              onPressed: termsAccepted ? () => _sendOrderToWhatsapp(context, state) : null,
+            ),
+          ],
         ),
       ),
     );
@@ -295,9 +408,17 @@ class _TermsCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => onChanged(!value),
-      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-      child: ConstrainedBox(
+      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingSm),
         constraints: const BoxConstraints(minHeight: AppConstants.minTouchTarget),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          border: Border.all(
+            color: value ? AppColors.gold : AppColors.border,
+            width: AppConstants.borderThin,
+          ),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

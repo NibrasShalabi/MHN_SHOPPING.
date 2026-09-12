@@ -14,18 +14,13 @@ class AppStrings {
   static const String edit = 'تعديل';
   static const String delete = 'حذف';
   static const String search = 'بحث';
+  static const String searchCategoriesHint = 'ابحث عن قسم';
   static const String loading = 'جاري التحميل...';
   static const String noInternetConnection = 'لا يوجد اتصال بالإنترنت';
   static const String somethingWentWrong = 'حدث خطأ، حاول لاحقاً';
   static const String noResultsFound = 'لا توجد نتائج';
 
   // ==================== Splash / Onboarding ====================
-  static const String onboardingTitle1 = 'أهلاً بك في ٌ';
-  static const String onboardingSubtitle1 = 'متجرك المتكامل بتصميم فاخر';
-  static const String onboardingTitle2 = 'تسوّق بسهولة';
-  static const String onboardingSubtitle2 = 'سلتك تبقى محفوظة، وتابع طلبك لحظة بلحظة';
-  static const String onboardingTitle3 = 'نظام الولاء';
-  static const String onboardingSubtitle3 = 'اربح نقاط مع كل عملية شراء واستبدلها بمنتجات مميزة';
   static const String skip = 'تخطي';
   static const String next = 'التالي';
   static const String getStarted = 'ابدأ الآن';
@@ -112,7 +107,6 @@ class AppStrings {
   static const String cart = 'السلة';
   static const String emptyCart = 'سلتك فارغة';
   static const String emptyCartSubtitle = 'أضف منتجات لتظهر هنا';
-  static const String subtotal = 'مجموع المنتجات';
   static const String shipping = 'التوصيل والشحن';
   static const String shippingNote = 'يُحدَّد حسب المنطقة عند التواصل';
   static const String total = 'الإجمالي';
@@ -222,6 +216,12 @@ class AppStrings {
   static const String programSubmit = 'إرسال البيانات';
   static const String programSubmitted = 'تم استلام بياناتك';
 
+  // ==================== Suppliers ====================
+  static const String suppliers = 'الموردون';
+  static const String suppliersBannerTitle = 'موردونا';
+  static const String suppliersBannerBody = 'تسوّق من متاجر موثوقة داخل التطبيق';
+  static const String browseSuppliers = 'تصفّح الموردين';
+
   /// Why the health questions are asked — shown above every program form.
   static const String healthDataNotice =
       'هذه المعلومات مطلوبة من طبيب التغذية المشرف على القسم، ولا يمكن إعداد أي '
@@ -237,6 +237,9 @@ class AppStrings {
   static const String supplementsNotice =
       'تُعرض هذه المستحضرات للاطّلاع فقط، ولا يمكن طلبها إلا بعد تحديدها من المختص.';
   static const String askSpecialist = 'استشر المختص';
+  // TODO(logic-phase): placeholder, same as adminWhatsappNumber — replace
+  // with the real number (remote config) before launch.
+  static const String specialistWhatsappNumber = '000000000';
 
   static const String requiredField = 'مطلوب';
 
@@ -340,15 +343,16 @@ class AppStrings {
   static const String ourMissionBody =
       'أن نوفّر منتجات أصلية بجودة عالية وسعر عادل، مع تجربة تسوّق مريحة وواضحة من الطلب حتى التسليم.';
 
-  static const String ourGoals = 'أهدافنا';
-  static const String goalQuality = 'جودة مضمونة';
-  static const String goalQualityBody = 'نختبر كل منتج قبل إدراجه في المتجر.';
-  static const String goalPrice = 'سعر عادل';
-  static const String goalPriceBody = 'أسعار واضحة بلا رسوم مخفية.';
-  static const String goalDelivery = 'توصيل موثوق';
-  static const String goalDeliveryBody = 'متابعة طلبك خطوة بخطوة حتى يصلك.';
-  static const String goalSupport = 'دعم قريب منك';
-  static const String goalSupportBody = 'فريق يجيب على أسئلتك في أي وقت.';
+  static const String ourVision = 'رؤيتنا';
+  static const String ourVisionBody =
+      'أن نكون الوجهة الأولى للتسوق الموثوق، حيث تلتقي الجودة بالسهولة في كل عملية شراء.';
+
+  static const String ourGoal = 'هدفنا';
+  static const String ourGoalBody =
+      'نسعى لتقديم تجربة تسوق تجمع بين الجودة المضمونة والسعر العادل والتوصيل الموثوق، مع دعم قريب منك في كل خطوة.';
+
+  static const String ourSlogan = 'شعارنا';
+  static const String ourSloganBody = 'جودة تستحق ثقتك.';
 
   static const String productsSource = 'مصدر بضائعنا';
   static const String productsSourceBody =

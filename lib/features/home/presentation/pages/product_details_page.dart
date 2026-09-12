@@ -79,7 +79,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             const SizedBox(height: AppConstants.spacingSm),
                             PriceText(
                               product: product,
-                              style: AppTextStyles.heading1.copyWith(color: AppColors.gold),
+                              style: AppTextStyles.heading1.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                             if (product.isOrderable && !product.isInStock) ...[
                               const SizedBox(height: AppConstants.spacingSm),

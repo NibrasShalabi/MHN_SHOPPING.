@@ -81,17 +81,17 @@ class ProductCard extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.w500,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: AppConstants.spacingXs),
                   PriceText(
                     product: product,
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),

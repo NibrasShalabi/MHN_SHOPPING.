@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 /// General app constants — adjust values per project.
 class AppConstants {
   AppConstants._();
@@ -48,12 +50,25 @@ class AppConstants {
   // Grid / layout
   static const double productCardMinWidth = 165; // drives responsive grid column count
   static const double productCardMaxWidth = 200; // sliver grid: max card width before adding a column
+
+  /// Below this, MainShell renders the mobile bottom bar; at or above,
+  /// the web top nav. The one branch point 7.13 asks for.
+  static const double webBreakpoint = 800;
+
+  /// Content stays this wide at most on a wide screen — an ultrawide
+  /// monitor gets breathing room on the sides, not one giant stretched row.
+  static const double webContentMaxWidth = 1100;
+
+  /// True once the screen is wide enough that MainShell shows the web top
+  /// nav. Each of the five tab-root pages uses this to skip its own
+  /// AppBar there — MainShell's bar already carries navigation, so a
+  /// second one under it was just a duplicate title bar.
+  static bool isWideScreen(BuildContext context) =>
+      MediaQuery.of(context).size.width >= webBreakpoint;
   static const double cartThumbSize = 72; // cart line thumbnail
   static const double supplementThumbSize = 96; // supplement row thumbnail
   static const double colorSwatchSize = 28; // product colour dot
   static const double reviewCardHeight = 320; // review carousel card
-  static const double goalCardMinWidth = 160; // about-page goal grid
-  static const double goalCardHeight = 170; // about-page goal card
   static const double timelineDotSize = 22; // order status timeline marker
   static const double appBarBorderHeight = 2; // gold hairline under the app bar
 

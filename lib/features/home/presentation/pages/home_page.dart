@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/app_drawer.dart';
@@ -10,8 +9,10 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
+import '../../../../core/widgets/custom/custom_search_bar.dart';
 import '../../../../core/widgets/custom/app_logo.dart';
 import '../../../../core/widgets/custom/loyalty_points_badge.dart';
+import '../../domain/entities/category.dart';
 import '../cubits/home_cubit.dart';
 import '../cubits/home_state.dart';
 import '../widgets/categories_grid.dart';
@@ -33,10 +34,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _categorySearchController =
+      TextEditingController();
+  String _categoryQuery = '';
+
   @override
   void initState() {
     super.initState();
     context.read<HomeCubit>().load();
+  }
+
+  @override
+  void dispose() {
+    _categorySearchController.dispose();
+    super.dispose();
+  }
+
+  List<Category> _filteredCategories(List<Category> categories) {
+    if (_categoryQuery.isEmpty) return categories;
+    final query = _categoryQuery.trim().toLowerCase();
+    return categories
+        .where((c) => c.name.toLowerCase().contains(query))
+        .toList();
   }
 
   @override
@@ -51,37 +70,40 @@ class _HomePageState extends State<HomePage> {
       // below resolves to the nearest one, so a drawer on an outer
       // Scaffold would never be found by this app bar's button.
       endDrawer: const AppDrawer(),
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceWine,
-        elevation: 0,
-        bottom: const AppBarBottomBorder(),
-        toolbarHeight: AppConstants.appBarHeight,
-        // RTL: `leading` is the right-hand slot, so the wordmark sits
-        // there and the menu goes to `actions` on the left. The loyalty
-        // balance rides next to the menu button rather than the name —
-        // both are things you act on, the name isn't.
-        automaticallyImplyLeading: false,
-        titleSpacing: AppConstants.spacingMd,
-        title: const Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: AppLogo(),
-        ),
-        actions: [
-          // TODO(logic-phase): read the real balance from LoyaltyCubit.
-          const LoyaltyPointsBadge(points: 0),
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.goldLight),
-              tooltip: AppStrings.menu,
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
+      appBar: AppConstants.isWideScreen(context)
+          ? null
+          : AppBar(
+              backgroundColor: AppColors.surfaceWine,
+              elevation: 0,
+              bottom: const AppBarBottomBorder(),
+              toolbarHeight: AppConstants.appBarHeight,
+              // RTL: `leading` is the right-hand slot, so the wordmark sits
+              // there and the menu goes to `actions` on the left. The loyalty
+              // balance rides next to the menu button rather than the name —
+              // both are things you act on, the name isn't.
+              automaticallyImplyLeading: false,
+              titleSpacing: AppConstants.spacingMd,
+              title: const Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: AppLogo(),
+              ),
+              actions: [
+                // TODO(logic-phase): read the real balance from LoyaltyCubit.
+                const LoyaltyPointsBadge(points: 0),
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.menu, color: AppColors.iconPrimary),
+                    tooltip: AppStrings.menu,
+                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                  ),
+                ),
+                const SizedBox(width: AppConstants.spacingXs),
+              ],
             ),
-          ),
-          const SizedBox(width: AppConstants.spacingXs),
-        ],
-      ),
       body: BlocBuilder<HomeCubit, HomeState>(
         builder: (context, state) {
-          if (state.status == HomeStatus.loading || state.status == HomeStatus.initial) {
+          if (state.status == HomeStatus.loading ||
+              state.status == HomeStatus.initial) {
             return const CustomLoadingIndicator();
           }
 
@@ -110,13 +132,40 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: AppConstants.spacingXl),
                   ],
+
+                  const SizedBox(height: AppConstants.spacingXl),
                   Text(AppStrings.categories, style: AppTextStyles.heading2),
                   const SizedBox(height: AppConstants.spacingMd),
-                  CategoriesGrid(
-                    categories: state.categories,
-                    onCategoryTap: (category) =>
-                        context.push(RouteNames.categoryPath(category.id)),
+                  CustomSearchBar(
+                    controller: _categorySearchController,
+                    hint: AppStrings.searchCategoriesHint,
+                    onChanged: (value) =>
+                        setState(() => _categoryQuery = value),
+                    onClear: () {
+                      _categorySearchController.clear();
+                      setState(() => _categoryQuery = '');
+                    },
                   ),
+                  const SizedBox(height: AppConstants.spacingMd),
+                  if (_categoryQuery.isNotEmpty &&
+                      _filteredCategories(state.categories).isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppConstants.spacingLg,
+                      ),
+                      child: Center(
+                        child: Text(
+                          AppStrings.noResultsFound,
+                          style: AppTextStyles.body,
+                        ),
+                      ),
+                    )
+                  else
+                    CategoriesGrid(
+                      categories: _filteredCategories(state.categories),
+                      onCategoryTap: (category) =>
+                          context.push(RouteNames.categoryPath(category.id)),
+                    ),
                   const SizedBox(height: AppConstants.spacingLg),
                 ],
               ),

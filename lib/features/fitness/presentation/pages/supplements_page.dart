@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -8,6 +9,8 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
+import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../../home/presentation/widgets/categories_grid.dart';
 import '../cubits/catalog_categories_cubit.dart';
@@ -32,6 +35,14 @@ class _SupplementsPageState extends State<SupplementsPage> {
   void initState() {
     super.initState();
     context.read<CatalogCategoriesCubit>().load();
+  }
+
+  Future<void> _contactSpecialist(BuildContext context) async {
+    final uri = Uri.parse('https://wa.me/${AppStrings.specialistWhatsappNumber}');
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && context.mounted) {
+      AppSnackbar.error(context, AppStrings.somethingWentWrong);
+    }
   }
 
   @override
@@ -71,6 +82,13 @@ class _SupplementsPageState extends State<SupplementsPage> {
                 const MedicalNoticeCard(
                   message: AppStrings.supplementsNotice,
                   icon: Icons.info_outline,
+                ),
+                const SizedBox(height: AppConstants.spacingMd),
+                CustomButton(
+                  label: AppStrings.askSpecialist,
+                  icon: Icons.chat_outlined,
+                  width: double.infinity,
+                  onPressed: () => _contactSpecialist(context),
                 ),
                 const SizedBox(height: AppConstants.spacingXl),
                 CategoriesGrid(

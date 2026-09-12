@@ -1,4 +1,3 @@
-
 /// Centralized route paths — reference these everywhere instead of typing
 /// raw path strings, so a path change never requires hunting across files.
 abstract class RouteNames {
@@ -43,6 +42,10 @@ abstract class RouteNames {
   // Suggest product
   static const String suggestProduct = '/suggest-product';
 
+  // Suppliers
+  static const String suppliers = '/suppliers';
+  static const String supplierDetails = '/suppliers/:supplierId';
+
   // Notifications
   static const String notifications = '/notifications';
 
@@ -51,5 +54,6 @@ abstract class RouteNames {
   static String orderPath(String orderId) => '/order/$orderId';
   static String sharedCartPath(String cartId) => '/shared-cart/$cartId';
   static String healthProgramPath(String programId) => '/fitness/program/$programId';
+  static String supplierPath(String supplierId) => '/suppliers/$supplierId';
   static const String sharedCart = '/shared-cart/:cartId';
 }

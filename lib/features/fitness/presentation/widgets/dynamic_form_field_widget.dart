@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/custom/custom_dropdown.dart';
 import '../../../../core/widgets/custom/custom_text_field.dart';
+import '../../../../core/widgets/inline_error.dart';
 import '../../domain/entities/dynamic_form_field.dart';
 
 /// Renders one admin-defined field.
@@ -39,7 +40,7 @@ class DynamicFormFieldWidget extends StatelessWidget {
           _Label(field: field),
           const SizedBox(height: AppConstants.spacingXs),
           _buildInput(),
-          if (error != null) _InlineError(message: error!),
+          if (error != null) InlineError(error!),
         ],
       ),
     );
@@ -273,23 +274,6 @@ class _Choice extends StatelessWidget {
             color: isSelected ? AppColors.goldLight : AppColors.textSecondary,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _InlineError extends StatelessWidget {
-  final String message;
-
-  const _InlineError({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: AppConstants.spacingXs, right: AppConstants.spacingSm),
-      child: Text(
-        message,
-        style: AppTextStyles.caption.copyWith(color: AppColors.error),
       ),
     );
   }

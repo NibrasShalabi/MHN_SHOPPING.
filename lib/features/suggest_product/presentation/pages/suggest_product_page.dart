@@ -254,7 +254,9 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
+      appBar: AppConstants.isWideScreen(context)
+          ? null
+          : AppBar(
         backgroundColor: AppColors.surfaceWine,
         elevation: 0,
         centerTitle: true,

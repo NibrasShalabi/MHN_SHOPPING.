@@ -39,7 +39,7 @@ class LoyaltyPointsBadge extends StatelessWidget {
               const Icon(
                 Icons.local_fire_department,
                 size: AppConstants.iconMd,
-                color: AppColors.gold,
+                color: AppColors.iconPrimary,
               ),
               const SizedBox(width: AppConstants.spacingXs),
               points == 0

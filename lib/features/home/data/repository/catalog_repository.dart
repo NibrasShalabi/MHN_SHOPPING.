@@ -4,6 +4,7 @@ import '../../domain/entities/product_variants.dart';
 import '../../domain/entities/product_filter.dart';
 import '../../domain/entities/product_page_result.dart';
 import '../../domain/entities/promo_banner.dart';
+import '../../../suppliers/domain/entities/supplier.dart';
 import 'catalog_cache.dart';
 
 /// Contract for catalog data (categories, filters, products, banners).
@@ -13,10 +14,16 @@ import 'catalog_cache.dart';
 abstract class CatalogRepository {
   Future<List<PromoBanner>> getPromoBanners({bool forceRefresh = false});
 
+  Future<List<Supplier>> getSuppliers({bool forceRefresh = false});
+
+  Future<Supplier> getSupplier(String supplierId, {bool forceRefresh = false});
+
   /// [scope] picks which section's categories to return — the store grid
-  /// and the fitness shelf both go through here.
+  /// and the fitness shelf both go through here. [supplierId] is required
+  /// (and only meaningful) when [scope] is [CatalogScope.supplier].
   Future<List<Category>> getCategories({
     CatalogScope scope = CatalogScope.store,
+    String? supplierId,
     bool forceRefresh = false,
   });
 
@@ -104,6 +111,41 @@ class FakeCatalogRepository implements CatalogRepository {
       name: 'متجر الولاء',
       scope: CatalogScope.loyalty,
       filters: [],
+    ),
+
+    // Suppliers — same structure again: a supplier's shelf is a category
+    // like any other, just narrowed by supplierId instead of admin-fixed
+    // scope. "أحمد" has filters (a real sub-catalog); "سارة" doesn't, so
+    // its products list directly — both paths get exercised.
+    Category(
+      id: 'ahmad_electronics',
+      name: 'إلكترونيات',
+      scope: CatalogScope.supplier,
+      supplierId: 'ahmad',
+      filters: [
+        ProductFilter(id: 'phones', name: 'هواتف'),
+        ProductFilter(id: 'accessories', name: 'إكسسوارات'),
+      ],
+    ),
+    Category(
+      id: 'sara_handmade',
+      name: 'منتجات يدوية',
+      scope: CatalogScope.supplier,
+      supplierId: 'sara',
+      filters: [],
+    ),
+  ];
+
+  static const List<Supplier> _suppliers = [
+    Supplier(
+      id: 'ahmad',
+      name: 'محل أحمد',
+      description: 'إلكترونيات وإكسسوارات أصلية بضمان الوكيل.',
+    ),
+    Supplier(
+      id: 'sara',
+      name: 'صنعة سارة',
+      description: 'منتجات يدوية محلية الصنع بلمسة شخصية.',
     ),
   ];
 
@@ -204,6 +246,30 @@ class FakeCatalogRepository implements CatalogRepository {
         }
       }
     }
+
+    // Suppliers: same catalog rules as the store, just under the
+    // supplier's own category.
+    for (final category in _categories.where((c) => c.scope == CatalogScope.supplier)) {
+      final filters = category.filters.isEmpty
+          ? [const ProductFilter(id: '', name: '')]
+          : category.filters;
+
+      for (final filter in filters) {
+        for (var i = 1; i <= 15; i++) {
+          products.add(Product(
+            id: '${category.id}_${filter.id}_$i',
+            categoryId: category.id,
+            filterId: filter.id.isEmpty ? null : filter.id,
+            name: filter.name.isEmpty ? '${category.name} $i' : '${filter.name} $i',
+            imageUrls: const ['', '', ''],
+            price: 10000 + (i * 2000),
+            stock: i % 5 == 0 ? 0 : 8,
+            description: 'منتج من مورد خارجي — تفاصيل الجودة والضمان من المورد نفسه.',
+            isNew: i == 1,
+          ));
+        }
+      }
+    }
     return products;
   }
 
@@ -228,11 +294,33 @@ class FakeCatalogRepository implements CatalogRepository {
   }
 
   @override
+  Future<List<Supplier>> getSuppliers({bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      final cached = _cache.read<CachedSuppliers>(
+        CatalogCache.suppliersKey,
+        CatalogCache.structureTtl,
+      );
+      if (cached != null) return cached;
+    }
+
+    await Future.delayed(const Duration(milliseconds: 350));
+    _cache.write(CatalogCache.suppliersKey, _suppliers);
+    return _suppliers;
+  }
+
+  @override
+  Future<Supplier> getSupplier(String supplierId, {bool forceRefresh = false}) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return _suppliers.firstWhere((s) => s.id == supplierId);
+  }
+
+  @override
   Future<List<Category>> getCategories({
     CatalogScope scope = CatalogScope.store,
+    String? supplierId,
     bool forceRefresh = false,
   }) async {
-    final key = CatalogCache.categoriesKey(scope);
+    final key = CatalogCache.categoriesKey(scope, supplierId: supplierId);
 
     if (!forceRefresh) {
       final cached = _cache.read<CachedCategories>(key, CatalogCache.structureTtl);
@@ -240,7 +328,10 @@ class FakeCatalogRepository implements CatalogRepository {
     }
 
     await Future.delayed(const Duration(milliseconds: 400));
-    final scoped = _categories.where((c) => c.scope == scope).toList();
+    final scoped = _categories
+        .where((c) => c.scope == scope)
+        .where((c) => supplierId == null || c.supplierId == supplierId)
+        .toList();
     _cache.write(key, scoped);
     return scoped;
   }

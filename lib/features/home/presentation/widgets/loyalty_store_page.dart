@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
+import '../../../orders/presentation/widgets/loyalty_explainer_card.dart';
 import '../cubits/category_cubit.dart';
 import '../cubits/category_state.dart';
 import '../widgets/products_grid.dart';
@@ -89,8 +90,7 @@ class _LoyaltyStorePageState extends State<LoyaltyStorePage> {
                 const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.all(AppConstants.spacingMd),
-                    // TODO(logic-phase): real balance from LoyaltyCubit.
-                    child: _BalanceHeader(points: 0),
+                    child: LoyaltyExplainerCard(),
                   ),
                 ),
                 SliverPadding(
@@ -116,49 +116,6 @@ class _LoyaltyStorePageState extends State<LoyaltyStorePage> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _BalanceHeader extends StatelessWidget {
-  final int points;
-
-  const _BalanceHeader({required this.points});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppConstants.spacingLg),
-      decoration: BoxDecoration(
-        gradient: AppColors.fireGradient,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.gold, width: AppConstants.borderThin),
-      ),
-      child: Column(
-        children: [
-          Text(
-            AppStrings.loyaltyPoints,
-            style: AppTextStyles.caption.copyWith(color: AppColors.accentLight),
-          ),
-          const SizedBox(height: AppConstants.spacingSm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.local_fire_department,
-                size: AppConstants.iconLg,
-                color: AppColors.goldLight,
-              ),
-              const SizedBox(width: AppConstants.spacingSm),
-              Text(
-                '$points',
-                style: AppTextStyles.heading1.copyWith(color: AppColors.textOnPrimary),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

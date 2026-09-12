@@ -32,7 +32,7 @@ class AdminMessageTile extends StatelessWidget {
           color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         ),
-        child: const Icon(Icons.check, color: AppColors.gold),
+        child: const Icon(Icons.check, color: AppColors.iconPrimary),
       ),
       secondaryBackground: Container(
         alignment: Alignment.centerRight,
@@ -42,7 +42,7 @@ class AdminMessageTile extends StatelessWidget {
           color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         ),
-        child: const Icon(Icons.check, color: AppColors.gold),
+        child: const Icon(Icons.check, color: AppColors.iconPrimary),
       ),
       child: SurfaceCard(
         onTap: onDismiss,

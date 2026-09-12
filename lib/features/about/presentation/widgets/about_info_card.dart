@@ -7,10 +7,9 @@ import '../../../../../core/widgets/surface_card.dart';
 
 /// Wide text block with a gold leading edge — used for الرسالة / المصدر.
 class AboutInfoCard extends StatelessWidget {
-  final IconData icon;
   final String body;
 
-  const AboutInfoCard({super.key, required this.icon, required this.body});
+  const AboutInfoCard({super.key, required this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +17,6 @@ class AboutInfoCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: AppConstants.iconLg, color: AppColors.gold),
           const SizedBox(width: AppConstants.spacingMd),
           Expanded(
             child: Text(

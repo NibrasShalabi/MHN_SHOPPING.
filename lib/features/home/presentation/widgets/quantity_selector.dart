@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../core/widgets/step_button.dart';
 
 class QuantitySelector extends StatelessWidget {
   final int quantity;
@@ -31,38 +32,25 @@ class QuantitySelector extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(icon: Icons.remove, isEnabled: canDecrease, onTap: onDecrease),
+          StepButton(
+            icon: Icons.remove,
+            isEnabled: canDecrease,
+            onTap: onDecrease,
+            color: AppColors.gold,
+            radius: AppConstants.radiusMd,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
             child: Text('$quantity', style: AppTextStyles.body),
           ),
-          _StepButton(icon: Icons.add, isEnabled: canIncrease, onTap: onIncrease),
+          StepButton(
+            icon: Icons.add,
+            isEnabled: canIncrease,
+            onTap: onIncrease,
+            color: AppColors.gold,
+            radius: AppConstants.radiusMd,
+          ),
         ],
-      ),
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  final IconData icon;
-  final bool isEnabled;
-  final VoidCallback onTap;
-
-  const _StepButton({required this.icon, required this.isEnabled, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: isEnabled ? onTap : null,
-      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-      child: SizedBox(
-        width: AppConstants.minTouchTarget,
-        height: AppConstants.minTouchTarget,
-        child: Icon(
-          icon,
-          size: AppConstants.iconSm,
-          color: isEnabled ? AppColors.gold : AppColors.textDisabled,
-        ),
       ),
     );
   }

@@ -22,9 +22,14 @@ class AppDrawer extends StatelessWidget {
 
   static const List<_MenuEntry> _entries = [
     _MenuEntry(
-      path: RouteNames.loyaltyStore,
-      icon: Icons.star_outline,
-      label: AppStrings.loyaltyStore,
+      path: RouteNames.about,
+      icon: Icons.info_outline,
+      label: AppStrings.aboutUs,
+    ),
+    _MenuEntry(
+      path: RouteNames.suppliers,
+      icon: Icons.storefront_outlined,
+      label: AppStrings.suppliers,
     ),
     _MenuEntry(
       path: RouteNames.support,
@@ -48,7 +53,7 @@ class AppDrawer extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(AppConstants.spacingLg),
-              decoration: const BoxDecoration(gradient: AppColors.fireGradient),
+              decoration: const BoxDecoration(gradient: AppColors.emberDarkGradient),
               child: const Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: AppLogo(),
@@ -105,7 +110,7 @@ class _MenuTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(entry.icon, size: AppConstants.iconMd, color: AppColors.gold),
+              Icon(entry.icon, size: AppConstants.iconMd, color: AppColors.iconPrimary),
               const SizedBox(width: AppConstants.spacingMd),
               Expanded(child: Text(entry.label, style: AppTextStyles.body)),
               const Icon(

@@ -20,7 +20,7 @@ class AboutHero extends StatelessWidget {
         vertical: AppConstants.spacingXxl,
       ),
       decoration: BoxDecoration(
-        gradient: AppColors.fireGradient,
+        gradient: AppColors.emberDarkGradient,
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
       ),
       child: Column(

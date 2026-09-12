@@ -21,6 +21,10 @@ class SurfaceCard extends StatelessWidget {
   /// Replaces the flat background (e.g. AppColors.fireGradient).
   final Gradient? gradient;
 
+  /// Overrides the rectangle+radius shape entirely — e.g. `StadiumBorder`
+  /// for pill/oval cards. When set, [radius] is ignored.
+  final ShapeBorder? shape;
+
   final VoidCallback? onTap;
 
   const SurfaceCard({
@@ -31,24 +35,29 @@ class SurfaceCard extends StatelessWidget {
     this.radius,
     this.borderColor,
     this.gradient,
+    this.shape,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(radius ?? AppConstants.radiusMd);
+    final resolvedShape = shape ?? RoundedRectangleBorder(borderRadius: borderRadius);
 
     final card = Container(
       margin: margin,
       padding: padding ?? const EdgeInsets.all(AppConstants.spacingMd),
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: gradient == null ? AppColors.surfaceElevated : null,
         gradient: gradient,
-        borderRadius: borderRadius,
-        border: Border.all(
-          color: borderColor ?? AppColors.border,
-          width: AppConstants.borderThin,
-        ),
+        shape: shape ??
+            RoundedRectangleBorder(
+              borderRadius: borderRadius,
+              side: BorderSide(
+                color: borderColor ?? AppColors.border,
+                width: AppConstants.borderThin,
+              ),
+            ),
       ),
       child: child,
     );
@@ -57,7 +66,7 @@ class SurfaceCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: borderRadius,
+      customBorder: resolvedShape,
       child: card,
     );
   }

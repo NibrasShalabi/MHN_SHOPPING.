@@ -14,14 +14,20 @@ class CatalogCategoriesCubit extends Cubit<CatalogCategoriesState> {
   final CatalogRepository _repository;
   final CatalogScope scope;
 
-  CatalogCategoriesCubit(this._repository, {required this.scope})
+  /// Required (and only meaningful) when [scope] is [CatalogScope.supplier].
+  final String? supplierId;
+
+  CatalogCategoriesCubit(this._repository, {required this.scope, this.supplierId})
       : super(const CatalogCategoriesState());
 
   Future<void> load({bool forceRefresh = false}) async {
     emit(state.copyWith(status: CatalogCategoriesStatus.loading, failure: null));
     try {
-      final categories =
-      await _repository.getCategories(scope: scope, forceRefresh: forceRefresh);
+      final categories = await _repository.getCategories(
+        scope: scope,
+        supplierId: supplierId,
+        forceRefresh: forceRefresh,
+      );
       emit(state.copyWith(
         status: CatalogCategoriesStatus.success,
         categories: categories,

@@ -28,7 +28,7 @@ class MedicalNoticeCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: AppConstants.iconMd, color: AppColors.gold),
+          Icon(icon, size: AppConstants.iconMd, color: AppColors.iconPrimary),
           const SizedBox(width: AppConstants.spacingSm),
           Expanded(
             child: Text(

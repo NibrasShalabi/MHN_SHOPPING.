@@ -143,7 +143,7 @@ class _SizeGuideButton extends StatelessWidget {
             const Icon(
               Icons.straighten,
               size: AppConstants.iconSm,
-              color: AppColors.gold,
+              color: AppColors.iconPrimary,
             ),
             const SizedBox(width: AppConstants.spacingXs),
             Text(

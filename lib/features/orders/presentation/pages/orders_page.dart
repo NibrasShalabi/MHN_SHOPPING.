@@ -11,7 +11,6 @@ import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../cubits/orders_cubit.dart';
 import '../cubits/orders_state.dart';
 import '../widgets/admin_message_tile.dart';
-import '../widgets/loyalty_explainer_card.dart';
 import '../widgets/order_card.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -32,13 +31,18 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        backgroundColor: AppColors.surfaceWine,
-        elevation: 0,
-        bottom: const AppBarBottomBorder(),
-        centerTitle: true,
-        title: Text(AppStrings.orderTracking, style: AppTextStyles.heading2),
-      ),
+      appBar: AppConstants.isWideScreen(context)
+          ? null
+          : AppBar(
+              backgroundColor: AppColors.surfaceWine,
+              elevation: 0,
+              bottom: const AppBarBottomBorder(),
+              centerTitle: true,
+              title: Text(
+                AppStrings.orderTracking,
+                style: AppTextStyles.heading2,
+              ),
+            ),
       body: BlocConsumer<OrdersCubit, OrdersState>(
         listener: (context, state) {
           if (state.failure != null && state.status != OrdersStatus.failure) {
@@ -46,7 +50,8 @@ class _OrdersPageState extends State<OrdersPage> {
           }
         },
         builder: (context, state) {
-          if (state.status == OrdersStatus.loading || state.status == OrdersStatus.initial) {
+          if (state.status == OrdersStatus.loading ||
+              state.status == OrdersStatus.initial) {
             return const CustomLoadingIndicator();
           }
 
@@ -73,15 +78,18 @@ class _OrdersPageState extends State<OrdersPage> {
                   const SizedBox(height: AppConstants.spacingXs),
                   Text(
                     AppStrings.tapToDismiss,
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textDisabled),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textDisabled,
+                    ),
                   ),
                   const SizedBox(height: AppConstants.spacingMd),
                   ...state.messages.map(
-                        (message) => AdminMessageTile(
+                    (message) => AdminMessageTile(
                       key: ValueKey(message.id),
                       message: message,
-                      onDismiss: () =>
-                          context.read<OrdersCubit>().dismissMessage(message.id),
+                      onDismiss: () => context
+                          .read<OrdersCubit>()
+                          .dismissMessage(message.id),
                     ),
                   ),
                   const SizedBox(height: AppConstants.spacingXl),
@@ -94,7 +102,8 @@ class _OrdersPageState extends State<OrdersPage> {
                     const _SectionTitle(title: AppStrings.currentOrders),
                     const SizedBox(height: AppConstants.spacingMd),
                     ...state.activeOrders.map(
-                          (order) => OrderCard(key: ValueKey(order.id), order: order),
+                      (order) =>
+                          OrderCard(key: ValueKey(order.id), order: order),
                     ),
                     const SizedBox(height: AppConstants.spacingLg),
                   ],
@@ -102,14 +111,12 @@ class _OrdersPageState extends State<OrdersPage> {
                     const _SectionTitle(title: AppStrings.pastOrders),
                     const SizedBox(height: AppConstants.spacingMd),
                     ...state.pastOrders.map(
-                          (order) => OrderCard(key: ValueKey(order.id), order: order),
+                      (order) =>
+                          OrderCard(key: ValueKey(order.id), order: order),
                     ),
                     const SizedBox(height: AppConstants.spacingLg),
                   ],
                 ],
-
-                const LoyaltyExplainerCard(),
-                const SizedBox(height: AppConstants.spacingLg),
               ],
             ),
           );
@@ -151,7 +158,9 @@ class _SectionTitle extends StatelessWidget {
             ),
             child: Text(
               '$badgeCount',
-              style: AppTextStyles.caption.copyWith(color: AppColors.textOnPrimary),
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textOnPrimary,
+              ),
             ),
           ),
       ],
@@ -174,7 +183,11 @@ class _EmptyOrders extends StatelessWidget {
             color: AppColors.textDisabled,
           ),
           const SizedBox(height: AppConstants.spacingLg),
-          Text(AppStrings.noOrdersYet, style: AppTextStyles.heading2, textAlign: TextAlign.center),
+          Text(
+            AppStrings.noOrdersYet,
+            style: AppTextStyles.heading2,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: AppConstants.spacingSm),
           Text(
             AppStrings.noOrdersYetSubtitle,

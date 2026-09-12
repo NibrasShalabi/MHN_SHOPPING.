@@ -10,6 +10,9 @@ import '../theme/app_text_styles.dart';
 import '../../features/cart/presentation/cubits/cart_cubit.dart';
 import '../../features/cart/presentation/cubits/cart_state.dart';
 import 'route_names.dart';
+import '../widgets/app_bar_bottom_border.dart';
+import '../widgets/custom/app_logo.dart';
+import '../widgets/app_drawer.dart';
 
 /// Bottom navigation shell shared by the five main tabs.
 ///
@@ -27,11 +30,11 @@ class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.child});
 
   static const List<_NavTab> _tabs = [
-    _NavTab(path: RouteNames.home, icon: Icons.home_outlined, label: AppStrings.home),
-    _NavTab(path: RouteNames.cart, icon: Icons.shopping_cart_outlined, label: AppStrings.cart),
-    _NavTab(path: RouteNames.orderTracking, icon: Icons.local_shipping_outlined, label: AppStrings.orderTracking),
-    _NavTab(path: RouteNames.about, icon: Icons.info_outline, label: AppStrings.aboutUs),
-    _NavTab(path: RouteNames.suggestProduct, icon: Icons.add_shopping_cart_outlined, label: AppStrings.suggestProduct),
+    _NavTab(path: RouteNames.home, icon: Icons.home_outlined, ),
+    _NavTab(path: RouteNames.cart, icon: Icons.shopping_cart_outlined, ),
+    _NavTab(path: RouteNames.orderTracking, icon: Icons.local_shipping_outlined, ),
+    _NavTab(path: RouteNames.loyaltyStore, icon: Icons.star_outline, ),
+    _NavTab(path: RouteNames.suggestProduct, icon: Icons.add_shopping_cart_outlined, ),
   ];
 
   int _currentIndex(BuildContext context) {
@@ -43,31 +46,148 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex(context);
+    final isWeb = AppConstants.isWideScreen(context);
+
+    if (isWeb) {
+      return Scaffold(
+        backgroundColor: AppColors.surface,
+        // Only HomePage's AppBar had the menu button before; now that
+        // every tab's own AppBar disappears on web, the drawer moves up
+        // to the shell so it stays reachable from any tab, not just home.
+        endDrawer: const AppDrawer(),
+        body: Column(
+          children: [
+            _TopNavBar(tabs: _tabs, currentIndex: currentIndex),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: AppConstants.webContentMaxWidth),
+                  child: child,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: child,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceWine,
-          border: Border(top: BorderSide(color: AppColors.border, width: AppConstants.borderThin)),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingSm),
-            child: Row(
-              children: List.generate(_tabs.length, (index) {
-                return Expanded(
-                  child: _NavItem(
-                    tab: _tabs[index],
-                    isActive: index == currentIndex,
-                    onTap: () => context.go(_tabs[index].path),
-                  ),
-                );
-              }),
+        decoration: const BoxDecoration(color: AppColors.surfaceWine),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppBarBottomBorder(),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingSm),
+                child: Row(
+                  children: List.generate(_tabs.length, (index) {
+                    return Expanded(
+                      child: _NavItem(
+                        tab: _tabs[index],
+                        isActive: index == currentIndex,
+                        onTap: () => context.go(_tabs[index].path),
+                      ),
+                    );
+                  }),
+                ),
+              ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Top nav bar for wide screens — same [_NavTab] list as the mobile bottom
+/// bar, laid out as a horizontal row instead of five stacked columns.
+class _TopNavBar extends StatelessWidget {
+  final List<_NavTab> tabs;
+  final int currentIndex;
+
+  const _TopNavBar({required this.tabs, required this.currentIndex});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.surfaceWine,
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingLg,
+                vertical: AppConstants.spacingSm,
+              ),
+              child: Row(
+                children: [
+                  const AppLogo(),
+                  const SizedBox(width: AppConstants.spacingXl),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(tabs.length, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.spacingMd,
+                          ),
+                          child: _TopNavItem(
+                            tab: tabs[index],
+                            isActive: index == currentIndex,
+                            onTap: () => context.go(tabs[index].path),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(Icons.menu, color: AppColors.iconPrimary),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const AppBarBottomBorder(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TopNavItem extends StatelessWidget {
+  final _NavTab tab;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _TopNavItem({required this.tab, required this.isActive, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingSm,
+          vertical: AppConstants.spacingSm,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            tab.path == RouteNames.cart
+                ? const _CartIcon()
+                : Icon(tab.icon, size: AppConstants.iconMd, color: AppColors.iconPrimary),
+            const SizedBox(width: AppConstants.spacingXs),
+          ],
         ),
       ),
     );
@@ -77,9 +197,8 @@ class MainShell extends StatelessWidget {
 class _NavTab {
   final String path;
   final IconData icon;
-  final String label;
 
-  const _NavTab({required this.path, required this.icon, required this.label});
+  const _NavTab({required this.path, required this.icon,});
 }
 
 class _NavItem extends StatelessWidget {
@@ -91,8 +210,6 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? AppColors.gold : AppColors.textSecondary;
-
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
@@ -110,17 +227,10 @@ class _NavItem extends StatelessWidget {
                 scale: isActive ? 1.1 : 1.0,
                 duration: AppDurations.fast,
                 child: tab.path == RouteNames.cart
-                    ? _CartIcon(color: color)
-                    : Icon(tab.icon, size: AppConstants.iconMd, color: color),
+                    ? const _CartIcon()
+                    : Icon(tab.icon, size: AppConstants.iconMd, color: AppColors.iconPrimary),
               ),
               const SizedBox(height: AppConstants.spacingXs),
-              Text(
-                tab.label,
-                style: AppTextStyles.caption.copyWith(color: color),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
             ],
           ),
         ),
@@ -132,9 +242,7 @@ class _NavItem extends StatelessWidget {
 
 /// Cart icon with a live item-count badge.
 class _CartIcon extends StatelessWidget {
-  final Color color;
-
-  const _CartIcon({required this.color});
+  const _CartIcon();
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +253,11 @@ class _CartIcon extends StatelessWidget {
         return Stack(
           clipBehavior: Clip.none,
           children: [
-            Icon(Icons.shopping_cart_outlined, size: AppConstants.iconMd, color: color),
+            const Icon(
+              Icons.shopping_cart_outlined,
+              size: AppConstants.iconMd,
+              color: AppColors.iconPrimary,
+            ),
             if (count > 0)
               Positioned(
                 top: -4,

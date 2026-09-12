@@ -41,12 +41,21 @@ class _SplashPageState extends State<SplashPage> {
   }
 }
 
-class _OnboardingSlide {
+class _OnboardingSection {
   final String title;
-  final String subtitle;
+  final String body;
+
+  const _OnboardingSection(this.title, this.body);
+}
+
+class _OnboardingSlide {
   final IconData icon;
 
-  const _OnboardingSlide({required this.title, required this.subtitle, required this.icon});
+  /// Usually one block. The last slide packs two (هدفنا + شعارنا) so it
+  /// doesn't need a fifth page just for the slogan line.
+  final List<_OnboardingSection> sections;
+
+  const _OnboardingSlide({required this.icon, required this.sections});
 }
 
 class _OnboardingSlides extends StatefulWidget {
@@ -60,21 +69,28 @@ class _OnboardingSlidesState extends State<_OnboardingSlides> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  // Same source as AboutPage's wide cards (AppStrings) — two views of one
+  // content set, per 7.1. When the copy moves behind a repository, only
+  // these constants change; the layout below doesn't.
   static const List<_OnboardingSlide> _slides = [
     _OnboardingSlide(
-      title: AppStrings.onboardingTitle1,
-      subtitle: AppStrings.onboardingSubtitle1,
       icon: Icons.storefront_outlined,
+      sections: [_OnboardingSection(AppStrings.aboutUs, AppStrings.aboutTagline)],
     ),
     _OnboardingSlide(
-      title: AppStrings.onboardingTitle2,
-      subtitle: AppStrings.onboardingSubtitle2,
-      icon: Icons.shopping_cart_outlined,
+      icon: Icons.visibility_outlined,
+      sections: [_OnboardingSection(AppStrings.ourVision, AppStrings.ourVisionBody)],
     ),
     _OnboardingSlide(
-      title: AppStrings.onboardingTitle3,
-      subtitle: AppStrings.onboardingSubtitle3,
-      icon: Icons.star_outline,
+      icon: Icons.auto_awesome_outlined,
+      sections: [_OnboardingSection(AppStrings.ourMission, AppStrings.ourMissionBody)],
+    ),
+    _OnboardingSlide(
+      icon: Icons.flag_outlined,
+      sections: [
+        _OnboardingSection(AppStrings.ourGoal, AppStrings.ourGoalBody),
+        _OnboardingSection(AppStrings.ourSlogan, AppStrings.ourSloganBody),
+      ],
     ),
   ];
 
@@ -155,20 +171,24 @@ class _SlideContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingXl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(slide.icon, size: AppConstants.iconXxl, color: AppColors.primary),
           const SizedBox(height: AppConstants.spacingXxl),
-          Text(slide.title, style: AppTextStyles.heading2, textAlign: TextAlign.center),
-          const SizedBox(height: AppConstants.spacingSm),
-          Text(
-            slide.subtitle,
-            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
+          for (final section in slide.sections) ...[
+            Text(section.title, style: AppTextStyles.heading2, textAlign: TextAlign.center),
+            const SizedBox(height: AppConstants.spacingSm),
+            Text(
+              section.body,
+              style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            if (section != slide.sections.last)
+              const SizedBox(height: AppConstants.spacingLg),
+          ],
         ],
       ),
     );

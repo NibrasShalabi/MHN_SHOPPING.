@@ -1,3 +1,4 @@
+
 import 'package:equatable/equatable.dart';
 
 /// A message from the admin: a delay notice, an apology for a cancelled

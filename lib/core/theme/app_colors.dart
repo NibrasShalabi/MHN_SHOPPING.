@@ -34,6 +34,11 @@ class AppColors {
   static const Color primaryDark = ember;
   static const Color primaryLight = scarlet;
 
+  /// Decorative/utility icons app-wide. Gold is reserved for prices and
+  /// headings — icons carry the fire colour instead so the two roles
+  /// stay visually distinct.
+  static const Color iconPrimary = flame;
+
   // Gold — pulled red-warm so it belongs to the fire instead of sitting
   // apart from it. Highlight only: prices, badges, active tabs, loyalty.
   static const Color gold = Color(0xFFDE9A34);
@@ -90,5 +95,14 @@ class AppColors {
     begin: Alignment.topRight,
     end: Alignment.bottomLeft,
     colors: [scarlet, crimson, emberDeep],
+  );
+
+  /// Same family, much darker — the two deepest stops only, no scarlet or
+  /// flame. For surfaces that want the brand colour without brightness
+  /// (e.g. a drawer header sitting above plain dark content).
+  static const LinearGradient emberDarkGradient = LinearGradient(
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+    colors: [ember, emberDeep],
   );
 }

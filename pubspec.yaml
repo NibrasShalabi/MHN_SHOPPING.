@@ -99,3 +99,13 @@ flutter:
     - family: GreatVibes
       fonts:
         - asset: assets/fonts/GreatVibes-Regular.ttf
+
+    # Decorative Arabic display font — for section titles/banners only,
+    # not body copy (its letterforms are ornamental, harder to read
+    # small or in long runs).
+    - family: ArefRuqaa
+      fonts:
+        - asset: assets/fonts/ArefRuqaa-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ArefRuqaa-Bold.ttf
+          weight: 700

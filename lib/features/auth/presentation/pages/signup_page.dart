@@ -14,6 +14,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/custom/custom_dropdown.dart';
 import '../../../../core/widgets/custom/custom_text_field.dart';
+import '../../../../core/widgets/inline_error.dart';
 import '../../domain/entities/signup_data.dart';
 import '../cubits/signup_cubit.dart';
 import '../cubits/signup_state.dart';
@@ -216,7 +217,7 @@ class _SignupPageState extends State<SignupPage> {
                     items: SyrianGovernorates.all,
                     onChanged: isSubmitting ? null : (value) => setState(() => _governorate = value),
                   ),
-                  if (_errors['governorate'] != null) _InlineError(_errors['governorate']!),
+                  if (_errors['governorate'] != null) InlineError(_errors['governorate']!),
                   const SizedBox(height: AppConstants.spacingMd),
                   CustomTextField(
                     controller: _areaController,
@@ -233,7 +234,7 @@ class _SignupPageState extends State<SignupPage> {
                     itemLabel: (g) => g.label,
                     onChanged: isSubmitting ? null : (value) => setState(() => _gender = value),
                   ),
-                  if (_errors['gender'] != null) _InlineError(_errors['gender']!),
+                  if (_errors['gender'] != null) InlineError(_errors['gender']!),
 
                   const SizedBox(height: AppConstants.spacingXl),
                   CustomButton(
@@ -246,22 +247,6 @@ class _SignupPageState extends State<SignupPage> {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _InlineError extends StatelessWidget {
-  final String message;
-  const _InlineError(this.message);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: AppConstants.spacingXs, right: AppConstants.spacingSm),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Text(message, style: AppTextStyles.caption.copyWith(color: AppColors.error)),
       ),
     );
   }

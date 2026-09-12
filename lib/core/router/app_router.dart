@@ -25,6 +25,8 @@ import '../../features/fitness/presentation/pages/supplements_page.dart';
 import '../../features/home/data/repository/catalog_cache.dart';
 import '../../features/home/data/repository/catalog_repository.dart';
 import '../../features/home/domain/entities/category.dart';
+import '../../features/suppliers/domain/entities/supplier.dart';
+import '../widgets/custom/custom_loading_indicator.dart';
 import '../../features/home/presentation/cubits/category_cubit.dart';
 import '../../features/home/presentation/cubits/home_cubit.dart';
 import '../../features/home/presentation/cubits/product_details_cubit.dart';
@@ -32,6 +34,9 @@ import '../../features/home/presentation/pages/category_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/product_details_page.dart';
 import '../../features/home/presentation/widgets/loyalty_store_page.dart';
+import '../../features/suppliers/presentation/cubits/suppliers_cubit.dart';
+import '../../features/suppliers/presentation/pages/suppliers_list_page.dart';
+import '../../features/suppliers/presentation/pages/supplier_detail_page.dart';
 import '../../features/orders/data/repositories/orders_repository.dart';
 import '../../features/orders/presentation/cubits/orders_cubit.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
@@ -163,8 +168,13 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
             ),
           ),
           GoRoute(
-            path: RouteNames.about,
-            builder: (context, state) => const AboutPage(),
+            path: RouteNames.loyaltyStore,
+            builder: (context, state) => BlocProvider(
+              // Runs on CategoryCubit like any other category — the loyalty
+              // shelf is one category whose products are priced in points.
+              create: (_) => CategoryCubit(catalogRepository, categoryId: 'loyalty'),
+              child: const LoyaltyStorePage(),
+            ),
           ),
           GoRoute(
             path: RouteNames.suggestProduct,
@@ -207,15 +217,40 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         ),
       ),
 
-      // Loyalty.
+      // Loyalty route now lives in the bottom-nav shell above.
+
+      // Suppliers — reached from a home-page banner, not the bottom bar.
       GoRoute(
-        path: RouteNames.loyaltyStore,
+        path: RouteNames.suppliers,
         builder: (context, state) => BlocProvider(
-          // Runs on CategoryCubit like any other category — the loyalty
-          // shelf is one category whose products are priced in points.
-          create: (_) => CategoryCubit(catalogRepository, categoryId: 'loyalty'),
-          child: const LoyaltyStorePage(),
+          create: (_) => SuppliersCubit(catalogRepository),
+          child: const SuppliersListPage(),
         ),
+      ),
+      GoRoute(
+        path: RouteNames.supplierDetails,
+        builder: (context, state) {
+          final supplierId = state.pathParameters['supplierId']!;
+          return FutureBuilder<Supplier>(
+            // A direct link/back-stack restore may land here without the
+            // list page ever having loaded this supplier, so it's fetched
+            // again rather than assumed to already be in memory.
+            future: catalogRepository.getSupplier(supplierId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Scaffold(body: CustomLoadingIndicator());
+              }
+              return BlocProvider(
+                create: (_) => CatalogCategoriesCubit(
+                  catalogRepository,
+                  scope: CatalogScope.supplier,
+                  supplierId: supplierId,
+                ),
+                child: SupplierDetailPage(supplier: snapshot.data!),
+              );
+            },
+          );
+        },
       ),
 
       // Fitness — female-only, guarded by the redirect above.
@@ -248,6 +283,10 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
       ),
 
       // Reached from the drawer, not the bottom bar.
+      GoRoute(
+        path: RouteNames.about,
+        builder: (context, state) => const AboutPage(),
+      ),
       GoRoute(
         path: RouteNames.support,
         builder: (context, state) => BlocProvider(

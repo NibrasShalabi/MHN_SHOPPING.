@@ -5,6 +5,7 @@ import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/surface_card.dart';
+import '../../../../../core/widgets/step_button.dart';
 import '../../domain/entities/cart_item.dart';
 
 class CartItemTile extends StatelessWidget {
@@ -25,7 +26,7 @@ class CartItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SurfaceCard(
       margin: const EdgeInsets.only(bottom: AppConstants.spacingSm),
-      padding: const EdgeInsets.all(AppConstants.spacingSm),
+      gradient: AppColors.fireGradient,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -50,7 +51,10 @@ class CartItemTile extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: AppTextStyles.body,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.goldLight,
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -58,23 +62,44 @@ class CartItemTile extends StatelessWidget {
                 Text(
                   '${item.lineTotal.toStringAsFixed(0)} ${AppStrings.currencySy}',
                   style: AppTextStyles.body.copyWith(
-                    color: AppColors.gold,
+                    color: AppColors.textOnPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: AppConstants.spacingSm),
-                Wrap(
-                  spacing: AppConstants.spacingSm,
-                  runSpacing: AppConstants.spacingXs,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _StepButton(icon: Icons.remove, onTap: onDecrease),
-                    Text('${item.quantity}', style: AppTextStyles.body),
-                    _StepButton(icon: Icons.add, onTap: onIncrease),
-                    _StepButton(
+                    StepButton(
                       icon: Icons.delete_outline,
                       onTap: onRemove,
-                      color: AppColors.error,
+                      color: AppColors.surfaceDark,
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        StepButton(
+                          icon: Icons.remove,
+                          onTap: onDecrease,
+                          color: AppColors.surfaceDark,
+                        ),
+                        SizedBox(
+                          width: AppConstants.spacingLg,
+                          child: Text(
+                            '${item.quantity}',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.textOnPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        StepButton(
+                          icon: Icons.add,
+                          onTap: onIncrease,
+                          color: AppColors.surfaceDark,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -82,27 +107,6 @@ class CartItemTile extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  final Color? color;
-
-  const _StepButton({required this.icon, required this.onTap, this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-      child: SizedBox(
-        width: AppConstants.minTouchTarget,
-        height: AppConstants.minTouchTarget,
-        child: Icon(icon, size: AppConstants.iconSm, color: color ?? AppColors.gold),
       ),
     );
   }

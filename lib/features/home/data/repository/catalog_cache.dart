@@ -1,6 +1,7 @@
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/promo_banner.dart';
+import '../../../suppliers/domain/entities/supplier.dart';
 
 /// In-memory cache for catalog data.
 ///
@@ -44,11 +45,16 @@ class CatalogCache {
 
   // Key builders — kept here so callers never hand-format a key string.
   /// Scoped so the store grid and the fitness shelf don't overwrite each
-  /// other's cached list.
-  static String categoriesKey(CatalogScope scope) => 'categories:${scope.name}';
+  /// other's cached list. [supplierId] narrows it further for the
+  /// supplier scope, where one key per supplier is needed rather than one
+  /// key for all of them combined.
+  static String categoriesKey(CatalogScope scope, {String? supplierId}) =>
+      supplierId == null ? 'categories:${scope.name}' : 'categories:${scope.name}:$supplierId';
   static const String bannersKey = 'banners';
 
   static String categoryKey(String categoryId) => 'category:$categoryId';
+
+  static const String suppliersKey = 'suppliers';
 
   static String productKey(String productId) => 'product:$productId';
 
@@ -71,3 +77,4 @@ class _CacheEntry<T> {
 typedef CachedCategories = List<Category>;
 typedef CachedBanners = List<PromoBanner>;
 typedef CachedProducts = List<Product>;
+typedef CachedSuppliers = List<Supplier>;

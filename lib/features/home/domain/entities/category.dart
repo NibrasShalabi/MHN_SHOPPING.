@@ -8,7 +8,11 @@ import 'product_filter.dart';
 /// same way and share every widget; they differ only in entry point,
 /// whether the products can be ordered, and what the price is denominated
 /// in. A scope field keeps that as one system instead of three.
-enum CatalogScope { store, fitness, loyalty }
+///
+/// [supplier] is one bucket shared by every supplier — [Category.supplierId]
+/// narrows it to a specific one, the same way [filterId] narrows a
+/// category to one shelf within it.
+enum CatalogScope { store, fitness, loyalty, supplier }
 
 class Category extends Equatable {
   final String id;
@@ -17,14 +21,19 @@ class Category extends Equatable {
   final List<ProductFilter> filters;
   final CatalogScope scope;
 
+  /// Set only when [scope] is [CatalogScope.supplier] — which supplier
+  /// this category belongs to.
+  final String? supplierId;
+
   const Category({
     required this.id,
     required this.name,
     this.imageUrl,
     this.filters = const [],
     this.scope = CatalogScope.store,
+    this.supplierId,
   });
 
   @override
-  List<Object?> get props => [id, name, imageUrl, filters, scope];
+  List<Object?> get props => [id, name, imageUrl, filters, scope, supplierId];
 }

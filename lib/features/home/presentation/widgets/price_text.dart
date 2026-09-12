@@ -37,7 +37,7 @@ class PriceText extends StatelessWidget {
         Icon(
           Icons.local_fire_department,
           size: (style.fontSize ?? AppConstants.iconSm) + 2,
-          color: style.color ?? AppColors.gold,
+          color: AppColors.iconPrimary,
         ),
         const SizedBox(width: AppConstants.spacingXs),
         Flexible(
