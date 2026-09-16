@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
-
 import '../../../../core/error/failures.dart';
+import '../../../deals/domain/entities/promotion.dart';
 import '../../domain/entities/category.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/entities/promo_banner.dart';
 
 enum HomeStatus { initial, loading, success, failure }
@@ -10,12 +11,16 @@ class HomeState extends Equatable {
   final HomeStatus status;
   final List<PromoBanner> banners;
   final List<Category> categories;
+  final List<Promotion> promotions;
+  final List<Product> dealProducts;
   final Failure? failure;
 
   const HomeState({
     this.status = HomeStatus.initial,
     this.banners = const [],
     this.categories = const [],
+    this.promotions = const [],
+    this.dealProducts = const [],
     this.failure,
   });
 
@@ -23,16 +28,20 @@ class HomeState extends Equatable {
     HomeStatus? status,
     List<PromoBanner>? banners,
     List<Category>? categories,
+    List<Promotion>? promotions,
+    List<Product>? dealProducts,
     Failure? failure,
   }) {
     return HomeState(
       status: status ?? this.status,
       banners: banners ?? this.banners,
       categories: categories ?? this.categories,
+      promotions: promotions ?? this.promotions,
+      dealProducts: dealProducts ?? this.dealProducts,
       failure: failure,
     );
   }
 
   @override
-  List<Object?> get props => [status, banners, categories, failure];
+  List<Object?> get props => [status, banners, categories, promotions, dealProducts, failure];
 }

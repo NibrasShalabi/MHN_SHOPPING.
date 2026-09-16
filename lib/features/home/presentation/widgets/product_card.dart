@@ -9,11 +9,7 @@ import 'price_text.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-
-  /// False once the user has already seen this product — the admin's "new"
-  /// flag stays set, but the badge stops rendering for this user.
   final bool showNewBadge;
-
   final VoidCallback? onTap;
 
   const ProductCard({
@@ -38,12 +34,11 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 1,
+            // صورة بارتفاع ثابت بدل AspectRatio
+            Expanded(
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // TODO(logic-phase): swap for CachedNetworkImage from R2.
                   Container(
                     color: AppColors.surfaceDark,
                     child: const Icon(
@@ -54,8 +49,8 @@ class ProductCard extends StatelessWidget {
                   ),
                   if (showNewBadge)
                     Positioned(
-                      top: AppConstants.spacingSm,
-                      right: AppConstants.spacingSm,
+                      top: AppConstants.spacingXs,
+                      right: AppConstants.spacingXs,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: AppConstants.spacingSm,
@@ -71,6 +66,40 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  // discount badge
+                  if (product.hasActiveDiscount)
+                    Positioned(
+                      top: AppConstants.spacingXs,
+                      left: AppConstants.spacingXs,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppConstants.spacingSm,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                        ),
+                        child: Text(
+                          '${product.discountPercentage!.toStringAsFixed(0)}%',
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  // out of stock overlay
+                  if (!product.isInStock)
+                    Container(
+                      color: Colors.black54,
+                      alignment: Alignment.center,
+                      child: Text(
+                        AppStrings.outOfStock,
+                        style: AppTextStyles.caption.copyWith(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -78,6 +107,7 @@ class ProductCard extends StatelessWidget {
               padding: const EdgeInsets.all(AppConstants.spacingSm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     product.name,

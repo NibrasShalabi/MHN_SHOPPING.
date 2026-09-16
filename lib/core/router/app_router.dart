@@ -15,6 +15,9 @@ import '../../features/cart/presentation/cubits/cart_cubit.dart';
 import '../../features/cart/presentation/cubits/shared_cart_cubit.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/pages/shared_cart_page.dart';
+import '../../features/deals/data/repositories/promotion_repository.dart';
+import '../../features/deals/presentation/cubits/deals_cubit.dart';
+import '../../features/deals/presentation/pages/deals_page.dart';
 import '../../features/fitness/data/repository/fitness_repository.dart';
 import '../../features/fitness/presentation/cubits/catalog_categories_cubit.dart';
 import '../../features/fitness/presentation/cubits/fitness_hub_cubit.dart';
@@ -24,6 +27,8 @@ import '../../features/fitness/presentation/pages/health_program_page.dart';
 import '../../features/fitness/presentation/pages/supplements_page.dart';
 import '../../features/home/data/repository/catalog_cache.dart';
 import '../../features/home/data/repository/catalog_repository.dart';
+import '../../features/checkout/presentation/pages/checkout_page.dart';
+import '../../features/currency/presentation/pages/currency_page.dart';
 import '../../features/home/domain/entities/category.dart';
 import '../../features/suppliers/domain/entities/supplier.dart';
 import '../widgets/custom/custom_loading_indicator.dart';
@@ -88,6 +93,7 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
   // TODO(logic-phase): resolve all of these through get_it instead of
   // constructing them here.
   final CatalogRepository catalogRepository = FakeCatalogRepository(catalogCache);
+  final PromotionRepository promotionRepository = FakePromotionRepository();
   final AuthRepository authRepository = FakeAuthRepository();
   final OrdersRepository ordersRepository = FakeOrdersRepository();
   final FitnessRepository fitnessRepository = FakeFitnessRepository();
@@ -152,7 +158,7 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
           GoRoute(
             path: RouteNames.home,
             builder: (context, state) => BlocProvider(
-              create: (_) => HomeCubit(catalogRepository),
+              create: (_) => HomeCubit(catalogRepository, promotionRepository),
               child: HomePage(showFitnessSection: session.isFemale),
             ),
           ),
@@ -203,6 +209,7 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         builder: (context, state) => BlocProvider(
           create: (_) => ProductDetailsCubit(
             catalogRepository,
+            promotionRepository,
             productId: state.pathParameters['productId']!,
           ),
           child: const ProductDetailsPage(),
@@ -303,6 +310,21 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
       ),
 
       // Notifications.
+      GoRoute(
+        path: RouteNames.deals,
+        builder: (context, state) => BlocProvider(
+          create: (_) => DealsCubit(catalogRepository, promotionRepository),
+          child: const DealsPage(),
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.checkout,
+        builder: (context, state) => const CheckoutPage(),
+      ),
+      GoRoute(
+        path: RouteNames.currency,
+        builder: (context, state) => const CurrencyPage(),
+      ),
       GoRoute(
         path: RouteNames.notifications,
         builder: (context, state) => const _PlaceholderScreen(title: 'Notifications'),

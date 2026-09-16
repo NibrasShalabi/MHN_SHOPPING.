@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../cart/domain/entities/cart_item.dart';
@@ -31,7 +32,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProductDetailsCubit>().load();
+    final cubit = context.read<ProductDetailsCubit>();
+    cubit.load();
+    cubit.startPromotionRefresh();
   }
 
   @override
@@ -46,6 +49,13 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       ),
       body: BlocBuilder<ProductDetailsCubit, ProductDetailsState>(
         builder: (context, state) {
+          // إشعار تغيير السعر — بعد انتهاء الـ build
+          if (state.priceChanged) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              if (mounted) AppSnackbar.info(context, AppStrings.priceUpdated);
+            });
+          }
+
           if (state.status == ProductDetailsStatus.loading ||
               state.status == ProductDetailsStatus.initial) {
             return const CustomLoadingIndicator();
@@ -83,7 +93,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            if (product.isOrderable && !product.isInStock) ...[
+                            if (!product.isInStock) ...[
                               const SizedBox(height: AppConstants.spacingSm),
                               Text(
                                 AppStrings.outOfStock,
@@ -143,11 +153,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 }
 
-/// Price/quantity/add-to-cart bar pinned to the bottom, so the primary
-/// action stays reachable no matter how long the text sections run.
 class _BottomBar extends StatelessWidget {
   final ProductDetailsState state;
-
   const _BottomBar({required this.state});
 
   @override
@@ -155,8 +162,6 @@ class _BottomBar extends StatelessWidget {
     final product = state.product!;
     final cubit = context.read<ProductDetailsCubit>();
 
-    // Non-orderable items simply have no buy bar. A disabled button still
-    // suggests the item is orderable; its absence doesn't.
     if (!product.isOrderable) return const SizedBox.shrink();
 
     return Container(
@@ -187,15 +192,12 @@ class _BottomBar extends StatelessWidget {
                 icon: Icons.shopping_cart_outlined,
                 onPressed: product.isInStock && state.hasRequiredVariants
                     ? () {
-                  // priceSnapshot is for display in the cart only —
-                  // checkout recomputes the real total server-side
-                  // from the product documents.
                   context.read<CartCubit>().addItem(
                     CartItem(
                       productId: product.id,
                       name: product.name,
                       imageUrl: product.thumbnailUrl,
-                      priceSnapshot: product.price,
+                      priceSnapshot: state.appliedPrice ?? product.effectivePrice,
                       quantity: state.quantity,
                     ),
                   );

@@ -1,12 +1,6 @@
 import 'package:equatable/equatable.dart';
-
 import 'product_variants.dart';
 
-/// What a product's [Product.price] is denominated in.
-///
-/// The loyalty store sells the same products through the same cards and
-/// details screen — only the unit changes. Carrying that as a field beats
-/// a parallel "LoyaltyProduct" type that would duplicate every widget.
 enum PricingKind { money, points }
 
 class Product extends Equatable {
@@ -14,38 +8,24 @@ class Product extends Equatable {
   final String categoryId;
   final String? filterId;
   final String name;
-
-  /// Ordered — the first one is the card thumbnail.
   final List<String> imageUrls;
-
   final double price;
-
-  /// Whether [price] is currency or loyalty points.
   final PricingKind pricing;
-
-  /// Whether the item can go in the cart.
-  ///
-  /// Supervised products (supplements, weight-loss items) still show a
-  /// price — the user should know what it costs — but are prescribed by
-  /// the specialist, so the buy controls are absent rather than disabled.
   final bool isOrderable;
-
   final int stock;
   final String? description;
   final String? ingredients;
   final String? benefits;
   final String? usage;
   final bool isNew;
-
-  /// Variants. All optional: the admin fills in whichever apply to the
-  /// item, so a shampoo has none and a jacket has sizes and colours.
   final List<ClothingSize> clothingSizes;
   final List<int> shoeSizes;
   final List<ProductColor> colors;
-
-  /// Per-product size chart, shown from the icon next to the size row.
-  /// Empty means the product has no chart to show.
   final List<SizeGuideRow> sizeGuide;
+
+  // NEW: خصم دائم على المنتج
+  final double? discountPercentage;
+  final DateTime? discountEndTime;
 
   const Product({
     required this.id,
@@ -66,37 +46,34 @@ class Product extends Equatable {
     this.shoeSizes = const [],
     this.colors = const [],
     this.sizeGuide = const [],
+    this.discountPercentage,
+    this.discountEndTime,
   });
 
   bool get isInStock => stock > 0;
-
   bool get hasSizes => clothingSizes.isNotEmpty || shoeSizes.isNotEmpty;
-
   bool get hasColors => colors.isNotEmpty;
-
   bool get hasSizeGuide => sizeGuide.isNotEmpty;
-
   String? get thumbnailUrl => imageUrls.isEmpty ? null : imageUrls.first;
+
+  bool get hasActiveDiscount {
+    if (discountPercentage == null || discountPercentage == 0) return false;
+    if (discountEndTime != null && DateTime.now().isAfter(discountEndTime!)) return false;
+    return true;
+  }
+
+  double get effectivePrice {
+    if (!hasActiveDiscount) return price;
+    return price * (1 - (discountPercentage! / 100));
+  }
+
+  double get savingsAmount => price - effectivePrice;
 
   @override
   List<Object?> get props => [
-    id,
-    categoryId,
-    filterId,
-    name,
-    imageUrls,
-    price,
-    pricing,
-    isOrderable,
-    stock,
-    description,
-    ingredients,
-    benefits,
-    usage,
-    isNew,
-    clothingSizes,
-    shoeSizes,
-    colors,
-    sizeGuide,
+    id, categoryId, filterId, name, imageUrls, price, pricing,
+    isOrderable, stock, description, ingredients, benefits, usage,
+    isNew, clothingSizes, shoeSizes, colors, sizeGuide,
+    discountPercentage, discountEndTime,
   ];
 }

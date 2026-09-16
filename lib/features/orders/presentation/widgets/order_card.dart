@@ -67,7 +67,7 @@ class OrderCard extends StatelessWidget {
                       Text(AppStrings.total, style: AppTextStyles.body),
                       Flexible(
                         child: Text(
-                          '${order.total.toStringAsFixed(0)} ${AppStrings.currencySy}',
+                          '\$${order.total.toStringAsFixed(2)}',
                           style: AppTextStyles.heading2.copyWith(color: AppColors.gold),
                           overflow: TextOverflow.ellipsis,
                         ),

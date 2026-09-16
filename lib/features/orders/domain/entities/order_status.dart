@@ -5,6 +5,7 @@ import '../../../../core/constants/app_strings.dart';
 enum OrderStatus {
   pending,
   confirmed,
+  underPreparation, // NEW: بين confirmed و preparing
   preparing,
   outForDelivery,
   delivered,
@@ -16,6 +17,7 @@ extension OrderStatusX on OrderStatus {
   String get label => switch (this) {
     OrderStatus.pending => AppStrings.orderStatusPending,
     OrderStatus.confirmed => AppStrings.orderStatusConfirmed,
+    OrderStatus.underPreparation => 'قيد التجهيز', // Add this to AppStrings
     OrderStatus.preparing => AppStrings.orderStatusPreparing,
     OrderStatus.outForDelivery => AppStrings.orderStatusOutForDelivery,
     OrderStatus.delivered => AppStrings.orderStatusDelivered,
@@ -27,6 +29,7 @@ extension OrderStatusX on OrderStatus {
   static const List<OrderStatus> timeline = [
     OrderStatus.pending,
     OrderStatus.confirmed,
+    OrderStatus.underPreparation,
     OrderStatus.preparing,
     OrderStatus.outForDelivery,
     OrderStatus.delivered,

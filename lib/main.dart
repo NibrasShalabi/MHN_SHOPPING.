@@ -5,6 +5,8 @@ import 'core/constants/app_strings.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'features/cart/data/repositories/cart_repository.dart';
+import 'features/home/data/repository/catalog_repository.dart';
+import 'features/home/data/repository/catalog_cache.dart';
 import 'features/cart/presentation/cubits/cart_cubit.dart';
 
 void main() async {
@@ -24,7 +26,7 @@ class MyApp extends StatelessWidget {
     // disagree about what's in the cart.
     // TODO(logic-phase): resolve the repository through get_it instead.
     return BlocProvider(
-      create: (_) => CartCubit(FakeCartRepository())..load(),
+      create: (_) => CartCubit(FakeCartRepository(), FakeCatalogRepository(CatalogCache()))..load(),
       child: const _AppView(),
     );
   }

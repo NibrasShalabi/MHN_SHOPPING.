@@ -56,4 +56,7 @@ abstract class RouteNames {
   static String healthProgramPath(String programId) => '/fitness/program/$programId';
   static String supplierPath(String supplierId) => '/suppliers/$supplierId';
   static const String sharedCart = '/shared-cart/:cartId';
+  static const String deals = '/deals';
+  static const String checkout = '/checkout';
+  static const String currency = '/currency';
 }

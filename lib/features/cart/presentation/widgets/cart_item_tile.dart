@@ -10,6 +10,7 @@ import '../../domain/entities/cart_item.dart';
 
 class CartItemTile extends StatelessWidget {
   final CartItem item;
+  final bool isUnavailable;
   final VoidCallback onIncrease;
   final VoidCallback onDecrease;
   final VoidCallback onRemove;
@@ -20,93 +21,121 @@ class CartItemTile extends StatelessWidget {
     required this.onIncrease,
     required this.onDecrease,
     required this.onRemove,
+    this.isUnavailable = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SurfaceCard(
-      margin: const EdgeInsets.only(bottom: AppConstants.spacingSm),
-      gradient: AppColors.fireGradient,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TODO(logic-phase): CachedNetworkImage with the thumbnail variant.
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-            child: Container(
-              width: AppConstants.cartThumbSize,
-              height: AppConstants.cartThumbSize,
-              color: AppColors.surfaceDark,
-              child: const Icon(
-                Icons.image_outlined,
-                color: AppColors.textDisabled,
-                size: AppConstants.iconMd,
+    return Opacity(
+      opacity: isUnavailable ? 0.5 : 1.0,
+      child: SurfaceCard(
+        margin: const EdgeInsets.only(bottom: AppConstants.spacingSm),
+        gradient: isUnavailable ? null : AppColors.fireGradient,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+              child: Container(
+                width: AppConstants.cartThumbSize,
+                height: AppConstants.cartThumbSize,
+                color: AppColors.surfaceDark,
+                child: const Icon(
+                  Icons.image_outlined,
+                  color: AppColors.textDisabled,
+                  size: AppConstants.iconMd,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: AppConstants.spacingSm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name,
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.goldLight,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: AppConstants.spacingXs),
-                Text(
-                  '${item.lineTotal.toStringAsFixed(0)} ${AppStrings.currencySy}',
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textOnPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: AppConstants.spacingSm),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    StepButton(
-                      icon: Icons.delete_outline,
-                      onTap: onRemove,
-                      color: AppColors.surfaceDark,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        StepButton(
-                          icon: Icons.remove,
-                          onTap: onDecrease,
-                          color: AppColors.surfaceDark,
+            const SizedBox(width: AppConstants.spacingSm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.goldLight,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(
-                          width: AppConstants.spacingLg,
+                      ),
+                      if (isUnavailable)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.spacingSm,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                          ),
                           child: Text(
-                            '${item.quantity}',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.body.copyWith(
+                            AppStrings.outOfStock,
+                            style: AppTextStyles.caption.copyWith(
                               color: AppColors.textOnPrimary,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 10,
                             ),
                           ),
                         ),
-                        StepButton(
-                          icon: Icons.add,
-                          onTap: onIncrease,
-                          color: AppColors.surfaceDark,
-                        ),
-                      ],
+                    ],
+                  ),
+                  const SizedBox(height: AppConstants.spacingXs),
+                  Text(
+                    '\$${item.lineTotal.toStringAsFixed(2)}',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textOnPrimary,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: AppConstants.spacingSm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      StepButton(
+                        icon: Icons.delete_outline,
+                        onTap: onRemove,
+                        color: AppColors.surfaceDark,
+                      ),
+                      if (!isUnavailable)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            StepButton(
+                              icon: Icons.remove,
+                              onTap: onDecrease,
+                              color: AppColors.surfaceDark,
+                            ),
+                            SizedBox(
+                              width: AppConstants.spacingLg,
+                              child: Text(
+                                '${item.quantity}',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.textOnPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            StepButton(
+                              icon: Icons.add,
+                              onTap: onIncrease,
+                              color: AppColors.surfaceDark,
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

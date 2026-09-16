@@ -361,6 +361,42 @@ class AppStrings {
   static const String contactUs = 'تواصل معنا';
   static const String contactUsBody = 'هل لديك سؤال؟ فريق الدعم جاهز لمساعدتك.';
 
+
+
+
+  // ==================== الدفع ====================
+  static const String paymentMethod = 'طريقة الدفع';
+  static const String shamCash = 'Sham Cash';
+  static const String shamCashDesc = 'ادفع عبر محفظة Sham Cash';
+  static const String shamCashPending = 'سيتم توفير QR بعد التكامل مع Sham Cash';
+  static const String walletNumber = 'رقم المحفظة';
+  static const String copy = 'نسخ';
+  static const String copied = 'تم النسخ';
+  static const String amountUsd = 'المبلغ بالدولار';
+  static const String orderSummary = 'ملخص الطلب';
+  static const String sendExactAmount = 'أرسل المبلغ بالضبط على الشبكة المحددة، ثم أدخل رقم العملية.';
+  static const String txid = 'رقم العملية (TXID)';
+  static const String txidHint = 'الصق رقم العملية هنا';
+
+
+  // ==================== تحويل العملة ====================
+  static const String currencyConverter = 'تحويل العملة';
+  static const String currencyTarget = 'العملة المستهدفة';
+  static const String exchangeRate = 'سعر الصرف';
+  static const String exchangeRateHint = 'مثال: 13000';
+  static const String convertedAmount = 'المبلغ المحوّل';
+  static const String cartHasUnavailableItems = 'في منتجات غير متوفرة';
+  static const String removeUnavailableToCheckout = 'احذف المنتجات الغير متوفرة للمتابعة';
+  static const String priceUpdated = 'تم تحديث السعر';
+
+  // ==================== شرار ونار ====================
+  static const String dealsTitle = 'شرار ونار';
+  static const String dealsSubtitle = 'عروض حارقة لوقت محدود';
+  static const String dealsButton = 'شوف العروض';
+  static const String dealsEmpty = 'ما في عروض هلأ';
+  static const String dealsEmptySub = 'رح تنزل قريباً!';
+  static const String dealsSaving = 'توفير';
+
   // ==================== الإشعارات ====================
   static const String notifications = 'الإشعارات';
   static const String noNotifications = 'لا يوجد إشعارات';

@@ -9,18 +9,16 @@ enum ProductDetailsStatus { initial, loading, success, failure }
 class ProductDetailsState extends Equatable {
   final ProductDetailsStatus status;
   final Product? product;
-
-  /// Quantity the user picked before adding to the cart.
   final int quantity;
-
-  /// Chosen variants. Null while nothing is picked yet — the add button
-  /// stays blocked until every variant the product offers is chosen, so an
-  /// order can't arrive without a size.
   final ClothingSize? clothingSize;
   final int? shoeSize;
   final ProductColor? color;
-
   final Failure? failure;
+
+  /// السعر الفعلي بعد تطبيق الـ promotion أو الخصم الدائم.
+  /// هذا هو اللي يُحفظ بالسلة كـ priceSnapshot.
+  final double? appliedPrice;
+  final bool priceChanged;
 
   const ProductDetailsState({
     this.status = ProductDetailsStatus.initial,
@@ -30,13 +28,13 @@ class ProductDetailsState extends Equatable {
     this.shoeSize,
     this.color,
     this.failure,
+    this.appliedPrice,
+    this.priceChanged = false,
   });
 
   bool get canIncrease => product != null && quantity < product!.stock;
-
   bool get canDecrease => quantity > 1;
 
-  /// True when every variant the product offers has been chosen.
   bool get hasRequiredVariants {
     final p = product;
     if (p == null) return false;
@@ -54,6 +52,8 @@ class ProductDetailsState extends Equatable {
     int? shoeSize,
     ProductColor? color,
     Failure? failure,
+    double? appliedPrice,
+    bool? priceChanged,
   }) {
     return ProductDetailsState(
       status: status ?? this.status,
@@ -63,10 +63,12 @@ class ProductDetailsState extends Equatable {
       shoeSize: shoeSize ?? this.shoeSize,
       color: color ?? this.color,
       failure: failure,
+      appliedPrice: appliedPrice ?? this.appliedPrice,
+      priceChanged: priceChanged ?? false,
     );
   }
 
   @override
   List<Object?> get props =>
-      [status, product, quantity, clothingSize, shoeSize, color, failure];
+      [status, product, quantity, clothingSize, shoeSize, color, failure, appliedPrice, priceChanged];
 }

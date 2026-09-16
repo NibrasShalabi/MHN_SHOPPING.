@@ -9,14 +9,18 @@ class CartState extends Equatable {
   final CartStatus status;
   final List<CartItem> items;
   final Failure? failure;
+  final Set<String> unavailableProductIds;
 
   const CartState({
     this.status = CartStatus.initial,
     this.items = const [],
     this.failure,
+    this.unavailableProductIds = const {},
   });
 
   bool get isEmpty => items.isEmpty;
+  bool get hasUnavailableItems => unavailableProductIds.isNotEmpty;
+  bool get isReadyForCheckout => !isEmpty && !hasUnavailableItems;
 
   int get totalCount => items.fold(0, (sum, item) => sum + item.quantity);
 
@@ -27,14 +31,16 @@ class CartState extends Equatable {
     CartStatus? status,
     List<CartItem>? items,
     Failure? failure,
+    Set<String>? unavailableProductIds,
   }) {
     return CartState(
       status: status ?? this.status,
       items: items ?? this.items,
       failure: failure,
+      unavailableProductIds: unavailableProductIds ?? this.unavailableProductIds,
     );
   }
 
   @override
-  List<Object?> get props => [status, items, failure];
+  List<Object?> get props => [status, items, failure, unavailableProductIds];
 }

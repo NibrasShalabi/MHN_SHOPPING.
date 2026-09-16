@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/error/failures.dart';
 import '../../data/repositories/cart_repository.dart';
+import '../../../home/data/repository/catalog_repository.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
@@ -16,18 +17,34 @@ import 'cart_state.dart';
 /// storage catches up once the user stops tapping.
 class CartCubit extends Cubit<CartState> {
   final CartRepository _cartRepository;
+  final CatalogRepository _catalogRepository;
 
   Timer? _persistTimer;
 
   static const Duration _persistDelay = Duration(milliseconds: 700);
 
-  CartCubit(this._cartRepository) : super(const CartState());
+  CartCubit(this._cartRepository, this._catalogRepository) : super(const CartState());
 
   Future<void> load() async {
     emit(state.copyWith(status: CartStatus.loading, failure: null));
     try {
       final items = await _cartRepository.getItems();
-      emit(state.copyWith(status: CartStatus.success, items: items));
+
+      // تحقق من كل منتج إذا لسا موجود
+      final unavailable = <String>{};
+      for (final item in items) {
+        try {
+          await _catalogRepository.getProduct(item.productId);
+        } catch (_) {
+          unavailable.add(item.productId);
+        }
+      }
+
+      emit(state.copyWith(
+        status: CartStatus.success,
+        items: items,
+        unavailableProductIds: unavailable,
+      ));
     } catch (e) {
       emit(state.copyWith(
         status: CartStatus.failure,
@@ -43,7 +60,12 @@ class CartCubit extends Cubit<CartState> {
     if (index == -1) {
       items.add(item);
     } else {
-      items[index] = items[index].copyWith(
+      // نحدث السعر لآخر سعر مع جمع الكمية
+      items[index] = CartItem(
+        productId: items[index].productId,
+        name: items[index].name,
+        imageUrl: items[index].imageUrl,
+        priceSnapshot: item.priceSnapshot,
         quantity: items[index].quantity + item.quantity,
       );
     }
