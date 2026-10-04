@@ -1,0 +1,45 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "mhn-shopping",
+          "appId": "1:732957277617:android:5f68ba19ca8e75f6831190",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "mhn-shopping",
+          "configurations": {
+            "android": "1:732957277617:android:5f68ba19ca8e75f6831190",
+            "ios": "1:732957277617:ios:0eb056e8274a3888831190",
+            "macos": "1:732957277617:ios:0eb056e8274a3888831190",
+            "web": "1:732957277617:web:dade80e73a72fa90831190",
+            "windows": "1:732957277617:web:6867ab700eb2d61c831190"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "default",
+    "location": "eur3",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}
