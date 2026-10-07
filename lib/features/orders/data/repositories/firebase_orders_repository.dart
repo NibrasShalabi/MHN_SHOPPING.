@@ -71,14 +71,28 @@ class FirebaseOrdersRepository implements OrdersRepository {
     if (uid == null) return [];
 
     try {
-      final snap = await _db
+      // رسائل شخصية
+      final personalSnap = await _db
           .collection('admin_messages')
           .where('userId', isEqualTo: uid)
           .where('isRead', isEqualTo: false)
           .orderBy('sentAt', descending: true)
           .get();
 
-      return snap.docs.map(_messageFromDoc).toList();
+      // broadcast
+      final broadcastSnap = await _db
+          .collection('admin_messages')
+          .where('type', isEqualTo: 'broadcast')
+          .where('isRead', isEqualTo: false)
+          .orderBy('sentAt', descending: true)
+          .get();
+
+      final all = {...personalSnap.docs, ...broadcastSnap.docs}
+          .map(_messageFromDoc)
+          .toList()
+        ..sort((a, b) => b.sentAt.compareTo(a.sentAt));
+
+      return all;
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
@@ -122,16 +136,27 @@ class FirebaseOrdersRepository implements OrdersRepository {
         price: (item['priceSnapshot'] as num? ?? 0).toDouble(),
       ))
           .toList(),
+      paymentMethod: d['paymentMethod'] as String?,
+      txid: d['txid'] as String?,
+      receiptUrl: d['receiptUrl'] as String?,
+      paymentStatus: d['paymentStatus'] as String?,
     );
   }
-
   AdminMessage _messageFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
+    final typeStr = d['type'] as String? ?? 'broadcast';
+    final type = switch (typeStr) {
+      'support_reply' => AdminMessageType.supportReply,
+      'order_update' => AdminMessageType.orderUpdate,
+      _ => AdminMessageType.broadcast,
+    };
     return AdminMessage(
       id: doc.id,
       body: d['body'] as String? ?? '',
       sentAt: (d['sentAt'] as Timestamp).toDate(),
       relatedOrderId: d['orderId'] as String?,
+      title: d['title'] as String?,
+      type: type,
     );
   }
 }

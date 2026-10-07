@@ -5,7 +5,6 @@ import '../../../../core/error/exceptions.dart';
 import '../../domain/entities/signup_data.dart';
 import 'auth_repository.dart';
 
-/// Firebase implementation لـ AuthRepository
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _db;
@@ -34,25 +33,18 @@ class FirebaseAuthRepository implements AuthRepository {
 
       final uid = credential.user!.uid;
 
-      // حفظ بيانات المستخدم — gender يتحكم بظهور قسم الرياضة
       await _db.collection('users').doc(uid).set({
         'fullName': data.fullName,
         'familyName': data.familyName,
         'email': data.email.trim(),
         'phone': data.phone,
         'secondaryPhone': data.secondaryPhone,
-        'location': data.location,
         'governorate': data.governorate,
         'area': data.area,
         'gender': data.gender.name,
         'loyaltyPoints': 0,
         'isAdmin': false,
         'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      // تحديث عداد المستخدمين — يُقرأ من Admin analytics
-      await _db.collection('config').doc('stats').update({
-        'totalUsers': FieldValue.increment(1),
       });
     } on FirebaseAuthException catch (e) {
       throw ServerException(message: _mapAuthError(e.code), code: e.code);

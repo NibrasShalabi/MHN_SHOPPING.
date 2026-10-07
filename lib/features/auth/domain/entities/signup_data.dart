@@ -14,7 +14,6 @@ class SignupData extends Equatable {
   final String familyName;
   final String phone;
   final String? secondaryPhone;
-  final String location;
   final String governorate;
   final String area;
   final Gender gender;
@@ -26,7 +25,6 @@ class SignupData extends Equatable {
     required this.familyName,
     required this.phone,
     this.secondaryPhone,
-    required this.location,
     required this.governorate,
     required this.area,
     required this.gender,
@@ -40,7 +38,6 @@ class SignupData extends Equatable {
     familyName,
     phone,
     secondaryPhone,
-    location,
     governorate,
     area,
     gender,

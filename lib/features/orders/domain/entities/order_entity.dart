@@ -26,14 +26,13 @@ class OrderEntity extends Equatable {
   final DateTime createdAt;
   final OrderStatus status;
   final List<OrderLine> lines;
-
-  /// Computed server-side at creation — the client only displays it.
   final double total;
-
   final DateTime? expectedDelivery;
-
-  /// Set by the admin when the order is delayed or cancelled.
   final String? statusNote;
+  final String? paymentMethod;   // 'trc20' | 'bep20' | 'erc20' | 'sham_cash' | 'cod'
+  final String? txid;
+  final String? receiptUrl;
+  final String? paymentStatus;   // 'pending' | 'confirmed' | 'rejected'
 
   const OrderEntity({
     required this.id,
@@ -43,14 +42,19 @@ class OrderEntity extends Equatable {
     required this.total,
     this.expectedDelivery,
     this.statusNote,
+    this.paymentMethod,
+    this.txid,
+    this.receiptUrl,
+    this.paymentStatus,
   });
 
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
-
-  /// How long the order has been open — "مدة الطلب" in the requirements.
   Duration get elapsed => DateTime.now().difference(createdAt);
 
   @override
-  List<Object?> get props =>
-      [id, createdAt, status, lines, total, expectedDelivery, statusNote];
+  List<Object?> get props => [
+    id, createdAt, status, lines, total,
+    expectedDelivery, statusNote,
+    paymentMethod, txid, receiptUrl, paymentStatus,
+  ];
 }

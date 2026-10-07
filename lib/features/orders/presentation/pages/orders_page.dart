@@ -10,7 +10,6 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../cubits/orders_cubit.dart';
 import '../cubits/orders_state.dart';
-import '../widgets/admin_message_tile.dart';
 import '../widgets/order_card.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -70,31 +69,6 @@ class _OrdersPageState extends State<OrdersPage> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppConstants.spacingMd),
               children: [
-                if (state.messages.isNotEmpty) ...[
-                  _SectionTitle(
-                    title: AppStrings.adminMessages,
-                    badgeCount: state.messageCount,
-                  ),
-                  const SizedBox(height: AppConstants.spacingXs),
-                  Text(
-                    AppStrings.tapToDismiss,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textDisabled,
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.spacingMd),
-                  ...state.messages.map(
-                    (message) => AdminMessageTile(
-                      key: ValueKey(message.id),
-                      message: message,
-                      onDismiss: () => context
-                          .read<OrdersCubit>()
-                          .dismissMessage(message.id),
-                    ),
-                  ),
-                  const SizedBox(height: AppConstants.spacingXl),
-                ],
-
                 if (state.orders.isEmpty)
                   const _EmptyOrders()
                 else ...[

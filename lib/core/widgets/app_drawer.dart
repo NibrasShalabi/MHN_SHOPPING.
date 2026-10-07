@@ -14,6 +14,7 @@ class AppDrawer extends StatelessWidget {
   static const List<_MenuEntry> _entries = [
     _MenuEntry(path: RouteNames.about, icon: Icons.info_outline, label: AppStrings.aboutUs),
     _MenuEntry(path: RouteNames.suppliers, icon: Icons.storefront_outlined, label: AppStrings.suppliers),
+    _MenuEntry(path: RouteNames.messages, icon: Icons.inbox_outlined, label: AppStrings.messagesTitle),
     _MenuEntry(path: RouteNames.currency, icon: Icons.currency_exchange, label: AppStrings.currencyConverter),
     _MenuEntry(path: RouteNames.support, icon: Icons.headset_mic_outlined, label: AppStrings.support),
     _MenuEntry(path: RouteNames.rateApp, icon: Icons.thumb_up_outlined, label: AppStrings.rateApp),

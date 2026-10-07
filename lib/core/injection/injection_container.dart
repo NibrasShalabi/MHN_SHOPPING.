@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../features/auth/data/repositories/auth_repository.dart';
@@ -18,6 +19,9 @@ import '../../features/fitness/data/repository/fitness_repository.dart';
 import '../../features/home/data/repository/firebase_catalog_repository.dart';
 import '../../features/home/data/repository/catalog_cache.dart';
 import '../../features/home/data/repository/catalog_repository.dart';
+import '../../features/messages/data/repositories/firebase_messages_repository.dart';
+import '../../features/messages/data/repositories/messages_repository.dart';
+import '../../features/messages/presentation/cubits/messages_cubit.dart';
 import '../../features/orders/data/repositories/firebase_orders_repository.dart';
 import '../../features/orders/data/repositories/orders_repository.dart';
 import '../../features/suggest_product/data/repositories/firebase_suggest_product_repository.dart';
@@ -38,46 +42,53 @@ void setupInjector() {
   getIt.registerLazySingleton<CatalogCache>(() => CatalogCache());
 
   getIt.registerLazySingleton<CatalogRepository>(
-        () => FirebaseCatalogRepository(db, getIt<CatalogCache>()),
+    () => FirebaseCatalogRepository(db, getIt<CatalogCache>()),
   );
 
   getIt.registerLazySingleton<OrdersRepository>(
-        () => FirebaseOrdersRepository(db, auth),
+    () => FirebaseOrdersRepository(db, auth),
   );
 
   getIt.registerLazySingleton<CartRepository>(
-        () => FirebaseCartRepository(db, auth),
+    () => FirebaseCartRepository(db, auth),
   );
 
   getIt.registerLazySingleton<PromotionRepository>(
-        () => FirebasePromotionRepository(db),
+    () => FirebasePromotionRepository(db),
   );
 
   getIt.registerLazySingleton<CurrencyConverterRepository>(
-        () => FakeCurrencyConverterRepository(),
+    () => FakeCurrencyConverterRepository(),
   );
 
   getIt.registerLazySingleton<AuthRepository>(
-        () => FirebaseAuthRepository(auth, db),
+    () => FirebaseAuthRepository(auth, db),
   );
 
-  getIt.registerLazySingleton<CheckoutService>(
-        () => CheckoutService(db, auth),
+  getIt.registerLazySingleton(
+    () => CheckoutService(db, auth, FirebaseStorage.instance),
   );
 
   getIt.registerLazySingleton<FitnessRepository>(
-        () => FirebaseFitnessRepository(db, auth),
+    () => FirebaseFitnessRepository(db, auth),
   );
 
   getIt.registerLazySingleton<SupportRepository>(
-        () => FirebaseSupportRepository(db, auth),
+    () => FirebaseSupportRepository(db, auth),
   );
 
   getIt.registerLazySingleton<SharedCartRepository>(
-        () => FirebaseSharedCartRepository(db, auth),
+    () => FirebaseSharedCartRepository(db, auth),
+  );
+  // Messages
+  getIt.registerLazySingleton<MessagesRepository>(
+        () => FirebaseMessagesRepository(db, auth),
   );
 
+  getIt.registerFactory(
+        () => MessagesCubit(getIt<MessagesRepository>()),
+  );
   getIt.registerLazySingleton<SuggestProductRepository>(
-        () => FirebaseSuggestProductRepository(db, auth),
+    () => FirebaseSuggestProductRepository(db, auth),
   );
 }

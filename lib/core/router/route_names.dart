@@ -59,4 +59,7 @@ abstract class RouteNames {
   static const String deals = '/deals';
   static const String checkout = '/checkout';
   static const String currency = '/currency';
+  static const String orderConfirmation = '/order-confirmation/:orderId';
+  static String orderConfirmationPath(String orderId) => '/order-confirmation/$orderId';
+  static const String messages = '/messages';
 }

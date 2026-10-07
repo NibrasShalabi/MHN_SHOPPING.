@@ -34,7 +34,6 @@ class _SignupPageState extends State<SignupPage> {
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
   final _secondaryPhoneController = TextEditingController();
-  final _locationController = TextEditingController();
   final _areaController = TextEditingController();
 
   String? _governorate;
@@ -53,7 +52,6 @@ class _SignupPageState extends State<SignupPage> {
     _confirmPasswordController.dispose();
     _phoneController.dispose();
     _secondaryPhoneController.dispose();
-    _locationController.dispose();
     _areaController.dispose();
     super.dispose();
   }
@@ -68,7 +66,6 @@ class _SignupPageState extends State<SignupPage> {
       Validators.confirmPassword(_confirmPasswordController.text, _passwordController.text),
       'phone': Validators.phone(_phoneController.text),
       'secondaryPhone': Validators.optionalPhone(_secondaryPhoneController.text),
-      'location': Validators.required(_locationController.text),
       'area': Validators.required(_areaController.text),
       'governorate': _governorate == null ? AppStrings.selectGovernorate : null,
       'gender': _gender == null ? AppStrings.selectGender : null,
@@ -87,6 +84,7 @@ class _SignupPageState extends State<SignupPage> {
     if (!_validate()) return;
 
     context.read<SignupCubit>().signup(
+
       SignupData(
         email: _emailController.text.trim(),
         password: _passwordController.text,
@@ -95,7 +93,6 @@ class _SignupPageState extends State<SignupPage> {
         phone: _phoneController.text.trim(),
         secondaryPhone:
         _secondaryPhoneController.text.trim().isEmpty ? null : _secondaryPhoneController.text.trim(),
-        location: _locationController.text.trim(),
         governorate: _governorate!,
         area: _areaController.text.trim(),
         gender: _gender!,
@@ -202,14 +199,7 @@ class _SignupPageState extends State<SignupPage> {
                     errorText: _errors['secondaryPhone'],
                     enabled: !isSubmitting,
                   ),
-                  const SizedBox(height: AppConstants.spacingMd),
-                  CustomTextField(
-                    controller: _locationController,
-                    label: AppStrings.location,
-                    prefixIcon: Icons.location_on_outlined,
-                    errorText: _errors['location'],
-                    enabled: !isSubmitting,
-                  ),
+
                   const SizedBox(height: AppConstants.spacingMd),
                   CustomDropdown<String>(
                     label: AppStrings.governorate,

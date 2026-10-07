@@ -400,4 +400,19 @@ class AppStrings {
   // ==================== الإشعارات ====================
   static const String notifications = 'الإشعارات';
   static const String noNotifications = 'لا يوجد إشعارات';
+  static const String orderConfirmed = 'تم الطلب';
+  static const String orderNumber = 'رقم الطلب';
+  static const String orderConfirmationNote =
+      'تم استلام طلبك بنجاح. سيتم مراجعة الدفع والتواصل معك قريباً.';
+  static const String trackOrder = 'تتبع الطلب';
+  static const String continueShopping = 'متابعة التسوق';
+  static const String uploadReceipt = 'ارفع إيصال شام كاش';
+  // Messages
+  static const String messagesTitle = 'الرسائل';
+  static const String noMessages = 'لا توجد رسائل';
+  static const String noMessagesSubtitle = 'ستظهر هنا رسائل الدعم والإشعارات';
+  static const String messageDismiss = 'تم';
+  static const String messageTypeSupport = 'رد الدعم';
+  static const String messageTypeOrder = 'تحديث الطلب';
+  static const String messageBroadcast = 'إشعار عام';
 }

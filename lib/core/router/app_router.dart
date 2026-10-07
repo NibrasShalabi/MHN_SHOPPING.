@@ -18,6 +18,9 @@ import '../../features/cart/presentation/cubits/cart_cubit.dart';
 import '../../features/cart/presentation/cubits/shared_cart_cubit.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/cart/presentation/pages/shared_cart_page.dart';
+import '../../features/checkout/data/repositories/firebase_checkout_service.dart';
+import '../../features/checkout/presentation/cubits/checkout_cubit.dart';
+import '../../features/checkout/presentation/pages/order_confirmation_page.dart';
 import '../../features/deals/data/repositories/promotion_repository.dart';
 import '../../features/deals/presentation/cubits/deals_cubit.dart';
 import '../../features/deals/presentation/pages/deals_page.dart';
@@ -39,6 +42,7 @@ import '../../features/home/presentation/pages/category_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/product_details_page.dart';
 import '../../features/home/presentation/widgets/loyalty_store_page.dart';
+import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/orders/data/repositories/orders_repository.dart';
 import '../../features/orders/presentation/cubits/orders_cubit.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
@@ -311,11 +315,24 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
       ),
       GoRoute(
         path: RouteNames.checkout,
-        builder: (context, state) => const CheckoutPage(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => CheckoutCubit(getIt<CheckoutService>()),
+          child: const CheckoutPage(),
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.orderConfirmation,
+        builder: (context, state) => OrderConfirmationPage(
+          orderId: state.pathParameters['orderId']!,
+        ),
       ),
       GoRoute(
         path: RouteNames.currency,
         builder: (context, state) => const CurrencyPage(),
+      ),
+      GoRoute(
+        path: RouteNames.messages,
+        builder: (context, state) => const MessagesPage(),
       ),
       GoRoute(
         path: RouteNames.notifications,
