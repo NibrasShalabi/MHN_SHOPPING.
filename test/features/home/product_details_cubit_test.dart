@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:m_h_nshopping/features/home/domain/entities/product_query.dart';
 import 'package:m_h_nshopping/features/deals/data/repositories/promotion_repository.dart';
 import 'package:m_h_nshopping/features/deals/domain/entities/promotion.dart';
 import 'package:m_h_nshopping/features/home/data/repository/catalog_repository.dart';
@@ -33,7 +34,7 @@ class _FakeCatalogRepository implements CatalogRepository {
   @override Future<Supplier> getSupplier(String id, {bool forceRefresh = false}) async => throw UnimplementedError();
   @override Future<List<Category>> getCategories({CatalogScope scope = CatalogScope.store, String? supplierId, bool forceRefresh = false}) async => [];
   @override Future<Category> getCategory(String id, {bool forceRefresh = false}) async => throw UnimplementedError();
-  @override Future<ProductPageResult> getProducts({required String categoryId, String? filterId, String? cursor, bool forceRefresh = false}) async => throw UnimplementedError();
+  @override Future<ProductPageResult> getProducts({required ProductQuery query, String? filterId, String? cursor, bool forceRefresh = false}) async => throw UnimplementedError();
 }
 
 class _FakePromotionRepository implements PromotionRepository {

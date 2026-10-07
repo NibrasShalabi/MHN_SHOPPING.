@@ -93,13 +93,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            if (!product.isInStock) ...[
-                              const SizedBox(height: AppConstants.spacingSm),
-                              Text(
-                                AppStrings.outOfStock,
-                                style: AppTextStyles.body.copyWith(color: AppColors.error),
+                            const SizedBox(height: AppConstants.spacingSm),
+                            Text(
+                              product.isInStock ? AppStrings.inStockCount(product.stock) : AppStrings.outOfStock,
+                              style: AppTextStyles.body.copyWith(
+                                color: !product.isInStock
+                                    ? AppColors.error
+                                    : product.isLowStock
+                                        ? AppColors.warning
+                                        : AppColors.success,
                               ),
-                            ],
+                            ),
                             const SizedBox(height: AppConstants.spacingLg),
                             ProductVariantSelector(
                               clothingSizes: product.clothingSizes,

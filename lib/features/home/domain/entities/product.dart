@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_constants.dart';
 import 'package:equatable/equatable.dart';
 import 'product_variants.dart';
 
@@ -51,6 +52,7 @@ class Product extends Equatable {
   });
 
   bool get isInStock => stock > 0;
+  bool get isLowStock => isInStock && stock <= AppConstants.lowStockThreshold;
   bool get hasSizes => clothingSizes.isNotEmpty || shoeSizes.isNotEmpty;
   bool get hasColors => colors.isNotEmpty;
   bool get hasSizeGuide => sizeGuide.isNotEmpty;

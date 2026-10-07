@@ -123,6 +123,13 @@ class ProductCard extends StatelessWidget {
                     product: product,
                     style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                   ),
+                  if (product.isLowStock) ...[
+                    const SizedBox(height: AppConstants.spacingXs),
+                    Text(
+                      AppStrings.lowStockCount(product.stock),
+                      style: AppTextStyles.caption.copyWith(color: AppColors.warning),
+                    ),
+                  ],
                 ],
               ),
             ),

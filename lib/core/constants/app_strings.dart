@@ -102,6 +102,8 @@ class AppStrings {
   static const String selectColor = 'اختاري اللون';
   static const String price = 'السعر';
   static const String outOfStock = 'غير متوفر حالياً';
+  static String inStockCount(int count) => 'متوفر: $count';
+  static String lowStockCount(int count) => 'باقي $count فقط';
 
   // ==================== السلة ====================
   static const String cart = 'السلة';

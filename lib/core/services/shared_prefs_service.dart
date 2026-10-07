@@ -21,6 +21,7 @@ class SharedPrefsService {
   static const _kLastEmail      = 'last_email';
   static const _kThemeMode      = 'theme_mode';
   static const _kLanguage       = 'language';
+  static const _kSeenNewProducts = 'seen_new_products';
 
   // ===== Onboarding =====
 
@@ -46,6 +47,12 @@ class SharedPrefsService {
   /// ar / en
   static String get language => _i.getString(_kLanguage) ?? 'ar';
   static Future<void> setLanguage(String lang) => _i.setString(_kLanguage, lang);
+
+  // ===== New-product badge =====
+
+  /// Products whose "جديد" badge this device has already shown.
+  static List<String> get seenNewProducts => _i.getStringList(_kSeenNewProducts) ?? const [];
+  static Future<void> setSeenNewProducts(List<String> ids) => _i.setStringList(_kSeenNewProducts, ids);
 
   // ===== Clear All (logout) =====
 

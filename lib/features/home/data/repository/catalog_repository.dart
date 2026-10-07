@@ -3,6 +3,7 @@ import '../../domain/entities/product.dart';
 import '../../domain/entities/product_variants.dart';
 import '../../domain/entities/product_filter.dart';
 import '../../domain/entities/product_page_result.dart';
+import '../../domain/entities/product_query.dart';
 import '../../domain/entities/promo_banner.dart';
 import '../../../suppliers/domain/entities/supplier.dart';
 import 'catalog_cache.dart';
@@ -19,7 +20,7 @@ abstract class CatalogRepository {
   Future<Category> getCategory(String categoryId, {bool forceRefresh = false});
   Future<Product> getProduct(String productId, {bool forceRefresh = false});
   Future<ProductPageResult> getProducts({
-    required String categoryId,
+    required ProductQuery query,
     String? filterId,
     String? cursor,
     bool forceRefresh = false,
@@ -248,19 +249,19 @@ class FakeCatalogRepository implements CatalogRepository {
 
   @override
   Future<ProductPageResult> getProducts({
-    required String categoryId,
+    required ProductQuery query,
     String? filterId,
     String? cursor,
     bool forceRefresh = false,
   }) async {
-    final key = CatalogCache.productsKey(categoryId: categoryId, filterId: filterId, cursor: cursor);
+    final key = CatalogCache.productsKey(query: query, filterId: filterId, cursor: cursor);
     if (!forceRefresh) {
       final cached = _cache.read<ProductPageResult>(key, CatalogCache.productsTtl);
       if (cached != null) return cached;
     }
     await Future.delayed(const Duration(milliseconds: 400));
     final matching = _allProducts
-        .where((p) => p.categoryId == categoryId)
+        .where(query.matches)
         .where((p) => filterId == null || p.filterId == filterId)
         .toList();
     final start = cursor == null ? 0 : int.parse(cursor);

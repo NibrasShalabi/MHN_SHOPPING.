@@ -1,3 +1,4 @@
+import '../../domain/entities/product_query.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/promo_banner.dart';
@@ -40,7 +41,7 @@ class CatalogCache {
   void invalidateAll() => _entries.clear();
 
   void invalidateCategory(String categoryId) {
-    _entries.removeWhere((key, _) => key.startsWith('products:$categoryId'));
+    _entries.removeWhere((key, _) => key.startsWith('products:${ProductQuery.category(categoryId).cacheKey}'));
   }
 
   // Key builders — kept here so callers never hand-format a key string.
@@ -59,11 +60,11 @@ class CatalogCache {
   static String productKey(String productId) => 'product:$productId';
 
   static String productsKey({
-    required String categoryId,
+    required ProductQuery query,
     String? filterId,
     String? cursor,
   }) =>
-      'products:$categoryId:${filterId ?? 'all'}:${cursor ?? 'first'}';
+      'products:${query.cacheKey}:${filterId ?? 'all'}:${cursor ?? 'first'}';
 }
 
 class _CacheEntry<T> {

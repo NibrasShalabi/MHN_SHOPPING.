@@ -82,5 +82,8 @@ class AppConstants {
   static const double categoryCardAspectRatio = 0.85; // taller than wide, room for the label band
   // Pagination — how close to the bottom before the next page is fetched
   static const double loadMoreThreshold = 400;
+
+  /// At or below this, the product card shows "باقي N فقط".
+  static const int lowStockThreshold = 5;
   static const double swiperAspectRatio = 2.2; // width / height
 }

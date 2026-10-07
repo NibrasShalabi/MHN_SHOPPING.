@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../suppliers/domain/entities/supplier.dart';
+import '../../domain/entities/product_query.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_filter.dart';
@@ -126,30 +127,30 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<ProductPageResult> getProducts({
-    required String categoryId,
+    required ProductQuery query,
     String? filterId,
     String? cursor,
     bool forceRefresh = false,
   }) async {
-    final key = CatalogCache.productsKey(categoryId: categoryId, filterId: filterId, cursor: cursor);
+    final key = CatalogCache.productsKey(query: query, filterId: filterId, cursor: cursor);
     if (!forceRefresh) {
       final cached = _cache.read<ProductPageResult>(key, CatalogCache.productsTtl);
       if (cached != null) return cached;
     }
     try {
-      var query = _db.collection('products')
-          .where('categoryId', isEqualTo: categoryId)
-          .orderBy('createdAt', descending: true)
-          .limit(_pageSize);
-
-      if (filterId != null) query = query.where('filterId', isEqualTo: filterId);
+      Query<Map<String, dynamic>> q = _db.collection('products');
+      q = query.categoryId != null
+          ? q.where('categoryId', isEqualTo: query.categoryId)
+          : q.where('pricing', isEqualTo: query.pricing!.name);
+      if (filterId != null) q = q.where('filterId', isEqualTo: filterId);
+      q = q.orderBy('createdAt', descending: true).limit(_pageSize);
 
       if (cursor != null) {
         final cursorDoc = await _db.collection('products').doc(cursor).get();
-        query = query.startAfterDocument(cursorDoc);
+        q = q.startAfterDocument(cursorDoc);
       }
 
-      final snap = await query.get();
+      final snap = await q.get();
       final products = snap.docs.map(_productFromDoc).toList();
       final result = ProductPageResult(
         products: products,

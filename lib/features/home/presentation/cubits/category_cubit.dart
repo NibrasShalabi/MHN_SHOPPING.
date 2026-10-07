@@ -1,23 +1,25 @@
 import '../../../../core/bloc/safe_cubit.dart';
-
 import '../../../../core/error/failures.dart';
 import '../../data/repository/catalog_repository.dart';
+import '../../domain/entities/product_query.dart';
 import 'category_state.dart';
 
+/// Paged product grid for a [ProductQuery] — a category page, or the
+/// loyalty store (every points-priced product, no category doc).
 class CategoryCubit extends SafeCubit<CategoryState> {
   final CatalogRepository _catalogRepository;
-  final String categoryId;
+  final ProductQuery query;
 
-  CategoryCubit(this._catalogRepository, {required this.categoryId})
-      : super(const CategoryState());
+  CategoryCubit(this._catalogRepository, {required this.query}) : super(const CategoryState());
 
   Future<void> load({bool forceRefresh = false}) async {
-    if (isClosed) return;
     emit(state.copyWith(status: CategoryStatus.loading, failure: null));
     try {
-      final category = await _catalogRepository.getCategory(categoryId, forceRefresh: forceRefresh);
-      final page = await _catalogRepository.getProducts(categoryId: categoryId, forceRefresh: forceRefresh);
-      if (isClosed) return;
+      final categoryId = query.categoryId;
+      final category = categoryId == null
+          ? null
+          : await _catalogRepository.getCategory(categoryId, forceRefresh: forceRefresh);
+      final page = await _catalogRepository.getProducts(query: query, forceRefresh: forceRefresh);
       emit(state.copyWith(
         status: CategoryStatus.success,
         category: category,
@@ -27,33 +29,38 @@ class CategoryCubit extends SafeCubit<CategoryState> {
         clearFilter: true,
       ));
     } catch (e) {
-      if (isClosed) return;
       emit(state.copyWith(status: CategoryStatus.failure, failure: mapExceptionToFailure(e)));
     }
   }
 
+  /// [filterId] null selects the "الكل" chip. Pages already opened come
+  /// back from the cache, so flipping between filters is free.
   Future<void> selectFilter(String? filterId) async {
     if (filterId == state.selectedFilterId) return;
-    if (isClosed) return;
     emit(state.copyWith(isFiltering: true, selectedFilterId: filterId, clearFilter: filterId == null, failure: null));
     try {
-      final page = await _catalogRepository.getProducts(categoryId: categoryId, filterId: filterId);
-      if (isClosed) return;
-      emit(state.copyWith(products: page.products, nextCursor: page.nextCursor, clearCursor: page.nextCursor == null, isFiltering: false));
+      final page = await _catalogRepository.getProducts(query: query, filterId: filterId);
+      emit(state.copyWith(
+        products: page.products,
+        nextCursor: page.nextCursor,
+        clearCursor: page.nextCursor == null,
+        isFiltering: false,
+      ));
     } catch (e) {
-      if (isClosed) return;
       emit(state.copyWith(isFiltering: false, status: CategoryStatus.failure, failure: mapExceptionToFailure(e)));
     }
   }
 
+  /// Guarded so overlapping scroll events can't fire the same request twice.
   Future<void> loadMore() async {
     if (state.isLoadingMore || !state.hasMore || state.isFiltering) return;
-    if (isClosed) return;
     emit(state.copyWith(isLoadingMore: true, failure: null));
     try {
       final page = await _catalogRepository.getProducts(
-          categoryId: categoryId, filterId: state.selectedFilterId, cursor: state.nextCursor);
-      if (isClosed) return;
+        query: query,
+        filterId: state.selectedFilterId,
+        cursor: state.nextCursor,
+      );
       emit(state.copyWith(
         products: [...state.products, ...page.products],
         nextCursor: page.nextCursor,
@@ -61,15 +68,7 @@ class CategoryCubit extends SafeCubit<CategoryState> {
         isLoadingMore: false,
       ));
     } catch (e) {
-      if (isClosed) return;
       emit(state.copyWith(isLoadingMore: false, failure: mapExceptionToFailure(e)));
     }
   }
-  /// [filterId] null selects the "ط·آ§ط¸â€‍ط¸ئ’ط¸â€‍" chip. Results come back from the
-  /// cache when the user flips between filters they already opened, so
-  /// this costs nothing after the first tap.
-
-  /// Appends the next page. Guarded so overlapping scroll events can't
-  /// fire the same request twice.
-
 }

@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/home/domain/entities/product.dart';
+import '../../features/home/domain/entities/product_query.dart';
 import '../../features/about/presentation/pages/about_page.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/presentation/cubits/forgot_password_cubit.dart';
@@ -103,7 +105,7 @@ class FirebaseUserSessionGate implements UserSessionGate {
 const String _fitnessPathPrefix = RouteNames.fitnessHome;
 
 GoRouter buildAppRouter({required UserSessionGate session}) {
-  final SeenProductsStore seenProductsStore = InMemorySeenProductsStore();
+  final SeenProductsStore seenProductsStore = PrefsSeenProductsStore();
 
   // ===== Repositories من getIt (Firebase) =====
   final CatalogRepository catalogRepository = getIt<CatalogRepository>();
@@ -180,7 +182,7 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
           GoRoute(
             path: RouteNames.loyaltyStore,
             builder: (context, state) => BlocProvider(
-              create: (_) => CategoryCubit(catalogRepository, categoryId: 'loyalty'),
+              create: (_) => CategoryCubit(catalogRepository, query: const ProductQuery.pricing(PricingKind.points)),
               child: const LoyaltyStorePage(),
             ),
           ),
@@ -200,7 +202,7 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         builder: (context, state) => BlocProvider(
           create: (_) => CategoryCubit(
             catalogRepository,
-            categoryId: state.pathParameters['categoryId']!,
+            query: ProductQuery.category(state.pathParameters['categoryId']!),
           ),
           child: CategoryPage(seenProductsStore: seenProductsStore),
         ),

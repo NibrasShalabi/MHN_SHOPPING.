@@ -29,10 +29,13 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   final ScrollController _scrollController = ScrollController();
 
-  /// Snapshot of what was already seen when the page opened, so badges
-  /// don't vanish under the user's eyes mid-scroll — they disappear on the
-  /// next visit, which is what "show it the first time" means.
-  final Set<String> _seenOnEntry = {};
+  /// Products already seen before this visit. Anything new that isn't in
+  /// here keeps its badge for the whole visit and loses it next time.
+  final Set<String> _seenBeforeVisit = {};
+
+  /// New products already looked up this visit — the listener fires on
+  /// every state change (refresh, next page), each product is checked once.
+  final Set<String> _checked = {};
 
   @override
   void initState() {
@@ -60,19 +63,15 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
-  bool _shouldShowNewBadge(Product product) {
-    if (!product.isNew) return false;
-    if (_seenOnEntry.contains(product.id)) return false;
-    return !widget.seenProductsStore.hasSeen(product.id);
-  }
+  bool _shouldShowNewBadge(Product product) =>
+      product.isNew && !_seenBeforeVisit.contains(product.id);
 
-  void _markVisibleAsSeen(List<Product> products) {
-    for (final product in products.where((p) => p.isNew)) {
-      if (!widget.seenProductsStore.hasSeen(product.id)) {
-        _seenOnEntry.add(product.id);
-        widget.seenProductsStore.markSeen(product.id);
-      }
-    }
+  /// Snapshot first, then record — so marking a product seen never hides
+  /// its badge on the screen it was just shown on.
+  void _recordSeen(List<Product> products) {
+    final unchecked = products.where((p) => p.isNew && _checked.add(p.id)).toList();
+    _seenBeforeVisit.addAll(unchecked.where((p) => widget.seenProductsStore.hasSeen(p.id)).map((p) => p.id));
+    widget.seenProductsStore.markSeen(unchecked.map((p) => p.id));
   }
 
   @override
@@ -95,7 +94,7 @@ class _CategoryPageState extends State<CategoryPage> {
       body: BlocConsumer<CategoryCubit, CategoryState>(
         listener: (context, state) {
           if (state.status == CategoryStatus.success) {
-            _markVisibleAsSeen(state.products);
+            _recordSeen(state.products);
           }
           if (state.failure != null && state.status != CategoryStatus.failure) {
             AppSnackbar.error(context, state.failure!.message);

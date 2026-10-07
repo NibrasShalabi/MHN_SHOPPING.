@@ -1,27 +1,30 @@
-/// Tracks which "new" products the user has already seen, so the جديد badge
-/// shows once and then stops following them around.
-///
-/// The admin marks a product as new; this store decides whether the badge
-/// is still worth rendering for THIS user. Kept behind an interface so the
-/// UI phase can run purely in memory and the logic phase can swap in a
-/// SharedPreferences/Firestore-backed implementation without touching any
-/// widget.
+import 'shared_prefs_service.dart';
+
+/// Tracks which "new" products the user has already seen, so the جديد
+/// badge shows on the first visit and stops following them afterwards.
 abstract class SeenProductsStore {
   bool hasSeen(String productId);
 
-  Future<void> markSeen(String productId);
+  Future<void> markSeen(Iterable<String> productIds);
 }
 
-/// UI-phase implementation — resets on app restart, which is fine while
-/// there is no persistence layer yet.
-class InMemorySeenProductsStore implements SeenProductsStore {
-  final Set<String> _seen = {};
+/// Persisted across restarts — an in-memory set made every product look
+/// new again each time the app opened.
+class PrefsSeenProductsStore implements SeenProductsStore {
+  /// Old ids rotate out; products stop being "new" long before this fills.
+  static const int _maxTracked = 500;
+
+  final Set<String> _seen = SharedPrefsService.seenNewProducts.toSet();
 
   @override
   bool hasSeen(String productId) => _seen.contains(productId);
 
   @override
-  Future<void> markSeen(String productId) async {
-    _seen.add(productId);
+  Future<void> markSeen(Iterable<String> productIds) async {
+    final fresh = productIds.where(_seen.add).toList();
+    if (fresh.isEmpty) return;
+    final all = _seen.toList();
+    final kept = all.length > _maxTracked ? all.sublist(all.length - _maxTracked) : all;
+    await SharedPrefsService.setSeenNewProducts(kept);
   }
 }
