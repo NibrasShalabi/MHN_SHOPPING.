@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
 import 'dart:typed_data';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 
@@ -69,7 +70,6 @@ class CheckoutService {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
 
-    final total = items.fold<double>(0, (sum, item) => sum + item.lineTotal);
     final counterRef = _db.collection('config').doc('orderCounter');
 
     String orderId = '';
@@ -83,6 +83,7 @@ class CheckoutService {
             _db.collection('products').doc(item.productId),
           )),
         );
+        final userDoc = await transaction.get(_db.collection('users').doc(uid));
 
         // ===== VALIDATION =====
         final lastNumber = counterDoc.data()?['lastOrderNumber'] as int? ?? 0;
@@ -99,6 +100,23 @@ class CheckoutService {
           }
         }
 
+        // نقاط الولاء: السعر من المنتج نفسه، مش من السلة
+        bool isPoints(int i) => productDocs[i].data()?['pricing'] == 'points';
+        var total = 0.0;
+        var pointsTotal = 0;
+        for (int i = 0; i < items.length; i++) {
+          if (isPoints(i)) {
+            pointsTotal += ((productDocs[i].data()?['price'] as num? ?? 0) * items[i].quantity).round();
+          } else {
+            total += items[i].lineTotal;
+          }
+        }
+        // تحقق مبكر فقط — الخصم الفعلي بيعمله الأدمن لما يأكد الطلب
+        final balance = (userDoc.data()?['loyaltyPoints'] as num?)?.toInt() ?? 0;
+        if (pointsTotal > balance) {
+          throw ServerException(message: AppStrings.notEnoughPoints(pointsTotal, balance));
+        }
+
         // ===== ALL WRITES AFTER =====
         transaction.set(counterRef, {'lastOrderNumber': newNumber}, SetOptions(merge: true));
 
@@ -113,18 +131,23 @@ class CheckoutService {
           'userId': uid,
           'status': 'pending',
           'total': total,
+          if (pointsTotal > 0) 'pointsTotal': pointsTotal,
           'paymentMethod': paymentMethod,
           if (txid != null) 'txid': txid,
           if (receiptUrl != null) 'receiptUrl': receiptUrl,
           'paymentStatus': 'pending',
           'createdAt': FieldValue.serverTimestamp(),
-          'items': items.map((item) => {
-            'productId': item.productId,
-            'name': item.name,
-            'imageUrl': item.imageUrl,
-            'priceSnapshot': item.priceSnapshot,
-            'quantity': item.quantity,
-          }).toList(),
+          'items': [
+            for (int i = 0; i < items.length; i++)
+              {
+                'productId': items[i].productId,
+                'name': items[i].name,
+                'imageUrl': items[i].imageUrl,
+                'priceSnapshot': items[i].priceSnapshot,
+                'quantity': items[i].quantity,
+                'pricing': isPoints(i) ? 'points' : 'money',
+              },
+          ],
         });
       });
 

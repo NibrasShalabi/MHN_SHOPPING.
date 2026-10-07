@@ -173,6 +173,8 @@ class AppStrings {
 
   // ==================== الولاء ====================
   static const String loyaltyPoints = 'نقاط الولاء';
+  static String notEnoughPoints(int required, int balance) =>
+      'رصيد نقاطك غير كافٍ — المطلوب $required نقطة ورصيدك $balance';
   static const String loyaltyIntro = 'اجمع النقاط مع كل تفاعل واستبدلها بمنتجات من قسم الولاء';
   static const String loyaltyHowToEarn = 'كيف تربح النقاط؟';
   static const String loyaltyEarnPurchase = 'عند إتمام طلب';
