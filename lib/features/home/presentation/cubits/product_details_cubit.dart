@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
@@ -21,7 +20,7 @@ class ProductDetailsCubit extends SafeCubit<ProductDetailsState> {
         required this.productId,
       }) : super(const ProductDetailsState());
 
-  /// ظٹظڈط´ط؛ظ‘ظ„ refresh ظƒظ„ ط¯ظ‚ظٹظ‚ط© ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ†طھظ‡ط§ط، ط§ظ„ظ€ promotion
+  /// ط¸ظ¹ط¸عˆط·آ´ط·ط›ط¸â€کط¸â€‍ refresh ط¸ئ’ط¸â€‍ ط·آ¯ط¸â€ڑط¸ظ¹ط¸â€ڑط·آ© ط¸â€‍ط¸â€‍ط·ع¾ط·آ­ط¸â€ڑط¸â€ڑ ط¸â€¦ط¸â€  ط·آ§ط¸â€ ط·ع¾ط¸â€،ط·آ§ط·طŒ ط·آ§ط¸â€‍ط¸â‚¬ promotion
   void startPromotionRefresh() {
     _refreshTimer?.cancel();
     _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) => load());
@@ -38,7 +37,7 @@ class ProductDetailsCubit extends SafeCubit<ProductDetailsState> {
     try {
       final product = await _catalogRepository.getProduct(productId);
 
-      // ط¬ظٹط¨ ط§ظ„ظ€ promotion ط¥ظ† ظپظٹ ظˆط·ط¨ظ‚ ط§ظ„ط³ط¹ط± ط§ظ„ظ…ط®ظپط¶
+      // ط·آ¬ط¸ظ¹ط·آ¨ ط·آ§ط¸â€‍ط¸â‚¬ promotion ط·آ¥ط¸â€  ط¸ظ¾ط¸ظ¹ ط¸ث†ط·آ·ط·آ¨ط¸â€ڑ ط·آ§ط¸â€‍ط·آ³ط·آ¹ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·آ®ط¸ظ¾ط·آ¶
       final discountPct = await _promotionRepository.getActiveDiscountPercentage(productId);
       final appliedPrice = discountPct > 0
           ? product.price * (1 - discountPct / 100)

@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
@@ -10,7 +9,7 @@ import 'shared_cart_state.dart';
 /// Viewing a cart someone else shared.
 ///
 /// Holds the sender's snapshot and tracks what the viewer copied into
-/// their own cart. Writes go through [CartCubit] â€” this never touches
+/// their own cart. Writes go through [CartCubit] أ¢â‚¬â€‌ this never touches
 /// storage directly, so there's still one owner of the user's cart.
 class SharedCartCubit extends SafeCubit<SharedCartState> {
   final SharedCartRepository _repository;

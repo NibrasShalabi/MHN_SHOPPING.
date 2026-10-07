@@ -1,6 +1,5 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 import 'dart:io';
 
@@ -18,7 +17,7 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
 
   void setReceiptFile(PlatformFile file) {
     _receiptPlatformFile = file;
-    // ط¹ظ„ظ‰ ط§ظ„ظˆظٹط¨ ظ…ط§ ظپظٹ path â€” ط¨ط³ ظ†ط­طھط§ط¬ ظ†ط¹ط±ظپ ط¥ظ†ظˆ ظپظٹ ظ…ظ„ظپ ظ…ط­ط¯ط¯
+    // ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸ث†ط¸ظ¹ط·آ¨ ط¸â€¦ط·آ§ ط¸ظ¾ط¸ظ¹ path أ¢â‚¬â€‌ ط·آ¨ط·آ³ ط¸â€ ط·آ­ط·ع¾ط·آ§ط·آ¬ ط¸â€ ط·آ¹ط·آ±ط¸ظ¾ ط·آ¥ط¸â€ ط¸ث† ط¸ظ¾ط¸ظ¹ ط¸â€¦ط¸â€‍ط¸ظ¾ ط¸â€¦ط·آ­ط·آ¯ط·آ¯
     emit(state.copyWith(hasReceipt: true));
   }
   Future<void> loadAddresses() async {

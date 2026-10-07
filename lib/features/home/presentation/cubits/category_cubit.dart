@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
@@ -66,7 +65,7 @@ class CategoryCubit extends SafeCubit<CategoryState> {
       emit(state.copyWith(isLoadingMore: false, failure: mapExceptionToFailure(e)));
     }
   }
-  /// [filterId] null selects the "ط§ظ„ظƒظ„" chip. Results come back from the
+  /// [filterId] null selects the "ط·آ§ط¸â€‍ط¸ئ’ط¸â€‍" chip. Results come back from the
   /// cache when the user flips between filters they already opened, so
   /// this costs nothing after the first tap.
 

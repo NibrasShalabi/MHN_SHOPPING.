@@ -21,14 +21,19 @@ class FirebaseSupportRepository implements SupportRepository {
   FirebaseSupportRepository(this._db, this._auth);
 
   /// إرسال رسالة دعم
+  /// إرسال رسالة دعم — الاسم يُخزَّن مع الرسالة حتى لوحة الأدمن ما تقرأ users لكل رسالة
   @override
   Future<void> sendMessage(SupportMessage message) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
 
     try {
+      final user = (await _db.collection('users').doc(uid).get()).data();
+      final userName = '${user?['fullName'] ?? ''} ${user?['familyName'] ?? ''}'.trim();
+
       await _db.collection('support_messages').add({
         'userId': uid,
+        if (userName.isNotEmpty) 'userName': userName,
         'topic': message.topic.name,
         'body': message.body,
         'sentAt': FieldValue.serverTimestamp(),

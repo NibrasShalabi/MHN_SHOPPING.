@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -30,7 +29,7 @@ class HealthProgramCubit extends SafeCubit<HealthProgramState> {
   void updateAnswer(String fieldId, dynamic value) {
     final answers = Map<String, dynamic>.from(state.answers)..[fieldId] = value;
 
-    // Clear this field's error as soon as it's touched â€” leaving stale red
+    // Clear this field's error as soon as it's touched أ¢â‚¬â€‌ leaving stale red
     // text under a field the user just fixed reads as broken.
     final errors = Map<String, String>.from(state.errors)..remove(fieldId);
 

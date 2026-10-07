@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 import '../../../../core/widgets/base_cubit_state.dart';
 import '../../domain/usecases/get_about_usecase.dart';

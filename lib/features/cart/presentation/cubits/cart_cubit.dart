@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 import '../../../../core/error/failures.dart';
 import '../../data/repositories/cart_repository.dart';
@@ -7,7 +6,7 @@ import '../../../home/data/repository/catalog_repository.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
-/// Owns the cart for the whole app â€” provided above the router so the
+/// Owns the cart for the whole app أ¢â‚¬â€‌ provided above the router so the
 /// nav-bar badge and the cart screen always agree, and so adding from a
 /// product page doesn't need its own instance.
 ///
@@ -31,7 +30,7 @@ class CartCubit extends SafeCubit<CartState> {
     try {
       final items = await _cartRepository.getItems();
 
-      // طھط­ظ‚ظ‚ ظ…ظ† ظƒظ„ ظ…ظ†طھط¬ ط¥ط°ط§ ظ„ط³ط§ ظ…ظˆط¬ظˆط¯
+      // ط·ع¾ط·آ­ط¸â€ڑط¸â€ڑ ط¸â€¦ط¸â€  ط¸ئ’ط¸â€‍ ط¸â€¦ط¸â€ ط·ع¾ط·آ¬ ط·آ¥ط·آ°ط·آ§ ط¸â€‍ط·آ³ط·آ§ ط¸â€¦ط¸ث†ط·آ¬ط¸ث†ط·آ¯
       final unavailable = <String>{};
       for (final item in items) {
         try {
@@ -61,7 +60,7 @@ class CartCubit extends SafeCubit<CartState> {
     if (index == -1) {
       items.add(item);
     } else {
-      // ظ†ط­ط¯ط« ط§ظ„ط³ط¹ط± ظ„ط¢ط®ط± ط³ط¹ط± ظ…ط¹ ط¬ظ…ط¹ ط§ظ„ظƒظ…ظٹط©
+      // ط¸â€ ط·آ­ط·آ¯ط·آ« ط·آ§ط¸â€‍ط·آ³ط·آ¹ط·آ± ط¸â€‍ط·آ¢ط·آ®ط·آ± ط·آ³ط·آ¹ط·آ± ط¸â€¦ط·آ¹ ط·آ¬ط¸â€¦ط·آ¹ ط·آ§ط¸â€‍ط¸ئ’ط¸â€¦ط¸ظ¹ط·آ©
       items[index] = CartItem(
         productId: items[index].productId,
         name: items[index].name,
