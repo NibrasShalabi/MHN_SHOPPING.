@@ -9,6 +9,7 @@ import 'core/injection/injection_container.dart' as di;
 import 'core/router/app_router.dart';
 import 'core/services/shared_prefs_service.dart';
 import 'core/theme/app_colors.dart';
+import 'features/messages/presentation/cubits/messages_cubit.dart';
 import 'features/cart/data/repositories/cart_repository.dart';
 import 'features/cart/presentation/cubits/cart_cubit.dart';
 import 'features/home/data/repository/catalog_repository.dart';
@@ -40,6 +41,9 @@ class MyApp extends StatelessWidget {
             GetIt.instance<CartRepository>(),
             GetIt.instance<CatalogRepository>(),
           )..load(),
+        ),
+        BlocProvider(
+          create: (_) => GetIt.instance<MessagesCubit>()..watch(),
         ),
         BlocProvider(
           create: (_) => OrdersCubit(

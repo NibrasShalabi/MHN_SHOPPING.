@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/exceptions.dart';
-import '../../domain/entities/admin_message.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_status.dart';
 import 'orders_repository.dart';
@@ -10,7 +9,6 @@ import 'orders_repository.dart';
 /// Firebase implementation لـ OrdersRepository
 /// الـ reads محسّنة:
 /// - Orders: Stream (تحديث فوري عند تغيير الـ status)
-/// - Messages: Future (تُقرأ مرة واحدة)
 /// - Retention window: 25 يوم (يُفلتر بـ Firestore query مباشرة)
 class FirebaseOrdersRepository implements OrdersRepository {
   final FirebaseFirestore _db;
@@ -64,53 +62,6 @@ class FirebaseOrdersRepository implements OrdersRepository {
     }
   }
 
-  /// رسائل الـ Admin للمستخدم
-  @override
-  Future<List<AdminMessage>> getMessages() async {
-    final uid = _uid;
-    if (uid == null) return [];
-
-    try {
-      // رسائل شخصية
-      final personalSnap = await _db
-          .collection('admin_messages')
-          .where('userId', isEqualTo: uid)
-          .where('isRead', isEqualTo: false)
-          .orderBy('sentAt', descending: true)
-          .get();
-
-      // broadcast
-      final broadcastSnap = await _db
-          .collection('admin_messages')
-          .where('type', isEqualTo: 'broadcast')
-          .where('isRead', isEqualTo: false)
-          .orderBy('sentAt', descending: true)
-          .get();
-
-      final all = {...personalSnap.docs, ...broadcastSnap.docs}
-          .map(_messageFromDoc)
-          .toList()
-        ..sort((a, b) => b.sentAt.compareTo(a.sentAt));
-
-      return all;
-    } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? '', code: e.code);
-    }
-  }
-
-  /// حذف رسالة — تُعلّم كـ isRead بدل الحذف الفعلي
-  /// السبب: Admin قد يحتاج يرى إحصائيات الرسائل المقروءة
-  @override
-  Future<void> dismissMessage(String messageId) async {
-    try {
-      await _db
-          .collection('admin_messages')
-          .doc(messageId)
-          .update({'isRead': true});
-    } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? '', code: e.code);
-    }
-  }
 
   // ===== Mappers =====
 
@@ -140,23 +91,6 @@ class FirebaseOrdersRepository implements OrdersRepository {
       txid: d['txid'] as String?,
       receiptUrl: d['receiptUrl'] as String?,
       paymentStatus: d['paymentStatus'] as String?,
-    );
-  }
-  AdminMessage _messageFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data()!;
-    final typeStr = d['type'] as String? ?? 'broadcast';
-    final type = switch (typeStr) {
-      'support_reply' => AdminMessageType.supportReply,
-      'order_update' => AdminMessageType.orderUpdate,
-      _ => AdminMessageType.broadcast,
-    };
-    return AdminMessage(
-      id: doc.id,
-      body: d['body'] as String? ?? '',
-      sentAt: (d['sentAt'] as Timestamp).toDate(),
-      relatedOrderId: d['orderId'] as String?,
-      title: d['title'] as String?,
-      type: type,
     );
   }
 }

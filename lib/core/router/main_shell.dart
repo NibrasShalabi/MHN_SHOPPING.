@@ -7,7 +7,6 @@ import '../../features/messages/presentation/cubits/messages_cubit.dart';
 import '../../features/messages/presentation/cubits/messages_state.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_durations.dart';
-import '../injection/injection_container.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'route_names.dart';
@@ -39,10 +38,7 @@ class MainShell extends StatelessWidget {
     final currentIndex = _currentIndex(context);
     final isWeb = AppConstants.isWideScreen(context);
 
-    return BlocProvider(
-      create: (_) => getIt<MessagesCubit>()..load(),
-      child: isWeb ? _buildWeb(context, currentIndex) : _buildMobile(context, currentIndex),
-    );
+    return isWeb ? _buildWeb(context, currentIndex) : _buildMobile(context, currentIndex);
   }
 
   Widget _buildWeb(BuildContext context, int currentIndex) {

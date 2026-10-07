@@ -38,8 +38,17 @@ service cloud.firestore {
         isAdmin()
       );
       allow create: if isAdmin();
-      allow update: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      // المستخدم يعلّم رسالته الشخصية كمقروءة فقط — ما بيقدر يعدّل شي تاني
+      allow update: if isAdmin() || (
+        isAuth() && resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']) &&
+        request.resource.data.isRead == true
+      );
       allow delete: if false;
+    }
+    // الـ broadcast المسكّرة لكل مستخدم — الرسالة الأصلية ما بتنلمس
+    match /users/{uid}/dismissedMessages/{msgId} {
+      allow read, write: if isOwner(uid);
     }
     match /support_messages/{id} {
       allow create: if isAuth();

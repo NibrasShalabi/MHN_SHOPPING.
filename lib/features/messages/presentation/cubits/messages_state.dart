@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
-import '../../../orders/domain/entities/admin_message.dart';
+import '../../domain/entities/admin_message.dart';
 
 enum MessagesStatus { initial, loading, ready, failure }
 

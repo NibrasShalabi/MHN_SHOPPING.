@@ -60,6 +60,14 @@
       ]
     },
     {
+      "collectionGroup": "admin_messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "sentAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "support_messages",
       "queryScope": "COLLECTION",
       "fields": [

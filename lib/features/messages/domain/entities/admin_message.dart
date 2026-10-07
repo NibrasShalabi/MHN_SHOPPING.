@@ -1,6 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-enum AdminMessageType { supportReply, orderUpdate, broadcast }
+enum AdminMessageType {
+  supportReply('support_reply'),
+  orderUpdate('order_update'),
+  broadcast('broadcast');
+
+  final String key;
+  const AdminMessageType(this.key);
+
+  static AdminMessageType fromKey(String? key) =>
+      values.firstWhere((t) => t.key == key, orElse: () => broadcast);
+}
 
 class AdminMessage extends Equatable {
   final String id;
@@ -18,6 +28,8 @@ class AdminMessage extends Equatable {
     this.title,
     this.type = AdminMessageType.broadcast,
   });
+
+  bool get isBroadcast => type == AdminMessageType.broadcast;
 
   @override
   List<Object?> get props => [id, body, sentAt, relatedOrderId, title, type];

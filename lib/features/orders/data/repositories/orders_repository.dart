@@ -1,4 +1,3 @@
-import '../../domain/entities/admin_message.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_status.dart';
 
@@ -6,11 +5,6 @@ abstract class OrdersRepository {
   /// Only returns orders inside the retention window — see
   /// [OrdersRetention]. Anything older is not shown to the user at all.
   Future<List<OrderEntity>> getOrders();
-
-  Future<List<AdminMessage>> getMessages();
-
-  /// Dismissing is permanent: the message leaves the inbox.
-  Future<void> dismissMessage(String messageId);
 }
 
 /// How long an order stays visible to the user.
@@ -30,26 +24,6 @@ class OrdersRetention {
 
 /// UI-phase implementation.
 class FakeOrdersRepository implements OrdersRepository {
-  final List<AdminMessage> _messages = [
-    AdminMessage(
-      id: 'm1',
-      body: 'نعتذر عن التأخير في طلبك بسبب ضغط الطلبات، سيصلك خلال 24 ساعة.',
-      sentAt: DateTime.now().subtract(const Duration(hours: 3)),
-      relatedOrderId: 'ORD-1042',
-    ),
-    AdminMessage(
-      id: 'm2',
-      body: 'شكراً لتعاونك، تم توفير المنتج الذي اقترحته، اطّلع عليه.',
-      sentAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    AdminMessage(
-      id: 'm3',
-      body: 'نعتذر، تم إلغاء طلبك. سيتم التواصل معك خلال 24 ساعة لإعادة المبلغ المدفوع.',
-      sentAt: DateTime.now().subtract(const Duration(days: 2)),
-      relatedOrderId: 'ORD-1035',
-    ),
-  ];
-
   @override
   Future<List<OrderEntity>> getOrders() async {
     await Future.delayed(const Duration(milliseconds: 400));
@@ -91,14 +65,5 @@ class FakeOrdersRepository implements OrdersRepository {
     return orders.where((o) => OrdersRetention.isVisible(o.createdAt)).toList();
   }
 
-  @override
-  Future<List<AdminMessage>> getMessages() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return List.unmodifiable(_messages);
-  }
 
-  @override
-  Future<void> dismissMessage(String messageId) async {
-    _messages.removeWhere((m) => m.id == messageId);
-  }
 }

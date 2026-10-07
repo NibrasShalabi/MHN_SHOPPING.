@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/error/failures.dart';
-import '../../domain/entities/admin_message.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_status.dart';
 
