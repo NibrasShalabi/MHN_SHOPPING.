@@ -1,10 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../home/data/repository/catalog_repository.dart';
 import 'suppliers_state.dart';
 
-class SuppliersCubit extends Cubit<SuppliersState> {
+class SuppliersCubit extends SafeCubit<SuppliersState> {
   final CatalogRepository _repository;
 
   SuppliersCubit(this._repository) : super(const SuppliersState());

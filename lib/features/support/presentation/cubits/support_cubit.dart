@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/failures.dart';
@@ -6,7 +7,7 @@ import '../../data/repositories/support_repository.dart';
 import '../../domain/entities/support_message.dart';
 import 'support_state.dart';
 
-class SupportCubit extends Cubit<SupportState> {
+class SupportCubit extends SafeCubit<SupportState> {
   final SupportRepository _repository;
 
   SupportCubit(this._repository) : super(const SupportState());

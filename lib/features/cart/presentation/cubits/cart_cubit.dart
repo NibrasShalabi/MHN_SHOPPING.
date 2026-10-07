@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 import '../../../../core/error/failures.dart';
 import '../../data/repositories/cart_repository.dart';
 import '../../../home/data/repository/catalog_repository.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
-/// Owns the cart for the whole app — provided above the router so the
+/// Owns the cart for the whole app â€” provided above the router so the
 /// nav-bar badge and the cart screen always agree, and so adding from a
 /// product page doesn't need its own instance.
 ///
@@ -15,7 +16,7 @@ import 'cart_state.dart';
 /// tap would mean a Firestore read per "+" press once this is wired to
 /// Firebase; here the UI is the source of truth between writes, and
 /// storage catches up once the user stops tapping.
-class CartCubit extends Cubit<CartState> {
+class CartCubit extends SafeCubit<CartState> {
   final CartRepository _cartRepository;
   final CatalogRepository _catalogRepository;
 
@@ -30,7 +31,7 @@ class CartCubit extends Cubit<CartState> {
     try {
       final items = await _cartRepository.getItems();
 
-      // تحقق من كل منتج إذا لسا موجود
+      // طھط­ظ‚ظ‚ ظ…ظ† ظƒظ„ ظ…ظ†طھط¬ ط¥ط°ط§ ظ„ط³ط§ ظ…ظˆط¬ظˆط¯
       final unavailable = <String>{};
       for (final item in items) {
         try {
@@ -60,7 +61,7 @@ class CartCubit extends Cubit<CartState> {
     if (index == -1) {
       items.add(item);
     } else {
-      // نحدث السعر لآخر سعر مع جمع الكمية
+      // ظ†ط­ط¯ط« ط§ظ„ط³ط¹ط± ظ„ط¢ط®ط± ط³ط¹ط± ظ…ط¹ ط¬ظ…ط¹ ط§ظ„ظƒظ…ظٹط©
       items[index] = CartItem(
         productId: items[index].productId,
         name: items[index].name,

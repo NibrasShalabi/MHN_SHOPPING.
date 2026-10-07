@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../data/repository/catalog_repository.dart';
@@ -7,7 +8,7 @@ import '../../domain/entities/product_variants.dart';
 import '../../../deals/data/repositories/promotion_repository.dart';
 import 'product_details_state.dart';
 
-class ProductDetailsCubit extends Cubit<ProductDetailsState> {
+class ProductDetailsCubit extends SafeCubit<ProductDetailsState> {
   final CatalogRepository _catalogRepository;
   final PromotionRepository _promotionRepository;
   final String productId;
@@ -20,7 +21,7 @@ class ProductDetailsCubit extends Cubit<ProductDetailsState> {
         required this.productId,
       }) : super(const ProductDetailsState());
 
-  /// يُشغّل refresh كل دقيقة للتحقق من انتهاء الـ promotion
+  /// ظٹظڈط´ط؛ظ‘ظ„ refresh ظƒظ„ ط¯ظ‚ظٹظ‚ط© ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ†طھظ‡ط§ط، ط§ظ„ظ€ promotion
   void startPromotionRefresh() {
     _refreshTimer?.cancel();
     _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) => load());
@@ -37,7 +38,7 @@ class ProductDetailsCubit extends Cubit<ProductDetailsState> {
     try {
       final product = await _catalogRepository.getProduct(productId);
 
-      // جيب الـ promotion إن في وطبق السعر المخفض
+      // ط¬ظٹط¨ ط§ظ„ظ€ promotion ط¥ظ† ظپظٹ ظˆط·ط¨ظ‚ ط§ظ„ط³ط¹ط± ط§ظ„ظ…ط®ظپط¶
       final discountPct = await _promotionRepository.getActiveDiscountPercentage(productId);
       final appliedPrice = discountPct > 0
           ? product.price * (1 - discountPct / 100)

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../home/data/repository/catalog_repository.dart';
@@ -8,9 +9,9 @@ import 'catalog_categories_state.dart';
 /// Loads the category list for one scope.
 ///
 /// The store grid on the home screen and the fitness shelf need the same
-/// thing from the same repository, differing only by scope — so they share
+/// thing from the same repository, differing only by scope â€” so they share
 /// this instead of each growing a cubit of its own.
-class CatalogCategoriesCubit extends Cubit<CatalogCategoriesState> {
+class CatalogCategoriesCubit extends SafeCubit<CatalogCategoriesState> {
   final CatalogRepository _repository;
   final CatalogScope scope;
 

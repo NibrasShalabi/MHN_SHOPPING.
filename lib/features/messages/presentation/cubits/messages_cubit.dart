@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
@@ -9,7 +10,7 @@ import '../../domain/entities/admin_message.dart';
 import 'messages_state.dart';
 
 /// App-level: one instance feeds both the nav badge and the inbox page.
-class MessagesCubit extends Cubit<MessagesState> {
+class MessagesCubit extends SafeCubit<MessagesState> {
   final MessagesRepository _repo;
   StreamSubscription<List<AdminMessage>>? _sub;
 

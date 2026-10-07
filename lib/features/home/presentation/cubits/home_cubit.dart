@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 import '../../../../core/error/failures.dart';
 import '../../../deals/data/repositories/promotion_repository.dart';
 import '../../../deals/domain/entities/promotion.dart';
@@ -8,7 +9,7 @@ import '../../domain/entities/product.dart';
 import '../../domain/entities/promo_banner.dart';
 import 'home_state.dart';
 
-class HomeCubit extends Cubit<HomeState> {
+class HomeCubit extends SafeCubit<HomeState> {
   final CatalogRepository _catalogRepository;
   final PromotionRepository _promotionRepository;
 

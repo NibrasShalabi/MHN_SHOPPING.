@@ -1,10 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../data/repository/fitness_repository.dart';
 import 'fitness_hub_state.dart';
 
-class FitnessHubCubit extends Cubit<FitnessHubState> {
+class FitnessHubCubit extends SafeCubit<FitnessHubState> {
   final FitnessRepository _repository;
 
   FitnessHubCubit(this._repository) : super(const FitnessHubState());

@@ -1,10 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 import '../../../../core/error/failures.dart';
 import '../../../home/data/repository/catalog_repository.dart';
 import '../../data/repositories/promotion_repository.dart';
 import 'deals_state.dart';
 
-class DealsCubit extends Cubit<DealsState> {
+class DealsCubit extends SafeCubit<DealsState> {
   final CatalogRepository _catalogRepository;
   final PromotionRepository _promotionRepository;
 

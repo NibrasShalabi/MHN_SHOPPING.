@@ -1,10 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../data/repository/catalog_repository.dart';
 import 'category_state.dart';
 
-class CategoryCubit extends Cubit<CategoryState> {
+class CategoryCubit extends SafeCubit<CategoryState> {
   final CatalogRepository _catalogRepository;
   final String categoryId;
 
@@ -65,7 +66,7 @@ class CategoryCubit extends Cubit<CategoryState> {
       emit(state.copyWith(isLoadingMore: false, failure: mapExceptionToFailure(e)));
     }
   }
-  /// [filterId] null selects the "الكل" chip. Results come back from the
+  /// [filterId] null selects the "ط§ظ„ظƒظ„" chip. Results come back from the
   /// cache when the user flips between filters they already opened, so
   /// this costs nothing after the first tap.
 

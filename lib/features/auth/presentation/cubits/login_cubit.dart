@@ -1,10 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../data/repositories/auth_repository.dart';
 import 'login_state.dart';
 
-class LoginCubit extends Cubit<LoginState> {
+class LoginCubit extends SafeCubit<LoginState> {
   final AuthRepository _authRepository;
 
   LoginCubit(this._authRepository) : super(const LoginState());

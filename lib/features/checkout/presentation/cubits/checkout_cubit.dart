@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/bloc/safe_cubit.dart';
 import 'dart:io';
 
 import '../../../../core/error/exceptions.dart';
@@ -9,7 +10,7 @@ import '../../../cart/domain/entities/cart_item.dart';
 import '../../data/repositories/firebase_checkout_service.dart';
 import 'checkout_state.dart';
 
-class CheckoutCubit extends Cubit<CheckoutState> {
+class CheckoutCubit extends SafeCubit<CheckoutState> {
   final CheckoutService _service;
   PlatformFile? _receiptPlatformFile;
 
@@ -17,7 +18,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
   void setReceiptFile(PlatformFile file) {
     _receiptPlatformFile = file;
-    // على الويب ما في path — بس نحتاج نعرف إنو في ملف محدد
+    // ط¹ظ„ظ‰ ط§ظ„ظˆظٹط¨ ظ…ط§ ظپظٹ path â€” ط¨ط³ ظ†ط­طھط§ط¬ ظ†ط¹ط±ظپ ط¥ظ†ظˆ ظپظٹ ظ…ظ„ظپ ظ…ط­ط¯ط¯
     emit(state.copyWith(hasReceipt: true));
   }
   Future<void> loadAddresses() async {
