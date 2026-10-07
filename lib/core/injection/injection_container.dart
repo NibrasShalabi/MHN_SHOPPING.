@@ -19,6 +19,9 @@ import '../../features/fitness/data/repository/fitness_repository.dart';
 import '../../features/home/data/repository/firebase_catalog_repository.dart';
 import '../../features/home/data/repository/catalog_cache.dart';
 import '../../features/home/data/repository/catalog_repository.dart';
+import '../../features/loyalty/data/repositories/firebase_loyalty_balance_repository.dart';
+import '../../features/loyalty/data/repositories/loyalty_balance_repository.dart';
+import '../../features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import '../../features/messages/data/repositories/firebase_messages_repository.dart';
 import '../../features/messages/data/repositories/messages_repository.dart';
 import '../../features/messages/presentation/cubits/messages_cubit.dart';
@@ -88,6 +91,12 @@ void setupInjector() {
   getIt.registerFactory(
         () => MessagesCubit(getIt<MessagesRepository>()),
   );
+  // Loyalty balance
+  getIt.registerLazySingleton<LoyaltyBalanceRepository>(
+    () => FirebaseLoyaltyBalanceRepository(db, auth),
+  );
+  getIt.registerFactory(() => LoyaltyBalanceCubit(getIt<LoyaltyBalanceRepository>()));
+
   getIt.registerLazySingleton<SuggestProductRepository>(
     () => FirebaseSuggestProductRepository(db, auth),
   );

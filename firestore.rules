@@ -18,10 +18,34 @@ service cloud.firestore {
     match /promotions/{id} { allow read: if true; allow write: if isAdmin(); }
     match /banners/{id} { allow read: if true; allow write: if isAdmin(); }
     match /suppliers/{id} { allow read: if true; allow write: if isAdmin(); }
+    // ===== Loyalty =====
+    // النقاط عملة: المستخدم ما بيقدر يغيّر رصيده إلا بمكافأة التقييم،
+    // ومرة وحدة، وبالضبط القيمة اللي حاططها الأدمن بـ config/loyaltyRules.
+    function loyaltyRules() {
+      return get(/databases/$(database)/documents/config/loyaltyRules).data;
+    }
+    function ratingReward() {
+      return loyaltyRules().get('appRatingPoints', 0);
+    }
+    // التقييم عم ينكتب بنفس العملية ولأول مرة
+    function isFirstRating(uid) {
+      return !exists(/databases/$(database)/documents/ratings/$(uid))
+        && existsAfter(/databases/$(database)/documents/ratings/$(uid));
+    }
+    function isRatingRewardUpdate(uid) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['loyaltyPoints'])
+        && loyaltyRules().get('appRatingRuleEnabled', true) == true
+        && request.resource.data.loyaltyPoints == resource.data.get('loyaltyPoints', 0) + ratingReward()
+        && isFirstRating(uid);
+    }
+
     match /users/{uid} {
       allow read: if isOwner(uid) || isAdmin();
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && request.resource.data.get('loyaltyPoints', 0) == 0;
+      allow update: if isAdmin() || (isOwner(uid) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['loyaltyPoints'])
+        || isRatingRewardUpdate(uid)
+      ));
       allow delete: if isAdmin();
     }
     match /cart/{uid} { allow read, write: if isOwner(uid); }
@@ -81,8 +105,12 @@ service cloud.firestore {
     }
     match /order_batches/{id} { allow read, write: if isAdmin(); }
     match /loyaltyTransactions/{id} {
-      allow read: if isAdmin();
-      allow create: if isAuth();
+      allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
+      allow create: if isAdmin() || (isAuth()
+        && id == 'rating_' + request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.points == ratingReward()
+        && isFirstRating(request.auth.uid));
       allow update, delete: if isAdmin();
     }
     match /config/{id} {

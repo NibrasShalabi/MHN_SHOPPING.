@@ -9,6 +9,7 @@ import 'core/injection/injection_container.dart' as di;
 import 'core/router/app_router.dart';
 import 'core/services/shared_prefs_service.dart';
 import 'core/theme/app_colors.dart';
+import 'features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import 'features/messages/presentation/cubits/messages_cubit.dart';
 import 'features/cart/data/repositories/cart_repository.dart';
 import 'features/cart/presentation/cubits/cart_cubit.dart';
@@ -44,6 +45,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => GetIt.instance<MessagesCubit>()..watch(),
+        ),
+        BlocProvider(
+          create: (_) => GetIt.instance<LoyaltyBalanceCubit>()..watch(),
         ),
         BlocProvider(
           create: (_) => OrdersCubit(

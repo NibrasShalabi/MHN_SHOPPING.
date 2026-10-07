@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../loyalty/presentation/widgets/loyalty_balance_badge.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/route_names.dart';
@@ -64,6 +65,7 @@ class _LoyaltyStorePageState extends State<LoyaltyStorePage> {
         centerTitle: true,
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.loyaltyStore, style: AppTextStyles.heading2),
+        actions: const [LoyaltyBalanceBadge(), SizedBox(width: AppConstants.spacingSm)],
       ),
       body: BlocBuilder<CategoryCubit, CategoryState>(
         builder: (context, state) {

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/utils/stream_switch_map.dart';
 import '../../domain/entities/admin_message.dart';
 import 'messages_repository.dart';
 
@@ -24,10 +25,10 @@ class FirebaseMessagesRepository implements MessagesRepository {
       _db.collection('users').doc(uid).collection('dismissedMessages');
 
   @override
-  Stream<List<AdminMessage>> watchInbox() => _switchMap(
-        _auth.authStateChanges(),
-        (User? user) => user == null ? Stream.value(const <AdminMessage>[]) : _inbox(user.uid),
-      ).transform(_mapErrors);
+  Stream<List<AdminMessage>> watchInbox() => _auth
+      .authStateChanges()
+      .switchMap((user) => user == null ? Stream.value(const <AdminMessage>[]) : _inbox(user.uid))
+      .transform(_mapErrors);
 
   @override
   Future<void> dismiss(AdminMessage message) async {
@@ -86,26 +87,6 @@ class FirebaseMessagesRepository implements MessagesRepository {
         }
       },
       onCancel: () => Future.wait(subs.map((s) => s.cancel())),
-    );
-    return controller.stream;
-  }
-
-  /// Cancels the previous inner stream on every outer event
-  /// (asyncExpand would wait forever on Firestore's never-ending snapshots).
-  static Stream<R> _switchMap<T, R>(Stream<T> source, Stream<R> Function(T) mapper) {
-    StreamSubscription<T>? outer;
-    StreamSubscription<R>? inner;
-    late final StreamController<R> controller;
-
-    controller = StreamController<R>(
-      onListen: () => outer = source.listen((event) {
-        inner?.cancel();
-        inner = mapper(event).listen(controller.add, onError: controller.addError);
-      }, onError: controller.addError),
-      onCancel: () async {
-        await inner?.cancel();
-        await outer?.cancel();
-      },
     );
     return controller.stream;
   }

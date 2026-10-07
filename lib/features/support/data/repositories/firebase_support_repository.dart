@@ -91,29 +91,31 @@ class FirebaseSupportRepository implements SupportRepository {
     if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
 
     try {
-      final batch = _db.batch();
+      // القيمة من قواعد الولاء اللي بيحددها الأدمن — والـ rules بترفض أي رقم غيرها
+      final rules = (await _db.collection('config').doc('loyaltyRules').get()).data() ?? const {};
+      final rewardEnabled = rules['appRatingRuleEnabled'] as bool? ?? true;
+      final reward = (rules['appRatingPoints'] as num?)?.toInt() ?? 0;
 
-      // حفظ التقييم
-      batch.set(_db.collection('ratings').doc(uid), {
-        'stars': stars,
-        'comment': comment,
-        'imageUrl': imagePath,
-        'createdAt': FieldValue.serverTimestamp(),
-        'isVisible': false,
-      });
+      final batch = _db.batch()
+        ..set(_db.collection('ratings').doc(uid), {
+          'stars': stars,
+          'comment': comment,
+          'imageUrl': imagePath,
+          'createdAt': FieldValue.serverTimestamp(),
+          'isVisible': false,
+        });
 
-      // إضافة نقاط الولاء
-      batch.update(_db.collection('users').doc(uid), {
-        'loyaltyPoints': FieldValue.increment(50),
-      });
-
-      // تسجيل المعاملة بـ loyaltyTransactions
-      batch.set(_db.collection('loyaltyTransactions').doc(), {
-        'userId': uid,
-        'points': 50,
-        'reason': 'تقييم التطبيق',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      if (rewardEnabled && reward > 0) {
+        batch
+          ..update(_db.collection('users').doc(uid), {'loyaltyPoints': FieldValue.increment(reward)})
+          // id ثابت = مكافأة وحدة بس لكل مستخدم
+          ..set(_db.collection('loyaltyTransactions').doc('rating_$uid'), {
+            'userId': uid,
+            'points': reward,
+            'reason': 'تقييم التطبيق',
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+      }
 
       await batch.commit();
     } on FirebaseException catch (e) {

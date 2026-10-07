@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../loyalty/presentation/widgets/loyalty_balance_badge.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/app_drawer.dart';
@@ -11,7 +12,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../../../core/widgets/custom/custom_search_bar.dart';
 import '../../../../core/widgets/custom/app_logo.dart';
-import '../../../../core/widgets/custom/loyalty_points_badge.dart';
 import '../../../deals/presentation/widgets/fire_deals_banner.dart';
 import '../../domain/entities/category.dart';
 import '../cubits/home_cubit.dart';
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                 child: AppLogo(),
               ),
               actions: [
-                const LoyaltyPointsBadge(points: 0),
+                LoyaltyBalanceBadge(onTap: () => context.go(RouteNames.loyaltyStore)),
                 Builder(
                   builder: (context) => IconButton(
                     icon: const Icon(Icons.menu, color: AppColors.iconPrimary),
