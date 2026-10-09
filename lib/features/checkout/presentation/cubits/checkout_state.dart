@@ -26,9 +26,10 @@ class CheckoutState extends Equatable {
   });
 
   String get selectedAddress => paymentAddresses[selectedMethod] ?? '';
+  bool get hasPaymentMethods => paymentAddresses.isNotEmpty;
   bool get isShamCash => selectedMethod == 'sham_cash';
   bool get canSubmit =>
-      status == CheckoutStatus.ready && (isShamCash ? hasReceipt : true);
+      selectedAddress.isNotEmpty && status == CheckoutStatus.ready && (isShamCash ? hasReceipt : true);
 
   CheckoutState copyWith({
     CheckoutStatus? status,

@@ -91,6 +91,7 @@ class AppStrings {
   static const String paymentResent = 'تم إرسال الدفع، رح نتحقق منه قريباً';
   static const String pickNewReceipt = 'اختر إيصال جديد';
   static const String send = 'إرسال';
+  static const String paymentUnavailable = 'الدفع غير متاح حالياً — تواصل معنا';
   static const String txidUsed = 'رقم المعاملة هذا مستخدم بطلب سابق';
   static const String txidInvalid = 'رقم المعاملة غير صالح';
   static const String itemsTotalLabel = 'المنتجات';

@@ -27,8 +27,6 @@ import '../../../cart/presentation/cubits/cart_state.dart';
 import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
 
-const _methods = ['trc20', 'bep20', 'erc20', 'sham_cash'];
-
 String _methodLabel(String method) => switch (method) {
   'trc20' => 'USDT — TRC20 (Tron)',
   'bep20' => 'USDT — BEP20 (BNB Smart Chain)',
@@ -129,7 +127,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 style: AppTextStyles.heading2,
                               ),
                               const SizedBox(height: AppConstants.spacingMd),
+                              if (!checkoutState.hasPaymentMethods)
+                                Text(
+                                  AppStrings.paymentUnavailable,
+                                  style: AppTextStyles.body.copyWith(color: AppColors.error),
+                                )
+                              else ...[
                               _MethodSelector(
+                                methods: checkoutState.paymentAddresses.keys.toList(),
                                 selected: checkoutState.selectedMethod,
                                 onChanged: context
                                     .read<CheckoutCubit>()
@@ -142,6 +147,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 txidController: _txidController,
                                 onPickFile: _pickReceipt,
                               ),
+                              ],
                             ],
                             const SizedBox(height: AppConstants.spacingLg),
                             _TermsCheckbox(
@@ -192,17 +198,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
 }
 
 class _MethodSelector extends StatelessWidget {
+  final List<String> methods;
   final String selected;
   final ValueChanged<String> onChanged;
 
-  const _MethodSelector({required this.selected, required this.onChanged});
+  const _MethodSelector({required this.methods, required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: AppConstants.spacingSm,
       runSpacing: AppConstants.spacingSm,
-      children: _methods.map((m) {
+      children: methods.map((m) {
         final isSelected = m == selected;
         return GestureDetector(
           onTap: () => onChanged(m),

@@ -37,6 +37,10 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
       emit(state.copyWith(
         status: CheckoutStatus.ready,
         paymentAddresses: addresses,
+        // The default may have been switched off by the admin.
+        selectedMethod: addresses.containsKey(state.selectedMethod) || addresses.isEmpty
+            ? state.selectedMethod
+            : addresses.keys.first,
         shippingRates: rates,
         governorate: governorate,
       ));

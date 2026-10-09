@@ -18,16 +18,18 @@ class CheckoutService {
   CheckoutService(this._db, this._auth, FirebaseStorage? storage)
     : _storage = storage ?? FirebaseStorage.instance;
 
-  /// يجيب عناوين الدفع من config/payment_addresses
+  static const paymentMethods = ['trc20', 'bep20', 'erc20', 'sham_cash'];
+
+  /// Enabled methods only, in display order — from config/payment_addresses,
+  /// which the admin edits. A method with no address or switched off is left out.
   Future<Map<String, String>> getPaymentAddresses() async {
     try {
-      final doc = await _db.collection('config').doc('payment_addresses').get();
-      final data = doc.data() ?? {};
+      final data = (await _db.collection('config').doc('payment_addresses').get()).data() ?? const {};
+      final disabled = (data['disabled'] as List? ?? const []).cast<String>().toSet();
       return {
-        'trc20': data['trc20'] as String? ?? '',
-        'bep20': data['bep20'] as String? ?? '',
-        'erc20': data['erc20'] as String? ?? '',
-        'sham_cash': data['sham_cash'] as String? ?? '',
+        for (final m in paymentMethods)
+          if ((data[m] as String?)?.trim() case final address? when address.isNotEmpty && !disabled.contains(m))
+            m: address,
       };
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
