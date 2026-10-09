@@ -131,6 +131,8 @@ class CheckoutService {
           'userId': uid,
           'status': 'pending',
           'total': total,
+          // نسخة من بيانات العميل وقت الطلب — الأدمن ما بيحتاج يقرأ users لكل طلب
+          ..._customerSnapshot(userDoc.data() ?? const {}),
           if (pointsTotal > 0) 'pointsTotal': pointsTotal,
           'paymentMethod': paymentMethod,
           if (txid != null) 'txid': txid,
@@ -157,5 +159,22 @@ class CheckoutService {
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
+  }
+
+  Map<String, dynamic> _customerSnapshot(Map<String, dynamic> u) {
+    String? text(String key) {
+      final v = (u[key] as String?)?.trim();
+      return v == null || v.isEmpty ? null : v;
+    }
+
+    final name = '${text('fullName') ?? ''} ${text('familyName') ?? ''}'.trim();
+    return {
+      if (name.isNotEmpty) 'customerName': name,
+      'customerPhone': ?text('phone'),
+      'customerSecondaryPhone': ?text('secondaryPhone'),
+      'governorate': ?text('governorate'),
+      'area': ?text('area'),
+      'gender': ?text('gender'),
+    };
   }
 }
