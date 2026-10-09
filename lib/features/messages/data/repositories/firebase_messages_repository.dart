@@ -106,7 +106,11 @@ class FirebaseMessagesRepository implements MessagesRepository {
       sentAt: (d['sentAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       relatedOrderId: d['orderId'] as String?,
       title: d['title'] as String?,
-      type: AdminMessageType.fromKey(d['type'] as String?),
+      // Older personal messages were written without a type — they're not
+      // broadcasts (dismissing one must mark it read, not hide a broadcast).
+      type: d['type'] == null && d['userId'] != null
+          ? AdminMessageType.orderUpdate
+          : AdminMessageType.fromKey(d['type'] as String?),
     );
   }
 }

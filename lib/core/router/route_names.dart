@@ -29,6 +29,7 @@ abstract class RouteNames {
 
   // Loyalty
   static const String loyaltyStore = '/loyalty-store';
+  static const String loyaltyHistory = '/loyalty-history';
 
   // Fitness (female-only — guarded)
   //

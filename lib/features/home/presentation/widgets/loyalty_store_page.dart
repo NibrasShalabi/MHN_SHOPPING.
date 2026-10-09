@@ -65,7 +65,15 @@ class _LoyaltyStorePageState extends State<LoyaltyStorePage> {
         centerTitle: true,
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.loyaltyStore, style: AppTextStyles.heading2),
-        actions: const [LoyaltyBalanceBadge(), SizedBox(width: AppConstants.spacingSm)],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: AppColors.iconPrimary),
+            tooltip: AppStrings.pointsHistory,
+            onPressed: () => context.push(RouteNames.loyaltyHistory),
+          ),
+          const LoyaltyBalanceBadge(),
+          const SizedBox(width: AppConstants.spacingSm),
+        ],
       ),
       body: BlocBuilder<CategoryCubit, CategoryState>(
         builder: (context, state) {

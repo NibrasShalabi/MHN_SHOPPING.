@@ -23,8 +23,13 @@ class FirebaseSuggestProductRepository implements SuggestProductRepository {
     if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
 
     try {
+      // الاسم بينحفظ مع الاقتراح — الأدمن ما بيحتاج يقرأ users لكل اقتراح
+      final user = (await _db.collection('users').doc(uid).get()).data();
+      final userName = '${user?['fullName'] ?? ''} ${user?['familyName'] ?? ''}'.trim();
+
       await _db.collection('productSuggestions').add({
         'userId': uid,
+        if (userName.isNotEmpty) 'userName': userName,
         'productName': suggestion.productName,
         'productLink': suggestion.productLink,
         'status': 'pending', // Client دايماً pending — Admin يغيره

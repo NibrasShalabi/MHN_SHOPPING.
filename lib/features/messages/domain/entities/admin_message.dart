@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 enum AdminMessageType {
   supportReply('support_reply'),
   orderUpdate('order_update'),
+  suggestion('suggestion'),
   broadcast('broadcast');
 
   final String key;

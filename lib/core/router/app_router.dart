@@ -1,3 +1,4 @@
+import '../../features/loyalty/presentation/pages/loyalty_history_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -331,6 +332,10 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
       GoRoute(
         path: RouteNames.currency,
         builder: (context, state) => const CurrencyPage(),
+      ),
+      GoRoute(
+        path: RouteNames.loyaltyHistory,
+        builder: (context, state) => const LoyaltyHistoryPage(),
       ),
       GoRoute(
         path: RouteNames.messages,

@@ -98,7 +98,10 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /productSuggestions/{id} {
-      allow create: if isAuth();
+      // الاقتراح بيبلش pending وباسم صاحبه — والنقاط بيعطيها الأدمن بس
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && !request.resource.data.keys().hasAny(['pointsAwarded']);
       allow read, update, delete: if isAdmin();
     }
     match /sharedCarts/{cartId} {
