@@ -26,6 +26,8 @@ class CartState extends Equatable {
 
   /// Display totals only — checkout recomputes both server-side.
   double get moneyTotal => items.where((i) => !i.isPoints).fold(0, (sum, i) => sum + i.lineTotal);
+  /// Supply shipping on money items — delivery is added at checkout by governorate.
+  double get supplyShipping => items.where((i) => !i.isPoints).fold(0, (sum, i) => sum + i.lineShipping);
   int get pointsTotal => items.where((i) => i.isPoints).fold(0, (sum, i) => sum + i.lineTotal.round());
 
   bool get hasMoneyItems => items.any((i) => !i.isPoints);

@@ -7,6 +7,7 @@ import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../data/repositories/firebase_checkout_service.dart';
+import '../../domain/entities/shipping_rates.dart';
 import 'checkout_state.dart';
 
 class CheckoutCubit extends SafeCubit<CheckoutState> {
@@ -17,18 +18,27 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
 
   void setReceiptFile(PlatformFile file) {
     _receiptPlatformFile = file;
-    // ط·آ¹ط¸â€‍ط¸â€° ط·آ§ط¸â€‍ط¸ث†ط¸ظ¹ط·آ¨ ط¸â€¦ط·آ§ ط¸ظ¾ط¸ظ¹ path أ¢â‚¬â€‌ ط·آ¨ط·آ³ ط¸â€ ط·آ­ط·ع¾ط·آ§ط·آ¬ ط¸â€ ط·آ¹ط·آ±ط¸ظ¾ ط·آ¥ط¸â€ ط¸ث† ط¸ظ¾ط¸ظ¹ ط¸â€¦ط¸â€‍ط¸ظ¾ ط¸â€¦ط·آ­ط·آ¯ط·آ¯
     emit(state.copyWith(hasReceipt: true));
   }
   Future<void> loadAddresses() async {
     if (isClosed) return;
     emit(state.copyWith(status: CheckoutStatus.loadingAddresses));
     try {
-      final addresses = await _service.getPaymentAddresses();
+      // Future.wait rethrows the first ServerException as-is.
+      final results = await Future.wait<Object?>([
+        _service.getPaymentAddresses(),
+        _service.getShippingRates(),
+        _service.getGovernorate(),
+      ]);
+      final addresses = results[0] as Map<String, String>;
+      final rates = results[1] as ShippingRates;
+      final governorate = results[2] as String?;
       if (isClosed) return;
       emit(state.copyWith(
         status: CheckoutStatus.ready,
         paymentAddresses: addresses,
+        shippingRates: rates,
+        governorate: governorate,
       ));
     } on ServerException catch (e) {
       if (isClosed) return;

@@ -32,21 +32,13 @@ class CartCubit extends SafeCubit<CartState> {
 
       // ط·ع¾ط·آ­ط¸â€ڑط¸â€ڑ ط¸â€¦ط¸â€  ط¸ئ’ط¸â€‍ ط¸â€¦ط¸â€ ط·ع¾ط·آ¬ ط·آ¥ط·آ°ط·آ§ ط¸â€‍ط·آ³ط·آ§ ط¸â€¦ط¸ث†ط·آ¬ط¸ث†ط·آ¯
       // The product is fetched anyway for the availability check — its
-      // pricing is re-applied too, so carts saved before items carried it
-      // still split points from money correctly.
+      // pricing and supply shipping are re-applied too, so older carts stay correct.
       final unavailable = <String>{};
       final checked = <CartItem>[];
       for (final item in items) {
         try {
           final product = await _catalogRepository.getProduct(item.productId);
-          checked.add(item.pricing == product.pricing ? item : CartItem(
-            productId: item.productId,
-            name: item.name,
-            imageUrl: item.imageUrl,
-            priceSnapshot: item.priceSnapshot,
-            quantity: item.quantity,
-            pricing: product.pricing,
-          ));
+          checked.add(item.syncedWith(product));
         } catch (_) {
           unavailable.add(item.productId);
           checked.add(item);
@@ -81,6 +73,7 @@ class CartCubit extends SafeCubit<CartState> {
         priceSnapshot: item.priceSnapshot,
         quantity: items[index].quantity + item.quantity,
         pricing: item.pricing,
+        shippingPerUnit: item.shippingPerUnit,
       );
     }
 

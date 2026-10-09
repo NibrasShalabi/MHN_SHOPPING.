@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../cart/presentation/widgets/cart_amount.dart';
 import '../../../cart/presentation/widgets/cart_totals.dart';
+import '../../domain/entities/order_breakdown.dart';
 import '../../../home/domain/entities/product.dart';
 import '../../../loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -102,6 +103,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
             return BlocBuilder<CartCubit, CartState>(
               builder: (context, cartState) {
+                // Display only — the order is priced again inside the checkout transaction.
+                final breakdown = OrderBreakdown.compute(
+                  lines: [
+                    for (final i in cartState.items)
+                      if (!i.isPoints) (unitPrice: i.priceSnapshot, shippingPerUnit: i.shippingPerUnit, quantity: i.quantity),
+                  ],
+                  rates: checkoutState.shippingRates,
+                  governorate: checkoutState.governorate,
+                );
                 return Column(
                   children: [
                     Expanded(
@@ -110,7 +120,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _OrderSummary(state: cartState),
+                            _OrderSummary(state: cartState, breakdown: breakdown, governorate: checkoutState.governorate),
                             const SizedBox(height: AppConstants.spacingLg),
                             if (cartState.isPointsOnly)
                               Text(
@@ -131,6 +141,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               ),
                               const SizedBox(height: AppConstants.spacingMd),
                               _PaymentDetails(
+                                amountDue: breakdown.total,
                                 checkoutState: checkoutState,
                                 txidController: _txidController,
                                 onPickFile: _pickReceipt,
@@ -289,11 +300,13 @@ class _MethodSelector extends StatelessWidget {
 }
 
 class _PaymentDetails extends StatelessWidget {
+  final double amountDue;
   final CheckoutState checkoutState;
   final TextEditingController txidController;
   final VoidCallback onPickFile;
 
   const _PaymentDetails({
+    required this.amountDue,
     required this.checkoutState,
     required this.txidController,
     required this.onPickFile,
@@ -317,11 +330,9 @@ class _PaymentDetails extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
               ),
-              BlocBuilder<CartCubit, CartState>(
-                builder: (_, cartState) => Text(
-                  formatCartAmount(cartState.moneyTotal, PricingKind.money),
-                  style: AppTextStyles.body.copyWith(color: AppColors.gold),
-                ),
+              Text(
+                formatCartAmount(amountDue, PricingKind.money),
+                style: AppTextStyles.body.copyWith(color: AppColors.gold),
               ),
             ],
           ),
@@ -431,8 +442,10 @@ class _AddressRow extends StatelessWidget {
 
 class _OrderSummary extends StatelessWidget {
   final CartState state;
+  final OrderBreakdown breakdown;
+  final String? governorate;
 
-  const _OrderSummary({required this.state});
+  const _OrderSummary({required this.state, required this.breakdown, this.governorate});
 
   @override
   Widget build(BuildContext context) {
@@ -470,14 +483,7 @@ class _OrderSummary extends StatelessWidget {
             color: AppColors.border,
             height: AppConstants.spacingLg,
           ),
-          CartTotals(cart: state),
-          const SizedBox(height: AppConstants.spacingXs),
-          Text(
-            AppStrings.shippingNote,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
+          CartTotals(cart: state, breakdown: breakdown, governorate: governorate),
         ],
       ),
     );

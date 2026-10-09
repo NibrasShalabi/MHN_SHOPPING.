@@ -1,11 +1,14 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/shipping_rates.dart';
 
 enum CheckoutStatus { initial, loadingAddresses, ready, submitting, success, failure }
 
 class CheckoutState extends Equatable {
   final CheckoutStatus status;
   final Map<String, String> paymentAddresses;
+  final ShippingRates shippingRates;
+  final String? governorate;
   final String selectedMethod;
   final bool hasReceipt;
   final String? orderId;
@@ -14,6 +17,8 @@ class CheckoutState extends Equatable {
   const CheckoutState({
     this.status = CheckoutStatus.initial,
     this.paymentAddresses = const {},
+    this.shippingRates = const ShippingRates(),
+    this.governorate,
     this.selectedMethod = 'trc20',
     this.hasReceipt = false,
     this.orderId,
@@ -28,6 +33,8 @@ class CheckoutState extends Equatable {
   CheckoutState copyWith({
     CheckoutStatus? status,
     Map<String, String>? paymentAddresses,
+    ShippingRates? shippingRates,
+    String? governorate,
     String? selectedMethod,
     bool? hasReceipt,
     bool clearReceipt = false,
@@ -37,6 +44,8 @@ class CheckoutState extends Equatable {
     return CheckoutState(
       status: status ?? this.status,
       paymentAddresses: paymentAddresses ?? this.paymentAddresses,
+      shippingRates: shippingRates ?? this.shippingRates,
+      governorate: governorate ?? this.governorate,
       selectedMethod: selectedMethod ?? this.selectedMethod,
       hasReceipt: clearReceipt ? false : (hasReceipt ?? this.hasReceipt),
       orderId: orderId ?? this.orderId,
@@ -46,6 +55,6 @@ class CheckoutState extends Equatable {
 
   @override
   List<Object?> get props => [
-    status, paymentAddresses, selectedMethod, hasReceipt, orderId, failure,
+    status, paymentAddresses, shippingRates, governorate, selectedMethod, hasReceipt, orderId, failure,
   ];
 }

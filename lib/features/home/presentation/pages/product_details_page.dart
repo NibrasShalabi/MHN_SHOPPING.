@@ -204,6 +204,7 @@ class _BottomBar extends StatelessWidget {
                       priceSnapshot: state.appliedPrice ?? product.effectivePrice,
                       quantity: state.quantity,
                       pricing: product.pricing,
+                      shippingPerUnit: product.shippingPrice,
                     ),
                   );
                   AppSnackbar.success(context, AppStrings.addedToCart);

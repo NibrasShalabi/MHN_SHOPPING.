@@ -229,6 +229,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
           .toList(),
       discountPercentage: (d['discountPercentage'] as num?)?.toDouble(),
       discountEndTime: d['discountEndTime'] != null ? (d['discountEndTime'] as Timestamp).toDate() : null,
+      shippingPrice: (d['shippingPrice'] as num? ?? 0).toDouble(),
     );
   }
 }

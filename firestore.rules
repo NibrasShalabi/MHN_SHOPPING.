@@ -51,7 +51,11 @@ service cloud.firestore {
     match /cart/{uid} { allow read, write: if isOwner(uid); }
     match /orders/{orderId} {
       allow read: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      // الطلب بيبلش دايماً بانتظار — حالة الدفع والنقاط بيحددهن الأدمن بس
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.get('paymentStatus', 'pending') == 'pending'
+        && !request.resource.data.keys().hasAny(['pointsDeducted', 'pointsRefunded', 'pointsAwarded', 'pointsAwardRevoked']);
       allow update: if isAdmin();
       allow delete: if false;
     }
@@ -127,7 +131,14 @@ service cloud.firestore {
     }
     match /{document=**} { allow read, write: if false; }
         // بيانات الأدمن فقط: سعر التكلفة ورابط المصدر
-        match /productsPrivate/{id} {
+        // كل TXID بيدفع طلب واحد بس — بينكتب مع الطلب بنفس الـ transaction
+    match /usedTxids/{txid} {
+      allow get: if isAuth();
+      allow create: if isAuth()
+        && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+    match /productsPrivate/{id} {
           allow read, write: if isAdmin();
         }
   }

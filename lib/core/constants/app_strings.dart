@@ -84,6 +84,14 @@ class AppStrings {
   static const String pointsUnit = 'نقطة';
   static const String pointsTotal = 'مجموع النقاط';
   static String pointsBalance(int balance) => 'رصيدك: $balance نقطة';
+  static const String txidUsed = 'رقم المعاملة هذا مستخدم بطلب سابق';
+  static const String txidInvalid = 'رقم المعاملة غير صالح';
+  static const String itemsTotalLabel = 'المنتجات';
+  static const String supplyShippingLabel = 'شحن التوريد';
+  static String deliveryTo(String governorate) => 'التوصيل إلى $governorate';
+  static const String deliveryLabel = 'التوصيل';
+  static const String amountDue = 'المطلوب دفعه';
+  static const String deliveryAtCheckout = 'رسوم التوصيل بتنحسب عند الدفع حسب محافظتك';
   static const String pointsOnlyCheckout = 'طلبك من متجر الولاء — بيندفع بالنقاط، ما في دفع إضافي';
 
   // شعار التطبيق (سطرين)

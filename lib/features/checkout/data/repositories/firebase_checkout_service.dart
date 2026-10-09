@@ -7,6 +7,8 @@ import 'dart:typed_data';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../cart/domain/entities/cart_item.dart';
+import '../../domain/entities/order_breakdown.dart';
+import '../../domain/entities/shipping_rates.dart';
 
 class CheckoutService {
   final FirebaseFirestore _db;
@@ -61,6 +63,27 @@ class CheckoutService {
     }
   }
 
+  Future<ShippingRates> getShippingRates() async {
+    try {
+      return ShippingRates.fromMap((await _db.collection('config').doc('shipping').get()).data() ?? const {});
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? '', code: e.code);
+    }
+  }
+
+  Future<String?> getGovernorate() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return null;
+    try {
+      return (await _db.collection('users').doc(uid).get()).data()?['governorate'] as String?;
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? '', code: e.code);
+    }
+  }
+
+  /// Everything the customer owes is computed here from the product docs,
+  /// active promotions, the shipping table and the customer's governorate —
+  /// never from the cart. The admin re-checks it with the same formula.
   Future<String> placeOrder({
     required List<CartItem> items,
     required String paymentMethod,
@@ -70,56 +93,71 @@ class CheckoutService {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
 
-    final counterRef = _db.collection('config').doc('orderCounter');
+    final normalizedTxid = txid?.trim().toLowerCase();
+    if (normalizedTxid != null && (normalizedTxid.isEmpty || normalizedTxid.contains('/'))) {
+      throw const ServerException(message: AppStrings.txidInvalid);
+    }
 
+    final counterRef = _db.collection('config').doc('orderCounter');
+    final txidRef = normalizedTxid == null ? null : _db.collection('usedTxids').doc(normalizedTxid);
     String orderId = '';
 
     try {
+      // Promotions are queried by productId — transactions only read docs by
+      // id, so they're fetched just before.
+      final promos = await _activePromotions(items.map((i) => i.productId).toSet().toList());
+
       await _db.runTransaction((transaction) async {
         // ===== ALL READS FIRST =====
         final counterDoc = await transaction.get(counterRef);
         final productDocs = await Future.wait(
-          items.map((item) => transaction.get(
-            _db.collection('products').doc(item.productId),
-          )),
+          items.map((item) => transaction.get(_db.collection('products').doc(item.productId))),
         );
         final userDoc = await transaction.get(_db.collection('users').doc(uid));
+        final shippingDoc = await transaction.get(_db.collection('config').doc('shipping'));
+        final txidDoc = txidRef == null ? null : await transaction.get(txidRef);
 
         // ===== VALIDATION =====
-        final lastNumber = counterDoc.data()?['lastOrderNumber'] as int? ?? 0;
-        final newNumber = lastNumber + 1;
+        if (txidDoc?.exists ?? false) throw const ServerException(message: AppStrings.txidUsed);
+
+        final newNumber = (counterDoc.data()?['lastOrderNumber'] as int? ?? 0) + 1;
         orderId = 'ORD-${newNumber.toString().padLeft(6, '0')}';
 
+        final products = [for (final d in productDocs) d.data()];
         for (int i = 0; i < items.length; i++) {
-          if (!productDocs[i].exists) {
-            throw ServerException(message: 'المنتج "${items[i].name}" غير موجود');
-          }
-          final stock = productDocs[i].data()?['stock'] as int? ?? 0;
-          if (stock < items[i].quantity) {
+          final p = products[i];
+          if (p == null) throw ServerException(message: 'المنتج "${items[i].name}" غير موجود');
+          if ((p['stock'] as int? ?? 0) < items[i].quantity) {
             throw ServerException(message: 'نفد مخزون "${items[i].name}"');
           }
         }
 
-        // نقاط الولاء: السعر من المنتج نفسه، مش من السلة
-        bool isPoints(int i) => productDocs[i].data()?['pricing'] == 'points';
-        var total = 0.0;
+        bool isPoints(int i) => products[i]!['pricing'] == 'points';
+        double unitPrice(int i) => _unitPrice(products[i]!, promos[items[i].productId] ?? 0);
+        double shippingPerUnit(int i) => (products[i]!['shippingPrice'] as num? ?? 0).toDouble();
+
+        final user = userDoc.data() ?? const <String, dynamic>{};
+        final breakdown = OrderBreakdown.compute(
+          lines: [
+            for (int i = 0; i < items.length; i++)
+              if (!isPoints(i)) (unitPrice: unitPrice(i), shippingPerUnit: shippingPerUnit(i), quantity: items[i].quantity),
+          ],
+          rates: ShippingRates.fromMap(shippingDoc.data() ?? const {}),
+          governorate: user['governorate'] as String?,
+        );
+
         var pointsTotal = 0;
         for (int i = 0; i < items.length; i++) {
-          if (isPoints(i)) {
-            pointsTotal += ((productDocs[i].data()?['price'] as num? ?? 0) * items[i].quantity).round();
-          } else {
-            total += items[i].lineTotal;
-          }
+          if (isPoints(i)) pointsTotal += ((products[i]!['price'] as num? ?? 0) * items[i].quantity).round();
         }
         // تحقق مبكر فقط — الخصم الفعلي بيعمله الأدمن لما يأكد الطلب
-        final balance = (userDoc.data()?['loyaltyPoints'] as num?)?.toInt() ?? 0;
+        final balance = (user['loyaltyPoints'] as num?)?.toInt() ?? 0;
         if (pointsTotal > balance) {
           throw ServerException(message: AppStrings.notEnoughPointsDetail(pointsTotal, balance));
         }
 
         // ===== ALL WRITES AFTER =====
         transaction.set(counterRef, {'lastOrderNumber': newNumber}, SetOptions(merge: true));
-
         for (int i = 0; i < items.length; i++) {
           transaction.update(
             _db.collection('products').doc(items[i].productId),
@@ -130,13 +168,15 @@ class CheckoutService {
         transaction.set(_db.collection('orders').doc(orderId), {
           'userId': uid,
           'status': 'pending',
-          'total': total,
-          // نسخة من بيانات العميل وقت الطلب — الأدمن ما بيحتاج يقرأ users لكل طلب
-          ..._customerSnapshot(userDoc.data() ?? const {}),
+          'itemsTotal': breakdown.itemsTotal,
+          'supplyShipping': breakdown.supplyShipping,
+          'deliveryFee': breakdown.deliveryFee,
+          'total': breakdown.total,
+          ..._customerSnapshot(user),
           if (pointsTotal > 0) 'pointsTotal': pointsTotal,
           'paymentMethod': paymentMethod,
-          if (txid != null) 'txid': txid,
-          if (receiptUrl != null) 'receiptUrl': receiptUrl,
+          'txid': ?normalizedTxid,
+          'receiptUrl': ?receiptUrl,
           'paymentStatus': 'pending',
           'createdAt': FieldValue.serverTimestamp(),
           'items': [
@@ -145,12 +185,18 @@ class CheckoutService {
                 'productId': items[i].productId,
                 'name': items[i].name,
                 'imageUrl': items[i].imageUrl,
-                'priceSnapshot': items[i].priceSnapshot,
                 'quantity': items[i].quantity,
                 'pricing': isPoints(i) ? 'points' : 'money',
+                'unitPrice': isPoints(i) ? (products[i]!['price'] as num? ?? 0).toDouble() : unitPrice(i),
+                'shippingPerUnit': isPoints(i) ? 0.0 : shippingPerUnit(i),
               },
           ],
         });
+
+        // One TXID can pay for one order only.
+        if (txidRef != null) {
+          transaction.set(txidRef, {'orderId': orderId, 'createdAt': FieldValue.serverTimestamp()});
+        }
       });
 
       return orderId;
@@ -159,6 +205,36 @@ class CheckoutService {
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
+  }
+
+  /// Best live promotion per product (same rule as the product page).
+  Future<Map<String, double>> _activePromotions(List<String> productIds) async {
+    final now = DateTime.now();
+    final best = <String, double>{};
+    for (var i = 0; i < productIds.length; i += 30) {
+      final chunk = productIds.sublist(i, (i + 30).clamp(0, productIds.length));
+      final snap = await _db.collection('promotions').where('productId', whereIn: chunk).get();
+      for (final doc in snap.docs) {
+        final p = doc.data();
+        final start = (p['startTime'] as Timestamp?)?.toDate();
+        final end = (p['endTime'] as Timestamp?)?.toDate();
+        final live = p['isActive'] != false && (start == null || !now.isBefore(start)) && (end == null || now.isBefore(end));
+        final pct = (p['discountPercentage'] as num? ?? 0).toDouble();
+        final id = p['productId'] as String;
+        if (live && pct > (best[id] ?? 0)) best[id] = pct;
+      }
+    }
+    return best;
+  }
+
+  /// A promotion wins over the product's own discount, as on the product page.
+  double _unitPrice(Map<String, dynamic> product, double promoPct) {
+    final price = (product['price'] as num? ?? 0).toDouble();
+    final ownPct = (product['discountPercentage'] as num? ?? 0).toDouble();
+    final ownEnd = (product['discountEndTime'] as Timestamp?)?.toDate();
+    final ownLive = ownPct > 0 && (ownEnd == null || DateTime.now().isBefore(ownEnd));
+    final pct = promoPct > 0 ? promoPct : (ownLive ? ownPct : 0);
+    return price * (1 - pct / 100);
   }
 
   Map<String, dynamic> _customerSnapshot(Map<String, dynamic> u) {
