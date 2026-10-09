@@ -105,4 +105,12 @@ class AppColors {
     end: Alignment.bottomLeft,
     colors: [ember, emberDeep],
   );
+
+  /// Polished-gold ramp for rims and premium call-to-action fills.
+  static const LinearGradient goldGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [goldLight, gold, goldDark, gold],
+    stops: [0.0, 0.35, 0.7, 1.0],
+  );
 }

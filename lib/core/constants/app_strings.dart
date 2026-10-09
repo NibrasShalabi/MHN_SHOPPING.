@@ -244,6 +244,7 @@ class AppStrings {
   static const String suppliers = 'الموردون';
   static const String suppliersBannerTitle = 'موردونا';
   static const String suppliersBannerBody = 'تسوّق من متاجر موثوقة داخل التطبيق';
+  static const String suppliersBannerTag = 'متاجر معتمدة';
   static const String browseSuppliers = 'تصفّح الموردين';
 
   /// Why the health questions are asked — shown above every program form.
