@@ -83,7 +83,6 @@ class AppStrings {
   static const String currencySy = 'ل.س';
   static const String pointsUnit = 'نقطة';
   static const String pointsTotal = 'مجموع النقاط';
-  static const String pointsHistory = 'سجل النقاط';
   static const String noPointsHistory = 'ما في حركات نقاط لسا';
   static String pointsBalance(int balance) => 'رصيدك: $balance نقطة';
   static const String paymentRejected = 'الدفع مرفوض';
