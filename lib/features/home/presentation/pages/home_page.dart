@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../widgets/suppliers_entry_banner.dart';
 import '../../../loyalty/presentation/widgets/loyalty_balance_badge.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
@@ -119,6 +120,10 @@ class _HomePageState extends State<HomePage> {
                   // NEW: بنر شرار ونار — يظهر بس إذا في عروض
                     FireDealsBanner(
                       onTap: () => context.push(RouteNames.deals),
+                    ),
+                    const SizedBox(height: AppConstants.spacingMd),
+                    SuppliersEntryBanner(
+                      onTap: () => context.push(RouteNames.suppliers),
                     ),
                     const SizedBox(height: AppConstants.spacingXl),
 

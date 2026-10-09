@@ -4,6 +4,7 @@ import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../core/utils/amount_format.dart';
 import '../../../../../core/widgets/surface_card.dart';
 import '../../../deals/data/repositories/currency_converter_repository.dart';
 import '../../../deals/domain/entities/currency_rate.dart';
@@ -28,9 +29,7 @@ class _CurrencyFormState extends State<CurrencyForm> {
   void initState() {
     super.initState();
     _amountController = TextEditingController(
-      text: widget.initialAmount != null
-          ? widget.initialAmount!.toStringAsFixed(2)
-          : '',
+      text: widget.initialAmount != null ? AmountFormat.format(widget.initialAmount!) : '',
     );
   }
 
@@ -42,8 +41,8 @@ class _CurrencyFormState extends State<CurrencyForm> {
   }
 
   void _convert() {
-    final amount = double.tryParse(_amountController.text);
-    final rate = double.tryParse(_rateController.text);
+    final amount = AmountFormat.parse(_amountController.text);
+    final rate = AmountFormat.parse(_rateController.text);
     if (amount == null || rate == null || rate <= 0) {
       setState(() => _converted = 0);
       return;
@@ -65,7 +64,7 @@ class _CurrencyFormState extends State<CurrencyForm> {
         _CurrencyField(
           controller: _amountController,
           label: AppStrings.amountUsd,
-          hint: '0.00',
+          hint: '0',
           onChanged: (_) => _convert(),
         ),
         const SizedBox(height: AppConstants.spacingMd),
@@ -116,7 +115,7 @@ class _CurrencyFormState extends State<CurrencyForm> {
                 Text(AppStrings.convertedAmount,
                     style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
                 Text(
-                  _repository.formatCurrency(amount: _converted, currency: _selected),
+                  '${AmountFormat.format(_converted)} ${_selected.symbol}',
                   style: AppTextStyles.heading2.copyWith(color: AppColors.gold),
                 ),
               ],
@@ -151,6 +150,7 @@ class _CurrencyField extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [ThousandsInputFormatter()],
         style: AppTextStyles.body,
         onChanged: onChanged,
         decoration: InputDecoration(

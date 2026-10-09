@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../currency/presentation/widgets/currency_sheet.dart';
 import '../../../cart/presentation/widgets/cart_amount.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../../cart/presentation/cubits/cart_cubit.dart';
@@ -47,6 +48,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         elevation: 0,
         bottom: const AppBarBottomBorder(),
         centerTitle: true,
+        actions: [
+          BlocBuilder<ProductDetailsCubit, ProductDetailsState>(
+            buildWhen: (a, b) => a.product != b.product || a.appliedPrice != b.appliedPrice,
+            builder: (context, state) => switch (state.product) {
+              final p? when p.pricing == PricingKind.money =>
+                CurrencySheetButton(amount: (state.appliedPrice ?? p.effectivePrice) + p.shippingPrice),
+              _ => const SizedBox.shrink(),
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<ProductDetailsCubit, ProductDetailsState>(
         builder: (context, state) {

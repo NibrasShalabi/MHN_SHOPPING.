@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../currency/presentation/widgets/currency_sheet.dart';
 import '../../../cart/presentation/widgets/cart_amount.dart';
 import '../../../cart/presentation/widgets/cart_totals.dart';
 import '../../domain/entities/order_breakdown.dart';
@@ -23,7 +24,6 @@ import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../../../core/widgets/surface_card.dart';
 import '../../../cart/presentation/cubits/cart_cubit.dart';
 import '../../../cart/presentation/cubits/cart_state.dart';
-import '../../../currency/presentation/widgets/currency_form.dart';
 import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
 
@@ -85,13 +85,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
           centerTitle: true,
           title: Text(AppStrings.checkout, style: AppTextStyles.heading2),
           actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.currency_exchange,
-                color: AppColors.iconPrimary,
-              ),
-              tooltip: AppStrings.currencyConverter,
-              onPressed: () => _showCurrencyPopup(context),
+            BlocBuilder<CartCubit, CartState>(
+              builder: (context, cart) => CurrencySheetButton(amount: cart.moneyTotal + cart.supplyShipping),
             ),
           ],
         ),
@@ -194,48 +189,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     context.read<CheckoutCubit>().setReceiptFile(result.files.single);
   }
 
-  void _showCurrencyPopup(BuildContext context) {
-    final state = context.read<CartCubit>().state;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surfaceWine,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(AppConstants.radiusXl),
-        ),
-      ),
-      builder: (_) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          AppConstants.spacingMd,
-          AppConstants.spacingSm,
-          AppConstants.spacingMd,
-          AppConstants.spacingMd + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: AppConstants.spacingXl,
-                height: AppConstants.borderThin * 3,
-                margin: const EdgeInsets.only(bottom: AppConstants.spacingMd),
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-                ),
-              ),
-            ),
-            Text(AppStrings.currencyConverter, style: AppTextStyles.heading2),
-            const SizedBox(height: AppConstants.spacingMd),
-            CurrencyForm(initialAmount: state.moneyTotal),
-            const SizedBox(height: AppConstants.spacingMd),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _MethodSelector extends StatelessWidget {
