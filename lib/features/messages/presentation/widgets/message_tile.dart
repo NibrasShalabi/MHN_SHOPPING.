@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -6,11 +7,15 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/admin_message.dart';
 
+/// One message, laid out top-to-bottom so title and body are always read in
+/// full: a meta row (icon, type, date), then the title, then the body.
 class MessageTile extends StatelessWidget {
   final AdminMessage message;
   final VoidCallback onDismiss;
 
   const MessageTile({super.key, required this.message, required this.onDismiss});
+
+  static final DateFormat _date = DateFormat('d MMM · HH:mm', 'ar');
 
   (IconData, String, Color) get _style => switch (message.type) {
         AdminMessageType.supportReply => (Icons.support_agent, AppStrings.messageTypeSupport, AppColors.gold),
@@ -34,51 +39,34 @@ class MessageTile extends StatelessWidget {
         child: Text(AppStrings.messageDismiss, style: AppTextStyles.body.copyWith(color: AppColors.error)),
       ),
       child: Container(
+        padding: const EdgeInsets.all(AppConstants.spacingMd),
         decoration: BoxDecoration(
           color: AppColors.surfaceElevated,
           borderRadius: radius,
           border: Border.all(color: accent.withValues(alpha: 0.4), width: AppConstants.borderThin),
         ),
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: AppConstants.spacingMd,
-            vertical: AppConstants.spacingSm,
-          ),
-          leading: CircleAvatar(
-            backgroundColor: accent.withValues(alpha: 0.12),
-            child: Icon(icon, color: accent, size: AppConstants.iconSm + AppConstants.spacingXs),
-          ),
-          title: Row(
-            children: [
-              if (message.title case final title?) ...[
-                Flexible(
-                  child: Text(title,
-                      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis),
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: accent, size: AppConstants.iconSm + AppConstants.spacingXs),
                 const SizedBox(width: AppConstants.spacingSm),
+                Text(label, style: AppTextStyles.caption.copyWith(color: accent)),
+                const Spacer(),
+                Text(
+                  _date.format(message.sentAt),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                ),
               ],
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppConstants.spacingXs + 2,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppConstants.spacingXs),
-                ),
-                child: Text(label, style: AppTextStyles.caption.copyWith(color: accent)),
-              ),
+            ),
+            if (message.title case final title? when title.isNotEmpty) ...[
+              const SizedBox(height: AppConstants.spacingSm),
+              Text(title, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold, color: AppColors.goldLight)),
             ],
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: AppConstants.spacingXs),
-            child: Text(message.body, style: AppTextStyles.body),
-          ),
-          trailing: Text(
-            '${message.sentAt.day}/${message.sentAt.month}',
-            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-          ),
+            const SizedBox(height: AppConstants.spacingXs),
+            Text(message.body, style: AppTextStyles.body.copyWith(height: 1.6)),
+          ],
         ),
       ),
     );
