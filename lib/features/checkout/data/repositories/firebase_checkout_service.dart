@@ -114,7 +114,7 @@ class CheckoutService {
         // تحقق مبكر فقط — الخصم الفعلي بيعمله الأدمن لما يأكد الطلب
         final balance = (userDoc.data()?['loyaltyPoints'] as num?)?.toInt() ?? 0;
         if (pointsTotal > balance) {
-          throw ServerException(message: AppStrings.notEnoughPoints(pointsTotal, balance));
+          throw ServerException(message: AppStrings.notEnoughPointsDetail(pointsTotal, balance));
         }
 
         // ===== ALL WRITES AFTER =====
