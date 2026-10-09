@@ -24,8 +24,17 @@ class CartState extends Equatable {
 
   int get totalCount => items.fold(0, (sum, item) => sum + item.quantity);
 
-  /// Display total only — checkout recomputes it server-side.
-  double get subtotal => items.fold(0, (sum, item) => sum + item.lineTotal);
+  /// Display totals only — checkout recomputes both server-side.
+  double get moneyTotal => items.where((i) => !i.isPoints).fold(0, (sum, i) => sum + i.lineTotal);
+  int get pointsTotal => items.where((i) => i.isPoints).fold(0, (sum, i) => sum + i.lineTotal.round());
+
+  bool get hasMoneyItems => items.any((i) => !i.isPoints);
+  bool get hasPointsItems => items.any((i) => i.isPoints);
+
+  /// Loyalty-store only — nothing to pay in money.
+  bool get isPointsOnly => !isEmpty && !hasMoneyItems;
+
+  bool canAffordPoints(int balance) => pointsTotal <= balance;
 
   CartState copyWith({
     CartStatus? status,

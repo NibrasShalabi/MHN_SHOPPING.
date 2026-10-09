@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../widgets/cart_amount.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -165,8 +166,7 @@ class _SharedItemTile extends StatelessWidget {
                 Text(item.name, style: AppTextStyles.body, maxLines: 2),
                 const SizedBox(height: AppConstants.spacingXs),
                 Text(
-                  '${item.lineTotal.toStringAsFixed(0)} ${AppStrings.currencySy}'
-                      '  ×${item.quantity}',
+                  '${formatCartAmount(item.lineTotal, item.pricing)}  ×${item.quantity}',
                   style: AppTextStyles.caption.copyWith(color: AppColors.gold),
                 ),
               ],

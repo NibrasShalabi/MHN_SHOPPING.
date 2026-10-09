@@ -5,6 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../cart/presentation/widgets/cart_amount.dart';
+import '../../../cart/presentation/widgets/cart_totals.dart';
+import '../../../home/domain/entities/product.dart';
+import '../../../loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/route_names.dart';
@@ -108,23 +112,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           children: [
                             _OrderSummary(state: cartState),
                             const SizedBox(height: AppConstants.spacingLg),
-                            Text(
-                              AppStrings.paymentMethod,
-                              style: AppTextStyles.heading2,
-                            ),
-                            const SizedBox(height: AppConstants.spacingMd),
-                            _MethodSelector(
-                              selected: checkoutState.selectedMethod,
-                              onChanged: context
-                                  .read<CheckoutCubit>()
-                                  .selectMethod,
-                            ),
-                            const SizedBox(height: AppConstants.spacingMd),
-                            _PaymentDetails(
-                              checkoutState: checkoutState,
-                              txidController: _txidController,
-                              onPickFile: _pickReceipt,
-                            ),
+                            if (cartState.isPointsOnly)
+                              Text(
+                                AppStrings.pointsOnlyCheckout,
+                                style: AppTextStyles.body.copyWith(color: AppColors.goldLight),
+                              )
+                            else ...[
+                              Text(
+                                AppStrings.paymentMethod,
+                                style: AppTextStyles.heading2,
+                              ),
+                              const SizedBox(height: AppConstants.spacingMd),
+                              _MethodSelector(
+                                selected: checkoutState.selectedMethod,
+                                onChanged: context
+                                    .read<CheckoutCubit>()
+                                    .selectMethod,
+                              ),
+                              const SizedBox(height: AppConstants.spacingMd),
+                              _PaymentDetails(
+                                checkoutState: checkoutState,
+                                txidController: _txidController,
+                                onPickFile: _pickReceipt,
+                              ),
+                            ],
                             const SizedBox(height: AppConstants.spacingLg),
                             _TermsCheckbox(
                               value: _termsAccepted,
@@ -138,13 +149,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     _SubmitBar(
                       enabled:
                           _termsAccepted &&
-                          checkoutState.canSubmit &&
-                          checkoutState.status != CheckoutStatus.submitting,
+                          checkoutState.status == CheckoutStatus.ready &&
+                          (cartState.isPointsOnly || checkoutState.canSubmit) &&
+                          cartState.canAffordPoints(context.watch<LoyaltyBalanceCubit>().state),
                       loading:
                           checkoutState.status == CheckoutStatus.submitting,
                       onSubmit: () => context.read<CheckoutCubit>().submit(
                         items: cartState.items,
-                        txid: checkoutState.isShamCash
+                        txid: cartState.isPointsOnly || checkoutState.isShamCash
                             ? null
                             : _txidController.text.trim(),
                       ),
@@ -204,7 +216,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             Text(AppStrings.currencyConverter, style: AppTextStyles.heading2),
             const SizedBox(height: AppConstants.spacingMd),
-            CurrencyForm(initialAmount: state.subtotal),
+            CurrencyForm(initialAmount: state.moneyTotal),
             const SizedBox(height: AppConstants.spacingMd),
           ],
         ),
@@ -307,7 +319,7 @@ class _PaymentDetails extends StatelessWidget {
               ),
               BlocBuilder<CartCubit, CartState>(
                 builder: (_, cartState) => Text(
-                  '\$${cartState.subtotal.toStringAsFixed(2)}',
+                  formatCartAmount(cartState.moneyTotal, PricingKind.money),
                   style: AppTextStyles.body.copyWith(color: AppColors.gold),
                 ),
               ),
@@ -445,7 +457,7 @@ class _OrderSummary extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${item.lineTotal.toStringAsFixed(2)}',
+                    formatCartAmount(item.lineTotal, item.pricing),
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.gold,
                     ),
@@ -458,16 +470,7 @@ class _OrderSummary extends StatelessWidget {
             color: AppColors.border,
             height: AppConstants.spacingLg,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(AppStrings.total, style: AppTextStyles.body),
-              Text(
-                '\$${state.subtotal.toStringAsFixed(2)}',
-                style: AppTextStyles.heading2,
-              ),
-            ],
-          ),
+          CartTotals(cart: state),
           const SizedBox(height: AppConstants.spacingXs),
           Text(
             AppStrings.shippingNote,

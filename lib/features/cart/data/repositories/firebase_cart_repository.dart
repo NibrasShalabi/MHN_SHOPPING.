@@ -61,22 +61,7 @@ class FirebaseCartRepository implements CartRepository {
 
   // ===== Mappers =====
 
-  CartItem _itemFromMap(dynamic map) {
-    final m = map as Map<String, dynamic>;
-    return CartItem(
-      productId: m['productId'] as String? ?? '',
-      name: m['name'] as String? ?? '',
-      imageUrl: m['imageUrl'] as String?,
-      priceSnapshot: (m['priceSnapshot'] as num? ?? 0).toDouble(),
-      quantity: m['quantity'] as int? ?? 1,
-    );
-  }
+  CartItem _itemFromMap(dynamic map) => CartItem.fromMap(map as Map<String, dynamic>);
 
-  Map<String, dynamic> _itemToMap(CartItem item) => {
-    'productId': item.productId,
-    'name': item.name,
-    'imageUrl': item.imageUrl,
-    'priceSnapshot': item.priceSnapshot,
-    'quantity': item.quantity,
-  };
+  Map<String, dynamic> _itemToMap(CartItem item) => item.toMap();
 }

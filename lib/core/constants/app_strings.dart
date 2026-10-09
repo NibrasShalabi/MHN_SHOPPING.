@@ -82,6 +82,9 @@ class AppStrings {
   static const String newBadge = 'جديد';
   static const String currencySy = 'ل.س';
   static const String pointsUnit = 'نقطة';
+  static const String pointsTotal = 'مجموع النقاط';
+  static String pointsBalance(int balance) => 'رصيدك: $balance نقطة';
+  static const String pointsOnlyCheckout = 'طلبك من متجر الولاء — بيندفع بالنقاط، ما في دفع إضافي';
 
   // شعار التطبيق (سطرين)
   static const String logoLine1 = 'MHN';

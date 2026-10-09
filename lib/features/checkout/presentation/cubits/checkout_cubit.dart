@@ -50,8 +50,9 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
     emit(state.copyWith(status: CheckoutStatus.submitting));
     try {
       String? receiptUrl;
+      final pointsOnly = items.every((i) => i.isPoints);
 
-      if (state.isShamCash && _receiptPlatformFile != null) {
+      if (!pointsOnly && state.isShamCash && _receiptPlatformFile != null) {
         receiptUrl = await _service.uploadReceipt(
           orderId: 'tmp_${DateTime.now().millisecondsSinceEpoch}',
           file: _receiptPlatformFile!,
@@ -60,7 +61,7 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
 
       final orderId = await _service.placeOrder(
         items: items,
-        paymentMethod: state.selectedMethod,
+        paymentMethod: pointsOnly ? 'points' : state.selectedMethod,
         txid: txid,
         receiptUrl: receiptUrl,
       );

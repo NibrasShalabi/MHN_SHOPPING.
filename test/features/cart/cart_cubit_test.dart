@@ -228,7 +228,7 @@ void main() {
 
     test('1.12 — subtotal صح', () {
       final s = CartState(status: CartStatus.success, items: [_item('p1', price: 10, qty: 2), _item('p2', price: 5, qty: 4)]);
-      expect(s.subtotal, 40.0);
+      expect(s.moneyTotal, 40.0);
     });
 
     test('1.13 — isEmpty = true', () => expect(const CartState(status: CartStatus.success).isEmpty, isTrue));

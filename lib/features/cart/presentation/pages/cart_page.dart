@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../loyalty/presentation/cubits/loyalty_balance_cubit.dart';
+import '../widgets/cart_totals.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/route_names.dart';
@@ -108,6 +110,7 @@ class _CheckoutBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final balance = context.watch<LoyaltyBalanceCubit>().state;
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.surfaceWine,
@@ -120,22 +123,18 @@ class _CheckoutBar extends StatelessWidget {
             horizontal: AppConstants.spacingMd,
             vertical: AppConstants.spacingSm,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(AppStrings.total, style: AppTextStyles.caption),
-                  Text('\$${state.subtotal.toStringAsFixed(2)}', style: AppTextStyles.heading2),
-                ],
-              ),
+              CartTotals(cart: state),
+              const SizedBox(height: AppConstants.spacingSm),
               CustomButton(
                 label: state.unavailableProductIds.isEmpty
                     ? AppStrings.proceedToCheckout
                     : AppStrings.cartHasUnavailableItems,
                 icon: Icons.arrow_back_ios,
-                onPressed: state.unavailableProductIds.isEmpty
+                onPressed: state.unavailableProductIds.isEmpty && state.canAffordPoints(balance)
                     ? () => context.push(RouteNames.checkout)
                     : null,
               ),

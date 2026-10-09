@@ -32,13 +32,7 @@ class FirebaseSharedCartRepository implements SharedCartRepository {
         'createdBy': uid,
         'createdAt': FieldValue.serverTimestamp(),
         'expiresAt': Timestamp.fromDate(DateTime.now().add(_ttl)),
-        'items': items.map((item) => {
-          'productId': item.productId,
-          'name': item.name,
-          'imageUrl': item.imageUrl,
-          'priceSnapshot': item.priceSnapshot,
-          'quantity': item.quantity,
-        }).toList(),
+        'items': items.map((item) => item.toMap()).toList(),
       });
 
       return ref.id;
@@ -62,13 +56,7 @@ class FirebaseSharedCartRepository implements SharedCartRepository {
       if (expiresAt != null && DateTime.now().isAfter(expiresAt)) return null;
 
       final items = (d['items'] as List<dynamic>? ?? [])
-          .map((item) => CartItem(
-        productId: item['productId'] as String? ?? '',
-        name: item['name'] as String? ?? '',
-        imageUrl: item['imageUrl'] as String?,
-        priceSnapshot: (item['priceSnapshot'] as num? ?? 0).toDouble(),
-        quantity: item['quantity'] as int? ?? 1,
-      ))
+          .map((item) => CartItem.fromMap(item as Map<String, dynamic>))
           .toList();
 
       return items;

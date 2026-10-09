@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'cart_amount.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -87,7 +88,7 @@ class CartItemTile extends StatelessWidget {
                   ),
                   const SizedBox(height: AppConstants.spacingXs),
                   Text(
-                    '\$${item.lineTotal.toStringAsFixed(2)}',
+                    formatCartAmount(item.lineTotal, item.pricing),
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textOnPrimary,
                       fontWeight: FontWeight.w500,
