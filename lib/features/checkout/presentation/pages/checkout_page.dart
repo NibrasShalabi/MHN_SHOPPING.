@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -187,7 +188,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       type: FileType.custom,
       allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
     );
-    if (result == null || result.files.single.path == null) return;
+    // On web there's no path — the bytes are what gets uploaded.
+    if (result == null || (!kIsWeb && result.files.single.path == null)) return;
     if (!mounted) return;
     context.read<CheckoutCubit>().setReceiptFile(result.files.single);
   }

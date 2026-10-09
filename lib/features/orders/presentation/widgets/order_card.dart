@@ -5,6 +5,7 @@ import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/surface_card.dart';
+import '../../../checkout/presentation/widgets/payment_resubmit_sheet.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/entities/order_status.dart';
 import 'order_status_timeline.dart';
@@ -27,6 +28,7 @@ class OrderCard extends StatelessWidget {
           children: [
             _Header(order: order),
             if (order.status.isInterrupted) _InterruptionBanner(order: order),
+            if (order.isPaymentRejected) _PaymentRejectedBanner(order: order),
             Padding(
               padding: const EdgeInsets.all(AppConstants.spacingMd),
               child: Column(
@@ -208,6 +210,44 @@ class _MetaRow extends StatelessWidget {
               style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
               overflow: TextOverflow.ellipsis,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Payment rejected by the admin: the reason, and a way to send a new one.
+class _PaymentRejectedBanner extends StatelessWidget {
+  final OrderEntity order;
+
+  const _PaymentRejectedBanner({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: AppColors.error.withValues(alpha: 0.12),
+      padding: const EdgeInsets.all(AppConstants.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.error_outline, color: AppColors.error, size: AppConstants.iconSm),
+              const SizedBox(width: AppConstants.spacingXs),
+              Text(AppStrings.paymentRejected, style: AppTextStyles.body.copyWith(color: AppColors.error)),
+            ],
+          ),
+          if (order.paymentRejectReason case final reason?) ...[
+            const SizedBox(height: AppConstants.spacingXs),
+            Text(reason, style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary)),
+          ],
+          const SizedBox(height: AppConstants.spacingSm),
+          TextButton.icon(
+            onPressed: () => showPaymentResubmitSheet(context, orderId: order.id, paymentMethod: order.paymentMethod),
+            icon: const Icon(Icons.refresh, color: AppColors.gold),
+            label: Text(AppStrings.resubmitPayment, style: AppTextStyles.body.copyWith(color: AppColors.gold)),
           ),
         ],
       ),

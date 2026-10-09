@@ -207,6 +207,44 @@ class CheckoutService {
     }
   }
 
+  /// After the admin rejects a payment: a new TXID or receipt puts it back
+  /// to pending. Rules allow only these fields, only from 'rejected'.
+  Future<void> resubmitPayment({required String orderId, String? txid, String? receiptUrl}) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
+
+    final normalizedTxid = txid?.trim().toLowerCase();
+    if (normalizedTxid != null && (normalizedTxid.isEmpty || normalizedTxid.contains('/'))) {
+      throw const ServerException(message: AppStrings.txidInvalid);
+    }
+    final orderRef = _db.collection('orders').doc(orderId);
+    final txidRef = normalizedTxid == null ? null : _db.collection('usedTxids').doc(normalizedTxid);
+
+    try {
+      await _db.runTransaction((tx) async {
+        final order = (await tx.get(orderRef)).data();
+        final txidDoc = txidRef == null ? null : await tx.get(txidRef);
+        if (order == null || order['userId'] != uid || order['paymentStatus'] != 'rejected') {
+          throw const ServerException(message: AppStrings.somethingWentWrong);
+        }
+        if (txidDoc?.exists ?? false) throw const ServerException(message: AppStrings.txidUsed);
+
+        tx.update(orderRef, {
+          'txid': ?normalizedTxid,
+          'receiptUrl': ?receiptUrl,
+          'paymentStatus': 'pending',
+          'paymentRejectReason': FieldValue.delete(),
+          'paymentResubmittedAt': FieldValue.serverTimestamp(),
+        });
+        if (txidRef != null) tx.set(txidRef, {'orderId': orderId, 'createdAt': FieldValue.serverTimestamp()});
+      });
+    } on ServerException {
+      rethrow;
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? '', code: e.code);
+    }
+  }
+
   /// Best live promotion per product (same rule as the product page).
   Future<Map<String, double>> _activePromotions(List<String> productIds) async {
     final now = DateTime.now();

@@ -5,6 +5,9 @@ abstract class OrdersRepository {
   /// Only returns orders inside the retention window — see
   /// [OrdersRetention]. Anything older is not shown to the user at all.
   Future<List<OrderEntity>> getOrders();
+
+  /// Live list — payment rejections and status changes show up without a refresh.
+  Stream<List<OrderEntity>> watchOrders();
 }
 
 /// How long an order stays visible to the user.
@@ -24,6 +27,9 @@ class OrdersRetention {
 
 /// UI-phase implementation.
 class FakeOrdersRepository implements OrdersRepository {
+  @override
+  Stream<List<OrderEntity>> watchOrders() => Stream.fromFuture(getOrders());
+
   @override
   Future<List<OrderEntity>> getOrders() async {
     await Future.delayed(const Duration(milliseconds: 400));

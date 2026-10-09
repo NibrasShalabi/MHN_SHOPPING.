@@ -84,6 +84,12 @@ class AppStrings {
   static const String pointsUnit = 'نقطة';
   static const String pointsTotal = 'مجموع النقاط';
   static String pointsBalance(int balance) => 'رصيدك: $balance نقطة';
+  static const String paymentRejected = 'الدفع مرفوض';
+  static const String resubmitPayment = 'إعادة إرسال الدفع';
+  static const String resubmitPaymentHint = 'صحّح الدفع وابعته من جديد، ورح نتحقق منه';
+  static const String paymentResent = 'تم إرسال الدفع، رح نتحقق منه قريباً';
+  static const String pickNewReceipt = 'اختر إيصال جديد';
+  static const String send = 'إرسال';
   static const String txidUsed = 'رقم المعاملة هذا مستخدم بطلب سابق';
   static const String txidInvalid = 'رقم المعاملة غير صالح';
   static const String itemsTotalLabel = 'المنتجات';

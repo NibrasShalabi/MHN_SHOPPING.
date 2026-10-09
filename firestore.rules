@@ -56,7 +56,13 @@ service cloud.firestore {
         && request.resource.data.status == 'pending'
         && request.resource.data.get('paymentStatus', 'pending') == 'pending'
         && !request.resource.data.keys().hasAny(['pointsDeducted', 'pointsRefunded', 'pointsAwarded', 'pointsAwardRevoked']);
-      allow update: if isAdmin();
+      // العميل بيعيد إرسال الدفع بس بعد ما الأدمن رفضه — وبيغيّر حقول الدفع فقط
+      allow update: if isAdmin() || (isAuth()
+        && resource.data.userId == request.auth.uid
+        && resource.data.paymentStatus == 'rejected'
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['txid', 'receiptUrl', 'paymentStatus', 'paymentRejectReason', 'paymentResubmittedAt']));
       allow delete: if false;
     }
     match /admin_messages/{id} {

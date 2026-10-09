@@ -32,7 +32,8 @@ class OrderEntity extends Equatable {
   final String? paymentMethod;   // 'trc20' | 'bep20' | 'erc20' | 'sham_cash' | 'cod'
   final String? txid;
   final String? receiptUrl;
-  final String? paymentStatus;   // 'pending' | 'confirmed' | 'rejected'
+  final String? paymentStatus;   // 'pending' | 'verified' | 'rejected'
+  final String? paymentRejectReason;
 
   const OrderEntity({
     required this.id,
@@ -46,7 +47,11 @@ class OrderEntity extends Equatable {
     this.txid,
     this.receiptUrl,
     this.paymentStatus,
+    this.paymentRejectReason,
   });
+
+  /// Money order whose payment the admin rejected — the customer can send a new one.
+  bool get isPaymentRejected => paymentStatus == 'rejected' && status != OrderStatus.cancelled;
 
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
   Duration get elapsed => DateTime.now().difference(createdAt);
@@ -55,6 +60,6 @@ class OrderEntity extends Equatable {
   List<Object?> get props => [
     id, createdAt, status, lines, total,
     expectedDelivery, statusNote,
-    paymentMethod, txid, receiptUrl, paymentStatus,
+    paymentMethod, txid, receiptUrl, paymentStatus, paymentRejectReason,
   ];
 }

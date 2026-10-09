@@ -21,12 +21,6 @@ class OrdersPage extends StatefulWidget {
 
 class _OrdersPageState extends State<OrdersPage> {
   @override
-  void initState() {
-    super.initState();
-    context.read<OrdersCubit>().load();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
