@@ -88,6 +88,8 @@ class AppStrings {
   static const String txidInvalid = 'رقم المعاملة غير صالح';
   static const String itemsTotalLabel = 'المنتجات';
   static const String supplyShippingLabel = 'شحن التوريد';
+  static String supplyShippingPerPiece(String amount) => '+ شحن توريد $amount للقطعة';
+  static const String supplyShippingFree = 'شحن التوريد مجاني';
   static String deliveryTo(String governorate) => 'التوصيل إلى $governorate';
   static const String deliveryLabel = 'التوصيل';
   static const String amountDue = 'المطلوب دفعه';

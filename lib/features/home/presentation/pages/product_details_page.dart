@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../cart/presentation/widgets/cart_amount.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../../cart/presentation/cubits/cart_cubit.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -93,6 +94,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                                 color: AppColors.textSecondary,
                               ),
                             ),
+                            if (product.pricing == PricingKind.money) ...[
+                              const SizedBox(height: AppConstants.spacingXs),
+                              Text(
+                                product.shippingPrice > 0
+                                    ? AppStrings.supplyShippingPerPiece(formatCartAmount(product.shippingPrice, PricingKind.money))
+                                    : AppStrings.supplyShippingFree,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: product.shippingPrice > 0 ? AppColors.goldLight : AppColors.success,
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: AppConstants.spacingSm),
                             Text(
                               product.isInStock ? AppStrings.inStockCount(product.stock) : AppStrings.outOfStock,
