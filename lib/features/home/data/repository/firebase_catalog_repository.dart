@@ -80,7 +80,8 @@ class FirebaseCatalogRepository implements CatalogRepository {
     }
     try {
       final snap = await _db.collection('suppliers').get();
-      final suppliers = snap.docs.map(_supplierFromDoc).toList();
+      // A supplier the admin switched off disappears from the app.
+      final suppliers = snap.docs.where((d) => d.data()['isActive'] != false).map(_supplierFromDoc).toList();
       _cache.write(CatalogCache.suppliersKey, suppliers);
       return suppliers;
     } on FirebaseException catch (e) {
@@ -90,6 +91,11 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<Supplier> getSupplier(String supplierId, {bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      final cached = _cache.read<CachedSuppliers>(CatalogCache.suppliersKey, CatalogCache.structureTtl);
+      final hit = cached?.where((s) => s.id == supplierId).firstOrNull;
+      if (hit != null) return hit;
+    }
     try {
       final doc = await _db.collection('suppliers').doc(supplierId).get();
       if (!doc.exists) throw const NotFoundException();
@@ -235,8 +241,12 @@ class FirebaseCatalogRepository implements CatalogRepository {
       name: d['name'] as String? ?? '',
       logoUrl: d['logoUrl'] as String?,
       description: d['description'] as String? ?? '',
+      phone: d['phone'] as String? ?? '',
+      address: d['address'] as String? ?? '',
+      mapsUrl: d['mapsUrl'] as String? ?? '',
     );
   }
+
 
   Category _categoryFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
@@ -288,6 +298,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
       discountPercentage: (d['discountPercentage'] as num?)?.toDouble(),
       discountEndTime: d['discountEndTime'] != null ? (d['discountEndTime'] as Timestamp).toDate() : null,
       shippingPrice: (d['shippingPrice'] as num? ?? 0).toDouble(),
+      supplierId: d['supplierId'] as String?,
     );
   }
 }

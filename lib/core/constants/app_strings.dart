@@ -232,7 +232,14 @@ class AppStrings {
   static const String notSignedIn = 'سجّلي دخولك أولاً';
   static const String consultSpecialist = 'استشيري المختصة';
   static const String consultOnlyNote = 'هالمنتج بيتطلب بعد استشارة المختصة';
-  static const String specialistUnavailable = 'رقم المختصة غير متوفر حالياً';
+  static const String contactUnavailable = 'رقم التواصل غير متوفر حالياً';
+  static const String orderFromSupplier = 'اطلب من المورد على واتساب';
+  static const String supplierWhatsapp = 'واتساب';
+  static const String supplierCall = 'اتصال';
+  static const String supplierMap = 'الموقع';
+  static String soldBy(String supplier) => 'المنتج من متجر $supplier — الطلب والتوصيل عن طريقه مباشرة';
+  static String supplierOrderText(String product) => 'مرحبا، شفت عندكم على تطبيق MHN: $product — متوفر؟';
+  static String supplierOnlyItem(String name) => '"$name" بينطلب من المورد مباشرة — شيله من السلة';
   static String consultOnlyItem(String name) => '"$name" بيتطلب عن طريق المختصة — شيله من السلة';
   static String consultAbout(String product) => 'مرحبا، بدي استشارة بخصوص: $product';
   static const String messageTypeFitness = 'اللياقة';

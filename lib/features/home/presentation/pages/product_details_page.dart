@@ -23,6 +23,8 @@ import '../widgets/product_image_gallery.dart';
 import '../widgets/product_variant_selector.dart';
 import '../widgets/quantity_selector.dart';
 import '../../../fitness/presentation/widgets/specialist_contact.dart';
+import '../../../suppliers/domain/entities/supplier.dart';
+import '../../../suppliers/presentation/widgets/supplier_order_bar.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -191,6 +193,10 @@ class _BottomBar extends StatelessWidget {
     final cubit = context.read<ProductDetailsCubit>();
 
     if (!product.isOrderable) return _ConsultBar(productName: product.name);
+    return _SupplierGate(product: product, orElse: _cartBar(context, product, cubit));
+  }
+
+  Widget _cartBar(BuildContext context, Product product, ProductDetailsCubit cubit) {
 
     return Container(
       decoration: const BoxDecoration(
@@ -277,6 +283,35 @@ class _ConsultBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Shows the supplier's WhatsApp order bar for supplier products, the cart
+/// bar otherwise. The lookup is cached, so it resolves at once after the
+/// first product of a supplier.
+class _SupplierGate extends StatefulWidget {
+  final Product product;
+  final Widget orElse;
+
+  const _SupplierGate({required this.product, required this.orElse});
+
+  @override
+  State<_SupplierGate> createState() => _SupplierGateState();
+}
+
+class _SupplierGateState extends State<_SupplierGate> {
+  late final Future<Supplier?> _supplier = supplierOf(widget.product);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Supplier?>(
+      future: _supplier,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) return const SizedBox.shrink();
+        final supplier = snap.data;
+        return supplier == null ? widget.orElse : SupplierOrderBar(supplier: supplier, productName: widget.product.name);
+      },
     );
   }
 }

@@ -11,6 +11,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../../fitness/presentation/cubits/catalog_categories_state.dart';
+import '../../../../core/utils/whatsapp.dart';
 import '../../domain/entities/supplier.dart';
 import '../../../home/presentation/widgets/categories_grid.dart';
 
@@ -128,17 +129,63 @@ class _SupplierHeader extends StatelessWidget {
                 style: AppTextStyles.heading2.copyWith(color: AppColors.gold),
               ),
               const SizedBox(height: AppConstants.spacingXs),
-              Text(
-                supplier.description,
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.7,
+              if (supplier.description.isNotEmpty)
+                Text(
+                  supplier.description,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.7,
+                  ),
                 ),
+              if (supplier.address.isNotEmpty) ...[
+                const SizedBox(height: AppConstants.spacingXs),
+                Row(
+                  children: [
+                    const Icon(Icons.place_outlined, size: AppConstants.iconSm, color: AppColors.goldLight),
+                    const SizedBox(width: AppConstants.spacingXs),
+                    Expanded(child: Text(supplier.address, style: AppTextStyles.caption)),
+                  ],
+                ),
+              ],
+              const SizedBox(height: AppConstants.spacingSm),
+              Wrap(
+                spacing: AppConstants.spacingSm,
+                runSpacing: AppConstants.spacingSm,
+                children: [
+                  if (supplier.phone.isNotEmpty) ...[
+                    _ContactChip(icon: Icons.chat_outlined, label: AppStrings.supplierWhatsapp,
+                        onTap: () => WhatsApp.open(context, supplier.phone)),
+                    _ContactChip(icon: Icons.call_outlined, label: AppStrings.supplierCall,
+                        onTap: () => WhatsApp.call(context, supplier.phone)),
+                  ],
+                  if (supplier.mapsUrl.isNotEmpty)
+                    _ContactChip(icon: Icons.map_outlined, label: AppStrings.supplierMap,
+                        onTap: () => WhatsApp.openLink(context, supplier.mapsUrl)),
+                ],
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ContactChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ContactChip({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      onPressed: onTap,
+      avatar: Icon(icon, size: AppConstants.iconSm, color: AppColors.gold),
+      label: Text(label, style: AppTextStyles.caption),
+      backgroundColor: AppColors.surfaceDark,
+      side: const BorderSide(color: AppColors.border),
     );
   }
 }

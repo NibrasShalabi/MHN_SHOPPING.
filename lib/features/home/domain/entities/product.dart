@@ -31,6 +31,9 @@ class Product extends Equatable {
   /// Supply shipping per piece (source → shop), added at checkout. 0 = free.
   final double shippingPrice;
 
+  /// Set when a supplier sells it — ordered from them on WhatsApp, not the cart.
+  final String? supplierId;
+
   const Product({
     required this.id,
     required this.categoryId,
@@ -53,6 +56,7 @@ class Product extends Equatable {
     this.discountPercentage,
     this.discountEndTime,
     this.shippingPrice = 0,
+    this.supplierId,
   });
 
   bool get isInStock => stock > 0;
@@ -98,6 +102,7 @@ class Product extends Equatable {
         discountPercentage: percentage,
         discountEndTime: endTime,
         shippingPrice: shippingPrice,
+        supplierId: supplierId,
       );
 
   @override
@@ -105,6 +110,6 @@ class Product extends Equatable {
     id, categoryId, filterId, name, imageUrls, price, pricing,
     isOrderable, stock, description, ingredients, benefits, usage,
     isNew, clothingSizes, shoeSizes, colors, sizeGuide,
-    discountPercentage, discountEndTime, shippingPrice,
+    discountPercentage, discountEndTime, shippingPrice, supplierId,
   ];
 }
