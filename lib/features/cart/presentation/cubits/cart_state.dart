@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/cart_item.dart';
 
@@ -23,6 +24,11 @@ class CartState extends Equatable {
   bool get isReadyForCheckout => !isEmpty && !hasUnavailableItems;
 
   int get totalCount => items.fold(0, (sum, item) => sum + item.quantity);
+
+  /// The cart holds [AppConstants.cartMaxPieces] pieces at most — the
+  /// customer checks out or clears it before adding more.
+  int get room => AppConstants.cartMaxPieces - totalCount;
+  bool get isFull => room <= 0;
 
   /// Display totals only — checkout recomputes both server-side.
   double get moneyTotal => items.where((i) => !i.isPoints).fold(0, (sum, i) => sum + i.lineTotal);

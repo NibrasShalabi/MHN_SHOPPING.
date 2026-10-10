@@ -86,6 +86,10 @@ class CartItemTile extends StatelessWidget {
                         ),
                     ],
                   ),
+                  if (item.hasVariant) ...[
+                    const SizedBox(height: AppConstants.spacingXs),
+                    _VariantLine(item: item),
+                  ],
                   const SizedBox(height: AppConstants.spacingXs),
                   Text(
                     formatCartAmount(item.lineTotal, item.pricing),
@@ -138,6 +142,42 @@ class CartItemTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// "المقاس: M · ● أبيض" — what the customer picked for this line.
+class _VariantLine extends StatelessWidget {
+  final CartItem item;
+
+  const _VariantLine({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = AppTextStyles.caption.copyWith(color: AppColors.textOnPrimary);
+    return Wrap(
+      spacing: AppConstants.spacingSm,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        if (item.size case final size?) Text('${AppStrings.size}: $size', style: style),
+        if (item.color case final color?)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Color(color.value),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.border),
+                ),
+              ),
+              const SizedBox(width: AppConstants.spacingXs),
+              Text(color.name, style: style),
+            ],
+          ),
+      ],
     );
   }
 }

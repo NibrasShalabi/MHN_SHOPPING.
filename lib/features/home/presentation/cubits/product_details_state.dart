@@ -10,8 +10,7 @@ class ProductDetailsState extends Equatable {
   final ProductDetailsStatus status;
   final Product? product;
   final int quantity;
-  final ClothingSize? clothingSize;
-  final int? shoeSize;
+  final String? size;
   final ProductColor? color;
   final Failure? failure;
 
@@ -24,8 +23,7 @@ class ProductDetailsState extends Equatable {
     this.status = ProductDetailsStatus.initial,
     this.product,
     this.quantity = 1,
-    this.clothingSize,
-    this.shoeSize,
+    this.size,
     this.color,
     this.failure,
     this.appliedPrice,
@@ -38,8 +36,7 @@ class ProductDetailsState extends Equatable {
   bool get hasRequiredVariants {
     final p = product;
     if (p == null) return false;
-    if (p.clothingSizes.isNotEmpty && clothingSize == null) return false;
-    if (p.shoeSizes.isNotEmpty && shoeSize == null) return false;
+    if (p.sizes.isNotEmpty && size == null) return false;
     if (p.colors.isNotEmpty && color == null) return false;
     return true;
   }
@@ -48,8 +45,7 @@ class ProductDetailsState extends Equatable {
     ProductDetailsStatus? status,
     Product? product,
     int? quantity,
-    ClothingSize? clothingSize,
-    int? shoeSize,
+    String? size,
     ProductColor? color,
     Failure? failure,
     double? appliedPrice,
@@ -59,8 +55,7 @@ class ProductDetailsState extends Equatable {
       status: status ?? this.status,
       product: product ?? this.product,
       quantity: quantity ?? this.quantity,
-      clothingSize: clothingSize ?? this.clothingSize,
-      shoeSize: shoeSize ?? this.shoeSize,
+      size: size ?? this.size,
       color: color ?? this.color,
       failure: failure,
       appliedPrice: appliedPrice ?? this.appliedPrice,
@@ -70,5 +65,5 @@ class ProductDetailsState extends Equatable {
 
   @override
   List<Object?> get props =>
-      [status, product, quantity, clothingSize, shoeSize, color, failure, appliedPrice, priceChanged];
+      [status, product, quantity, size, color, failure, appliedPrice, priceChanged];
 }

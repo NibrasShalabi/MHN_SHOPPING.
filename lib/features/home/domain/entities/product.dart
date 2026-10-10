@@ -19,8 +19,8 @@ class Product extends Equatable {
   final String? benefits;
   final String? usage;
   final bool isNew;
-  final List<ClothingSize> clothingSizes;
-  final List<int> shoeSizes;
+  /// Whatever the admin's size set holds — S/M/L, 1-4 years, 38/39/40…
+  final List<String> sizes;
   final List<ProductColor> colors;
   final List<SizeGuideRow> sizeGuide;
 
@@ -49,8 +49,7 @@ class Product extends Equatable {
     this.benefits,
     this.usage,
     this.isNew = false,
-    this.clothingSizes = const [],
-    this.shoeSizes = const [],
+    this.sizes = const [],
     this.colors = const [],
     this.sizeGuide = const [],
     this.discountPercentage,
@@ -61,7 +60,7 @@ class Product extends Equatable {
 
   bool get isInStock => stock > 0;
   bool get isLowStock => isInStock && stock <= AppConstants.lowStockThreshold;
-  bool get hasSizes => clothingSizes.isNotEmpty || shoeSizes.isNotEmpty;
+  bool get hasSizes => sizes.isNotEmpty;
   bool get hasColors => colors.isNotEmpty;
   bool get hasSizeGuide => sizeGuide.isNotEmpty;
   String? get thumbnailUrl => imageUrls.isEmpty ? null : imageUrls.first;
@@ -95,8 +94,7 @@ class Product extends Equatable {
         benefits: benefits,
         usage: usage,
         isNew: isNew,
-        clothingSizes: clothingSizes,
-        shoeSizes: shoeSizes,
+        sizes: sizes,
         colors: colors,
         sizeGuide: sizeGuide,
         discountPercentage: percentage,
@@ -109,7 +107,7 @@ class Product extends Equatable {
   List<Object?> get props => [
     id, categoryId, filterId, name, imageUrls, price, pricing,
     isOrderable, stock, description, ingredients, benefits, usage,
-    isNew, clothingSizes, shoeSizes, colors, sizeGuide,
+    isNew, sizes, colors, sizeGuide,
     discountPercentage, discountEndTime, shippingPrice, supplierId,
   ];
 }

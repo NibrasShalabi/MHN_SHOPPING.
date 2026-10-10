@@ -12,36 +12,30 @@ import 'size_guide_sheet.dart';
 /// Rendered only when the admin actually set variants on the product, so a
 /// shampoo shows nothing and a jacket shows both — no empty rows.
 class ProductVariantSelector extends StatelessWidget {
-  final List<ClothingSize> clothingSizes;
-  final List<int> shoeSizes;
+  final List<String> sizes;
   final List<ProductColor> colors;
   final List<SizeGuideRow> sizeGuide;
 
-  final ClothingSize? selectedClothingSize;
-  final int? selectedShoeSize;
+  final String? selectedSize;
   final ProductColor? selectedColor;
 
-  final ValueChanged<ClothingSize> onClothingSizeSelected;
-  final ValueChanged<int> onShoeSizeSelected;
+  final ValueChanged<String> onSizeSelected;
   final ValueChanged<ProductColor> onColorSelected;
 
   const ProductVariantSelector({
     super.key,
-    required this.clothingSizes,
-    required this.shoeSizes,
+    required this.sizes,
     required this.colors,
     required this.sizeGuide,
-    required this.selectedClothingSize,
-    required this.selectedShoeSize,
+    required this.selectedSize,
     required this.selectedColor,
-    required this.onClothingSizeSelected,
-    required this.onShoeSizeSelected,
+    required this.onSizeSelected,
     required this.onColorSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasSizes = clothingSizes.isNotEmpty || shoeSizes.isNotEmpty;
+    final hasSizes = sizes.isNotEmpty;
     if (!hasSizes && colors.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -64,20 +58,8 @@ class ProductVariantSelector extends StatelessWidget {
             spacing: AppConstants.spacingSm,
             runSpacing: AppConstants.spacingSm,
             children: [
-              ...clothingSizes.map(
-                    (size) => _Pill(
-                  label: size.label,
-                  isSelected: size == selectedClothingSize,
-                  onTap: () => onClothingSizeSelected(size),
-                ),
-              ),
-              ...shoeSizes.map(
-                    (size) => _Pill(
-                  label: '$size',
-                  isSelected: size == selectedShoeSize,
-                  onTap: () => onShoeSizeSelected(size),
-                ),
-              ),
+              for (final size in sizes)
+                _Pill(label: size, isSelected: size == selectedSize, onTap: () => onSizeSelected(size)),
             ],
           ),
           const SizedBox(height: AppConstants.spacingLg),

@@ -58,66 +58,55 @@ class CartCubit extends SafeCubit<CartState> {
     }
   }
 
-  void addItem(CartItem item) {
+  /// Same product, size and colour stack on one line; anything else is a
+  /// new line. Refused when it would take the cart past its cap.
+  bool addItem(CartItem item) {
+    if (item.quantity > state.room) return false;
     final items = [...state.items];
-    final index = items.indexWhere((i) => i.productId == item.productId);
-
+    final index = items.indexWhere((i) => i.lineKey == item.lineKey);
     if (index == -1) {
       items.add(item);
     } else {
-      // ط¸â€ ط·آ­ط·آ¯ط·آ« ط·آ§ط¸â€‍ط·آ³ط·آ¹ط·آ± ط¸â€‍ط·آ¢ط·آ®ط·آ± ط·آ³ط·آ¹ط·آ± ط¸â€¦ط·آ¹ ط·آ¬ط¸â€¦ط·آ¹ ط·آ§ط¸â€‍ط¸ئ’ط¸â€¦ط¸ظ¹ط·آ©
-      items[index] = CartItem(
-        productId: items[index].productId,
-        name: items[index].name,
-        imageUrl: items[index].imageUrl,
-        priceSnapshot: item.priceSnapshot,
+      // Latest price, combined quantity.
+      items[index] = items[index].copyWith(
         quantity: items[index].quantity + item.quantity,
-        pricing: item.pricing,
-        shippingPerUnit: item.shippingPerUnit,
+        priceSnapshot: item.priceSnapshot,
       );
     }
-
     _emitItems(items);
+    return true;
   }
 
-  void increaseQuantity(String productId) {
-    final item = _find(productId);
+  /// False when the cart is already full.
+  bool increaseQuantity(String lineKey) {
+    final item = _find(lineKey);
+    if (item == null || state.isFull) return false;
+    setQuantity(lineKey, item.quantity + 1);
+    return true;
+  }
+
+  void decreaseQuantity(String lineKey) {
+    final item = _find(lineKey);
     if (item == null) return;
-    setQuantity(productId, item.quantity + 1);
+    setQuantity(lineKey, item.quantity - 1);
   }
 
-  void decreaseQuantity(String productId) {
-    final item = _find(productId);
-    if (item == null) return;
-    setQuantity(productId, item.quantity - 1);
-  }
-
-  void setQuantity(String productId, int quantity) {
+  void setQuantity(String lineKey, int quantity) {
     if (quantity <= 0) {
-      removeItem(productId);
+      removeItem(lineKey);
       return;
     }
-
-    final items = [
+    _emitItems([
       for (final item in state.items)
-        if (item.productId == productId) item.copyWith(quantity: quantity) else item,
-    ];
-
-    _emitItems(items);
+        if (item.lineKey == lineKey) item.copyWith(quantity: quantity) else item,
+    ]);
   }
 
-  void removeItem(String productId) {
-    _emitItems(state.items.where((i) => i.productId != productId).toList());
-  }
+  void removeItem(String lineKey) => _emitItems(state.items.where((i) => i.lineKey != lineKey).toList());
 
   void clear() => _emitItems(const []);
 
-  CartItem? _find(String productId) {
-    for (final item in state.items) {
-      if (item.productId == productId) return item;
-    }
-    return null;
-  }
+  CartItem? _find(String lineKey) => state.items.where((i) => i.lineKey == lineKey).firstOrNull;
 
   /// Show the change now, write it shortly after. A burst of taps collapses
   /// into one write instead of one per tap.

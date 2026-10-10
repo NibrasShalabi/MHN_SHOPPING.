@@ -68,10 +68,7 @@ class ProductDetailsCubit extends SafeCubit<ProductDetailsState> {
     emit(state.copyWith(quantity: state.quantity - 1));
   }
 
-  void selectClothingSize(ClothingSize size) =>
-      emit(state.copyWith(clothingSize: size));
-
-  void selectShoeSize(int size) => emit(state.copyWith(shoeSize: size));
+  void selectSize(String size) => emit(state.copyWith(size: size));
 
   void selectColor(ProductColor color) => emit(state.copyWith(color: color));
 }

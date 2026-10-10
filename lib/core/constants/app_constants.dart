@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 
 /// General app constants — adjust values per project.
 class AppConstants {
+  /// Most pieces one cart may hold; checkout enforces the same cap.
+  static const int cartMaxPieces = 20;
+
   AppConstants._();
 
   static const String appName = 'M.H.N Shoping';

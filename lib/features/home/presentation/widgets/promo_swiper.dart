@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/constants/app_durations.dart';
+import '../../../../../core/router/route_names.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/promo_banner.dart';
@@ -125,8 +127,22 @@ class _BannerCard extends StatelessWidget {
 
   const _BannerCard({required this.banner});
 
+  /// Where the banner points, or null when it's display-only.
+  String? get _route => switch (banner.link) {
+        BannerLink.product when banner.linkId != null => RouteNames.productPath(banner.linkId!),
+        BannerLink.category when banner.linkId != null => RouteNames.categoryPath(banner.linkId!),
+        BannerLink.deals => RouteNames.deals,
+        _ => null,
+      };
+
   @override
   Widget build(BuildContext context) {
+    final route = _route;
+    final card = _card();
+    return route == null ? card : GestureDetector(onTap: () => context.push(route), child: card);
+  }
+
+  Widget _card() {
     final hasImage = banner.imageUrl != null && banner.imageUrl!.isNotEmpty;
 
     return Padding(

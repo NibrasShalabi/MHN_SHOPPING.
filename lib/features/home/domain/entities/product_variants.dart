@@ -1,23 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Standard clothing sizes, smallest to largest.
-///
-/// A fixed enum rather than free text: sizes have to sort correctly and
-/// match across products, which arbitrary strings from the dashboard
-/// wouldn't.
-enum ClothingSize { xs, s, m, l, xl, xxl }
-
-extension ClothingSizeLabel on ClothingSize {
-  String get label => switch (this) {
-    ClothingSize.xs => 'XS',
-    ClothingSize.s => 'S',
-    ClothingSize.m => 'M',
-    ClothingSize.l => 'L',
-    ClothingSize.xl => 'XL',
-    ClothingSize.xxl => 'XXL',
-  };
-}
-
 /// A colour the admin marked as available for one product.
 ///
 /// Carries its own hex value so the swatch shows the actual colour rather

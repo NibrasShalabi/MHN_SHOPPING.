@@ -167,7 +167,7 @@ void main() {
       '1.5 — زيادة الكمية: quantity + 1',
       build: () => _cubit(),
       seed: () => CartState(status: CartStatus.success, items: [_item('p1', qty: 2)]),
-      act: (c) => c.increaseQuantity('p1'),
+      act: (c) => c.increaseQuantity('p1||'),
       expect: () => [CartState(status: CartStatus.success, items: [_item('p1', qty: 3)])],
     );
 
@@ -176,7 +176,7 @@ void main() {
       '1.6 — نقص الكمية: quantity - 1',
       build: () => _cubit(),
       seed: () => CartState(status: CartStatus.success, items: [_item('p1', qty: 3)]),
-      act: (c) => c.decreaseQuantity('p1'),
+      act: (c) => c.decreaseQuantity('p1||'),
       expect: () => [CartState(status: CartStatus.success, items: [_item('p1', qty: 2)])],
     );
 
@@ -185,7 +185,7 @@ void main() {
       '1.7 — نقص عند 1: يُحذف',
       build: () => _cubit(),
       seed: () => CartState(status: CartStatus.success, items: [_item('p1', qty: 1)]),
-      act: (c) => c.decreaseQuantity('p1'),
+      act: (c) => c.decreaseQuantity('p1||'),
       expect: () => [const CartState(status: CartStatus.success, items: [])],
     );
 
@@ -194,7 +194,7 @@ void main() {
       '1.8 — منتج غير موجود: ما في تغيير',
       build: () => _cubit(),
       seed: () => CartState(status: CartStatus.success, items: [_item('p1', qty: 2)]),
-      act: (c) => c.increaseQuantity('p999'),
+      act: (c) => c.increaseQuantity('p999||'),
       expect: () => [],
     );
   });
@@ -205,7 +205,7 @@ void main() {
       '1.9 — حذف منتج: يختفي',
       build: () => _cubit(),
       seed: () => CartState(status: CartStatus.success, items: [_item('p1'), _item('p2')]),
-      act: (c) => c.removeItem('p1'),
+      act: (c) => c.removeItem('p1||'),
       expect: () => [CartState(status: CartStatus.success, items: [_item('p2')])],
     );
   });

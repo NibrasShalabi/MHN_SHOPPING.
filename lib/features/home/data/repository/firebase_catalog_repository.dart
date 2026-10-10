@@ -86,16 +86,14 @@ class FirebaseCatalogRepository implements CatalogRepository {
     await _fresh();
     if (!forceRefresh) {
       final cached = _cache.read<CachedBanners>(CatalogCache.bannersKey, CatalogCache.structureTtl);
-      if (cached != null) return cached;
+      if (cached != null) return _live(cached);
     }
     try {
-      // بدون orderBy — نرتب client-side لتجنب composite index
-      final snap = await _db.collection('banners')
-          .where('isActive', isEqualTo: true)
-          .get();
-      final banners = snap.docs.map(_bannerFromDoc).toList();
+      // No orderBy (no composite index needed) — sorted here, by the admin's order.
+      final snap = await _db.collection('banners').where('isActive', isEqualTo: true).get();
+      final banners = snap.docs.map(_bannerFromDoc).toList()..sort((a, b) => a.order.compareTo(b.order));
       _cache.write(CatalogCache.bannersKey, banners);
-      return banners;
+      return _live(banners);
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
@@ -260,11 +258,27 @@ class FirebaseCatalogRepository implements CatalogRepository {
     }
   }
 
+  /// Schedules are checked on every read, so a banner leaves on time even
+  /// from the cache.
+  static List<PromoBanner> _live(List<PromoBanner> banners) {
+    final now = DateTime.now();
+    return banners.where((b) => b.isLiveAt(now)).toList();
+  }
+
   // ===== Private Mappers =====
 
   PromoBanner _bannerFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
-    return PromoBanner(id: doc.id, imageUrl: d['imageUrl'] as String?, title: d['title'] as String?);
+    return PromoBanner(
+      id: doc.id,
+      imageUrl: d['imageUrl'] as String?,
+      title: d['title'] as String?,
+      order: (d['order'] as num? ?? 0).toInt(),
+      link: BannerLink.values.where((l) => l.name == d['link']).firstOrNull ?? BannerLink.none,
+      linkId: d['linkId'] as String?,
+      startsAt: (d['startsAt'] as Timestamp?)?.toDate(),
+      endsAt: (d['endsAt'] as Timestamp?)?.toDate(),
+    );
   }
 
   Supplier _supplierFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -318,10 +332,13 @@ class FirebaseCatalogRepository implements CatalogRepository {
       benefits: d['benefits'] as String?,
       usage: d['usage'] as String?,
       isNew: d['isNew'] as bool? ?? false,
-      clothingSizes: (d['clothingSizes'] as List<dynamic>? ?? [])
-          .map((s) => ClothingSize.values.firstWhere((e) => e.name == s, orElse: () => ClothingSize.m))
-          .toList(),
-      shoeSizes: List<int>.from(d['shoeSizes'] as List? ?? []),
+      // 'sizes' is the current format; older products split them by kind.
+      sizes: d['sizes'] is List
+          ? [for (final s in d['sizes'] as List) '$s']
+          : [
+              for (final s in d['clothingSizes'] as List? ?? const []) '$s'.toUpperCase(),
+              for (final s in d['shoeSizes'] as List? ?? const []) '$s',
+            ],
       colors: (d['colors'] as List<dynamic>? ?? [])
           .map((c) => ProductColor(name: c['name'] as String, value: c['value'] as int))
           .toList(),

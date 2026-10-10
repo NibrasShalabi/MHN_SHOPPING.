@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import '../widgets/cart_totals.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/route_names.dart';
@@ -85,12 +86,14 @@ class _CartPageState extends State<CartPage> {
                   itemBuilder: (context, index) {
                     final item = state.items[index];
                     return CartItemTile(
-                      key: ValueKey(item.productId),
+                      key: ValueKey(item.lineKey),
                       item: item,
                       isUnavailable: state.unavailableProductIds.contains(item.productId),
-                      onIncrease: () => cubit.increaseQuantity(item.productId),
-                      onDecrease: () => cubit.decreaseQuantity(item.productId),
-                      onRemove: () => cubit.removeItem(item.productId),
+                      onIncrease: () {
+                        if (!cubit.increaseQuantity(item.lineKey)) AppSnackbar.error(context, AppStrings.cartFull);
+                      },
+                      onDecrease: () => cubit.decreaseQuantity(item.lineKey),
+                      onRemove: () => cubit.removeItem(item.lineKey),
                     );
                   },
                 ),

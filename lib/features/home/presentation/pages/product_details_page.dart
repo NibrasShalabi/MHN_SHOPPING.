@@ -132,17 +132,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             ),
                             const SizedBox(height: AppConstants.spacingLg),
                             ProductVariantSelector(
-                              clothingSizes: product.clothingSizes,
-                              shoeSizes: product.shoeSizes,
+                              sizes: product.sizes,
                               colors: product.colors,
                               sizeGuide: product.sizeGuide,
-                              selectedClothingSize: state.clothingSize,
-                              selectedShoeSize: state.shoeSize,
+                              selectedSize: state.size,
                               selectedColor: state.color,
-                              onClothingSizeSelected:
-                              context.read<ProductDetailsCubit>().selectClothingSize,
-                              onShoeSizeSelected:
-                              context.read<ProductDetailsCubit>().selectShoeSize,
+                              onSizeSelected: context.read<ProductDetailsCubit>().selectSize,
                               onColorSelected:
                               context.read<ProductDetailsCubit>().selectColor,
                             ),
@@ -226,7 +221,7 @@ class _BottomBar extends StatelessWidget {
                 icon: Icons.shopping_cart_outlined,
                 onPressed: product.isInStock && state.hasRequiredVariants
                     ? () {
-                  context.read<CartCubit>().addItem(
+                  final added = context.read<CartCubit>().addItem(
                     CartItem(
                       productId: product.id,
                       name: product.name,
@@ -235,9 +230,15 @@ class _BottomBar extends StatelessWidget {
                       quantity: state.quantity,
                       pricing: product.pricing,
                       shippingPerUnit: product.shippingPrice,
+                      size: state.size,
+                      color: state.color,
                     ),
                   );
-                  AppSnackbar.success(context, AppStrings.addedToCart);
+                  if (added) {
+                    AppSnackbar.success(context, AppStrings.addedToCart);
+                  } else {
+                    AppSnackbar.error(context, AppStrings.cartFull);
+                  }
                 }
                     : null,
               ),

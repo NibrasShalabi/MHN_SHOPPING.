@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
 import 'dart:typed_data';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../cart/domain/entities/cart_item.dart';
@@ -126,6 +127,15 @@ class CheckoutService {
         orderId = 'ORD-${newNumber.toString().padLeft(6, '0')}';
 
         final products = [for (final d in productDocs) d.data()];
+        final pieces = items.fold(0, (sum, i) => sum + i.quantity);
+        if (pieces > AppConstants.cartMaxPieces) {
+          throw ServerException(message: AppStrings.cartOrderTooBig(AppConstants.cartMaxPieces));
+        }
+        // Two lines of one product (two sizes) draw on the same stock.
+        final wanted = <String, int>{};
+        for (final item in items) {
+          wanted.update(item.productId, (q) => q + item.quantity, ifAbsent: () => item.quantity);
+        }
         for (int i = 0; i < items.length; i++) {
           final p = products[i];
           if (p == null) throw ServerException(message: 'المنتج "${items[i].name}" غير موجود');
@@ -137,7 +147,16 @@ class CheckoutService {
           if (p['dealOnly'] == true && !promos.containsKey(items[i].productId)) {
             throw ServerException(message: AppStrings.dealEnded(items[i].name));
           }
-          if ((p['stock'] as int? ?? 0) < items[i].quantity) {
+          // The picked size/colour must be one the product offers.
+          final sizes = [for (final s in p['sizes'] as List? ?? const []) '$s'];
+          if (sizes.isNotEmpty && !sizes.contains(items[i].size)) {
+            throw ServerException(message: AppStrings.pickVariant(items[i].name));
+          }
+          final colors = [for (final c in p['colors'] as List? ?? const []) (c as Map)['name']];
+          if (colors.isNotEmpty && !colors.contains(items[i].color?.name)) {
+            throw ServerException(message: AppStrings.pickVariant(items[i].name));
+          }
+          if ((p['stock'] as int? ?? 0) < wanted[items[i].productId]!) {
             throw ServerException(message: 'نفد مخزون "${items[i].name}"');
           }
         }
@@ -196,6 +215,9 @@ class CheckoutService {
                 'name': items[i].name,
                 'imageUrl': items[i].imageUrl,
                 'quantity': items[i].quantity,
+                'size': ?items[i].size,
+                'color': ?items[i].color?.name,
+                'colorValue': ?items[i].color?.value,
                 'pricing': isPoints(i) ? 'points' : 'money',
                 'unitPrice': isPoints(i) ? (products[i]!['price'] as num? ?? 0).toDouble() : unitPrice(i),
                 'shippingPerUnit': isPoints(i) ? 0.0 : shippingPerUnit(i),

@@ -69,7 +69,7 @@ class FakeCatalogRepository implements CatalogRepository {
     Supplier(id: 'sara', name: 'صنعة سارة', description: 'منتجات يدوية محلية الصنع بلمسة شخصية.'),
   ];
 
-  static const List<ClothingSize> _sampleSizes = [ClothingSize.s, ClothingSize.m, ClothingSize.l, ClothingSize.xl];
+  static const List<String> _sampleSizes = ['S', 'M', 'L', 'XL'];
   static const List<ProductColor> _sampleColors = [
     ProductColor(name: 'أسود', value: 0xFF1A1A1A),
     ProductColor(name: 'أبيض', value: 0xFFF5F5F5),
@@ -140,7 +140,7 @@ class FakeCatalogRepository implements CatalogRepository {
             imageUrls: const ['', '', ''],
             price: 15000 + (i * 1250),
             stock: i % 7 == 0 ? 0 : 12,
-            clothingSizes: i % 3 == 0 ? _sampleSizes : const [],
+            sizes: i % 3 == 0 ? _sampleSizes : const [],
             colors: i % 3 == 0 ? _sampleColors : const [],
             sizeGuide: i % 3 == 0 ? _sampleSizeGuide : const [],
             description: 'منتج عناية عالي الجودة، مناسب للاستخدام اليومي.',

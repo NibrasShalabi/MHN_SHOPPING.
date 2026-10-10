@@ -70,7 +70,7 @@ final _productWithExpiredDiscount = Product(
 
 final _productWithSizes = Product(
   id: 'p4', categoryId: 'hair', name: 'سيروم 4', price: 100.0, stock: 10,
-  clothingSizes: const [ClothingSize.s, ClothingSize.m, ClothingSize.l],
+  sizes: const ['S', 'M', 'L'],
 );
 
 ProductDetailsCubit _cubit(Product product, {double promotionDiscount = 0}) =>
@@ -249,8 +249,8 @@ void main() {
       '3.12 — اختيار size: clothingSize يتسجل',
       build: () => _cubit(_productWithSizes),
       seed: () => ProductDetailsState(status: ProductDetailsStatus.success, product: _productWithSizes),
-      act: (c) => c.selectClothingSize(ClothingSize.m),
-      expect: () => [isA<ProductDetailsState>().having((s) => s.clothingSize, 'clothingSize', ClothingSize.m)],
+      act: (c) => c.selectSize('M'),
+      expect: () => [isA<ProductDetailsState>().having((s) => s.size, 'size', 'M')],
     );
 
     // 3.13
@@ -264,7 +264,7 @@ void main() {
       final state = ProductDetailsState(
         status: ProductDetailsStatus.success,
         product: _productWithSizes,
-        clothingSize: ClothingSize.m,
+        size: 'M',
       );
       expect(state.hasRequiredVariants, isTrue);
     });
