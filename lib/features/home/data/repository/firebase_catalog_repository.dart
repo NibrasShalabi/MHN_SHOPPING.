@@ -9,6 +9,7 @@ import '../../domain/entities/product_filter.dart';
 import '../../domain/entities/product_page_result.dart';
 import '../../domain/entities/product_variants.dart';
 import '../../domain/entities/promo_banner.dart';
+import '../../../deals/data/repositories/live_promotions.dart';
 import 'catalog_cache.dart';
 import 'catalog_repository.dart';
 
@@ -20,7 +21,37 @@ class FirebaseCatalogRepository implements CatalogRepository {
   final FirebaseFirestore _db;
   final CatalogCache _cache;
 
-  FirebaseCatalogRepository(this._db, this._cache);
+  FirebaseCatalogRepository(this._db, this._cache, this._promotions);
+
+  /// Products are cached as stored; live deal prices are applied on the way
+  /// out, so a deal starting or ending never waits for the cache to expire.
+  final LivePromotions _promotions;
+
+  @override
+  Future<Product> getProduct(String productId, {bool forceRefresh = false}) async {
+    final product = await _rawProduct(productId, forceRefresh: forceRefresh);
+    await _promotions.ready;
+    return _promotions.apply(product);
+  }
+
+  @override
+  Future<List<Product>> getProductsByIds(List<String> productIds) async {
+    final products = await _rawProductsByIds(productIds);
+    await _promotions.ready;
+    return products.map(_promotions.apply).toList();
+  }
+
+  @override
+  Future<ProductPageResult> getProducts({
+    required ProductQuery query,
+    String? filterId,
+    String? cursor,
+    bool forceRefresh = false,
+  }) async {
+    final page = await _rawProducts(query: query, filterId: filterId, cursor: cursor, forceRefresh: forceRefresh);
+    await _promotions.ready;
+    return ProductPageResult(products: page.products.map(_promotions.apply).toList(), nextCursor: page.nextCursor);
+  }
 
   @override
   Future<List<PromoBanner>> getPromoBanners({bool forceRefresh = false}) async {
@@ -110,8 +141,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     }
   }
 
-  @override
-  Future<Product> getProduct(String productId, {bool forceRefresh = false}) async {
+  Future<Product> _rawProduct(String productId, {bool forceRefresh = false}) async {
     if (!forceRefresh) {
       final cached = _cache.read<Product>(CatalogCache.productKey(productId), CatalogCache.productsTtl);
       if (cached != null) return cached;
@@ -127,8 +157,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     }
   }
 
-  @override
-  Future<List<Product>> getProductsByIds(List<String> productIds) async {
+  Future<List<Product>> _rawProductsByIds(List<String> productIds) async {
     final result = <Product>[];
     final missing = <String>[];
     for (final id in productIds.toSet()) {
@@ -155,8 +184,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     }
   }
 
-  @override
-  Future<ProductPageResult> getProducts({
+  Future<ProductPageResult> _rawProducts({
     required ProductQuery query,
     String? filterId,
     String? cursor,

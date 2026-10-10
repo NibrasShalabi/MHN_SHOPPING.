@@ -75,6 +75,31 @@ class Product extends Equatable {
 
   double get savingsAmount => price - effectivePrice;
 
+  /// The same product with a time-limited discount (a fire deal).
+  Product withDiscount(double percentage, DateTime endTime) => Product(
+        id: id,
+        categoryId: categoryId,
+        filterId: filterId,
+        name: name,
+        imageUrls: imageUrls,
+        price: price,
+        pricing: pricing,
+        isOrderable: isOrderable,
+        stock: stock,
+        description: description,
+        ingredients: ingredients,
+        benefits: benefits,
+        usage: usage,
+        isNew: isNew,
+        clothingSizes: clothingSizes,
+        shoeSizes: shoeSizes,
+        colors: colors,
+        sizeGuide: sizeGuide,
+        discountPercentage: percentage,
+        discountEndTime: endTime,
+        shippingPrice: shippingPrice,
+      );
+
   @override
   List<Object?> get props => [
     id, categoryId, filterId, name, imageUrls, price, pricing,

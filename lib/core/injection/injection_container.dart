@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../features/deals/data/repositories/live_promotions.dart';
+
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/cart/data/repositories/cart_repository.dart';
@@ -45,7 +47,7 @@ void setupInjector() {
   getIt.registerLazySingleton<CatalogCache>(() => CatalogCache());
 
   getIt.registerLazySingleton<CatalogRepository>(
-    () => FirebaseCatalogRepository(db, getIt<CatalogCache>()),
+    () => FirebaseCatalogRepository(db, getIt<CatalogCache>(), getIt<LivePromotions>()),
   );
 
   getIt.registerLazySingleton<OrdersRepository>(
@@ -59,6 +61,7 @@ void setupInjector() {
   getIt.registerLazySingleton<PromotionRepository>(
     () => FirebasePromotionRepository(db),
   );
+  getIt.registerLazySingleton(() => LivePromotions(getIt<PromotionRepository>()));
 
   getIt.registerLazySingleton<CurrencyConverterRepository>(
     () => FakeCurrencyConverterRepository(),
