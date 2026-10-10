@@ -128,7 +128,7 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
     match /config/{id} {
-       allow read: if isAuth() || id == 'loyaltyRules' || id == 'stats';
+       allow read: if isAuth() || id in ['loyaltyRules', 'stats', 'catalog'];
         allow write: if isAdmin() || (isAuth() && id == 'orderCounter');
     }
     match /sizeSets/{id} { allow read, write: if isAdmin(); }

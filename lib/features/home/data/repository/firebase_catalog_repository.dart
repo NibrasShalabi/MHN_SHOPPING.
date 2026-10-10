@@ -18,6 +18,31 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   static const int _pageSize = 24;
 
+  /// How often the app asks whether the admin changed the catalog.
+  static const Duration _versionCheckEvery = Duration(minutes: 1);
+  DateTime? _versionCheckedAt;
+  Object? _version;
+  Future<void>? _checking;
+
+  /// One small read at most once a minute: when the admin's stamp on
+  /// config/catalog moved, the cached catalog is dropped and re-read.
+  Future<void> _fresh() {
+    final now = DateTime.now();
+    if (_versionCheckedAt != null && now.difference(_versionCheckedAt!) < _versionCheckEvery) return Future.value();
+    return _checking ??= () async {
+      try {
+        final version = (await _db.collection('config').doc('catalog').get()).data()?['version'];
+        if (_version != null && version != _version) _cache.invalidateAll();
+        _version = version;
+        _versionCheckedAt = DateTime.now();
+      } catch (_) {
+        // Offline or denied: keep serving the cache.
+      } finally {
+        _checking = null;
+      }
+    }();
+  }
+
   final FirebaseFirestore _db;
   final CatalogCache _cache;
 
@@ -29,6 +54,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<Product> getProduct(String productId, {bool forceRefresh = false}) async {
+    await _fresh();
     final product = await _rawProduct(productId, forceRefresh: forceRefresh);
     await _promotions.ready;
     return _promotions.apply(product);
@@ -36,6 +62,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<List<Product>> getProductsByIds(List<String> productIds) async {
+    await _fresh();
     final products = await _rawProductsByIds(productIds);
     await _promotions.ready;
     return products.map(_promotions.apply).toList();
@@ -48,6 +75,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     String? cursor,
     bool forceRefresh = false,
   }) async {
+    await _fresh();
     final page = await _rawProducts(query: query, filterId: filterId, cursor: cursor, forceRefresh: forceRefresh);
     await _promotions.ready;
     return ProductPageResult(products: page.products.map(_promotions.apply).toList(), nextCursor: page.nextCursor);
@@ -55,6 +83,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<List<PromoBanner>> getPromoBanners({bool forceRefresh = false}) async {
+    await _fresh();
     if (!forceRefresh) {
       final cached = _cache.read<CachedBanners>(CatalogCache.bannersKey, CatalogCache.structureTtl);
       if (cached != null) return cached;
@@ -74,6 +103,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<List<Supplier>> getSuppliers({bool forceRefresh = false}) async {
+    await _fresh();
     if (!forceRefresh) {
       final cached = _cache.read<CachedSuppliers>(CatalogCache.suppliersKey, CatalogCache.structureTtl);
       if (cached != null) return cached;
@@ -91,6 +121,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<Supplier> getSupplier(String supplierId, {bool forceRefresh = false}) async {
+    await _fresh();
     if (!forceRefresh) {
       final cached = _cache.read<CachedSuppliers>(CatalogCache.suppliersKey, CatalogCache.structureTtl);
       final hit = cached?.where((s) => s.id == supplierId).firstOrNull;
@@ -112,6 +143,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     String? supplierId,
     bool forceRefresh = false,
   }) async {
+    await _fresh();
     final key = CatalogCache.categoriesKey(scope, supplierId: supplierId);
     if (!forceRefresh) {
       final cached = _cache.read<CachedCategories>(key, CatalogCache.structureTtl);
@@ -132,6 +164,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
 
   @override
   Future<Category> getCategory(String categoryId, {bool forceRefresh = false}) async {
+    await _fresh();
     if (!forceRefresh) {
       final cached = _cache.read<Category>(CatalogCache.categoryKey(categoryId), CatalogCache.structureTtl);
       if (cached != null) return cached;

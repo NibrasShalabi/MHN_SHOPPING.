@@ -55,15 +55,19 @@ class _SuppliersListPageState extends State<SuppliersListPage> {
             );
           }
 
-          if (state.suppliers.isEmpty) {
-            return Center(
-              child: Text(AppStrings.noResultsFound, style: AppTextStyles.body),
-            );
-          }
-
+          // Pull-to-refresh works on the empty state too — a new supplier
+          // is one swipe away.
           return RefreshIndicator(
             onRefresh: () => context.read<SuppliersCubit>().load(forceRefresh: true),
-            child: ListView.separated(
+            child: state.suppliers.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      const SizedBox(height: AppConstants.spacingXl * 3),
+                      Center(child: Text(AppStrings.noResultsFound, style: AppTextStyles.body)),
+                    ],
+                  )
+                : ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppConstants.spacingMd),
               itemCount: state.suppliers.length,
