@@ -423,6 +423,8 @@ class AppStrings {
   static const String dealsEmpty = 'ما في عروض هلأ';
   static const String dealsEmptySub = 'رح تنزل قريباً!';
   static const String dealsSaving = 'توفير';
+  static const String dealsNewBadge = 'جديد';
+  static String dealsCount(int n) => n == 1 ? 'عرض ناري شغّال' : '$n عروض نارية شغّالة';
 
   // ==================== الإشعارات ====================
   static const String notifications = 'الإشعارات';

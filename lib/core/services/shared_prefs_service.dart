@@ -22,6 +22,7 @@ class SharedPrefsService {
   static const _kThemeMode      = 'theme_mode';
   static const _kLanguage       = 'language';
   static const _kSeenNewProducts = 'seen_new_products';
+  static const _kDealsSeenAt     = 'deals_seen_at';
 
   // ===== Onboarding =====
 
@@ -53,6 +54,16 @@ class SharedPrefsService {
   /// Products whose "جديد" badge this device has already shown.
   static List<String> get seenNewProducts => _i.getStringList(_kSeenNewProducts) ?? const [];
   static Future<void> setSeenNewProducts(List<String> ids) => _i.setStringList(_kSeenNewProducts, ids);
+
+  // ===== Fire deals badge =====
+
+  /// When this device last opened fire deals — newer deals light the "جديد" dot.
+  static DateTime? get dealsSeenAt {
+    final ms = _i.getInt(_kDealsSeenAt);
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  static Future<void> setDealsSeenAt(DateTime at) => _i.setInt(_kDealsSeenAt, at.millisecondsSinceEpoch);
 
   // ===== Clear All (logout) =====
 

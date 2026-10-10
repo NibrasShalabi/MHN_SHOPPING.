@@ -11,7 +11,9 @@ import 'promotion_repository.dart';
 class LivePromotions {
   final PromotionRepository _repository;
   final _ready = Completer<void>();
+  final _changes = StreamController<List<Promotion>>.broadcast();
   Map<String, Promotion> _best = const {};
+  List<Promotion> _active = const [];
   StreamSubscription<List<Promotion>>? _sub;
 
   LivePromotions(this._repository);
@@ -23,6 +25,13 @@ class LivePromotions {
     return _ready.future;
   }
 
+  /// The live deals now, then on every change — for the fire deals badge.
+  Stream<List<Promotion>> watch() async* {
+    await ready;
+    yield _active;
+    yield* _changes.stream;
+  }
+
   void _update(List<Promotion> promotions) {
     final best = <String, Promotion>{};
     for (final p in promotions) {
@@ -31,6 +40,8 @@ class LivePromotions {
       if (current == null || p.discountPercentage > current.discountPercentage) best[p.productId] = p;
     }
     _best = best;
+    _active = promotions.where((p) => !p.isExpired).toList();
+    _changes.add(_active);
     _complete();
   }
 
@@ -45,5 +56,8 @@ class LivePromotions {
     return product.withDiscount(promo.discountPercentage, promo.endTime);
   }
 
-  Future<void> dispose() async => _sub?.cancel();
+  Future<void> dispose() async {
+    await _sub?.cancel();
+    await _changes.close();
+  }
 }
