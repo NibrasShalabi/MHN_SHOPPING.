@@ -14,8 +14,8 @@ class FirebasePromotionRepository implements PromotionRepository {
 
   FirebasePromotionRepository(this._db);
 
-  /// Stream للعروض النشطة — يتحدث فوراً لما Admin يضيف/يلغي عرض
-  /// read count: 1 في البداية + 0 لكل تحديث
+  /// One read per active deal at start, then only the changed ones.
+  @override
   Stream<List<Promotion>> watchActivePromotions() {
     return _db
         .collection('promotions')
@@ -23,7 +23,9 @@ class FirebasePromotionRepository implements PromotionRepository {
         .where('endTime', isGreaterThan: Timestamp.now())
         .snapshots()
         .map((snap) => snap.docs.map(_fromDoc).toList())
-        .handleError((e) => throw ServerException(message: e.toString()));
+        .handleError((Object e) => throw e is FirebaseException
+            ? ServerException(message: e.message ?? '', code: e.code)
+            : ServerException(message: e.toString()));
   }
 
   @override

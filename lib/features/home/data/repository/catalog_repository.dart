@@ -19,6 +19,9 @@ abstract class CatalogRepository {
   });
   Future<Category> getCategory(String categoryId, {bool forceRefresh = false});
   Future<Product> getProduct(String productId, {bool forceRefresh = false});
+
+  /// Several products at once (missing ones are left out) — 30 per read.
+  Future<List<Product>> getProductsByIds(List<String> productIds);
   Future<ProductPageResult> getProducts({
     required ProductQuery query,
     String? filterId,
@@ -246,6 +249,10 @@ class FakeCatalogRepository implements CatalogRepository {
     _cache.write(CatalogCache.productKey(productId), product);
     return product;
   }
+
+  @override
+  Future<List<Product>> getProductsByIds(List<String> productIds) async =>
+      _allProducts.where((p) => productIds.contains(p.id)).toList();
 
   @override
   Future<ProductPageResult> getProducts({

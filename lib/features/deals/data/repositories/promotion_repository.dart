@@ -5,6 +5,9 @@ abstract class PromotionRepository {
   /// Get all active promotions.
   Future<List<Promotion>> getActivePromotions();
 
+  /// Live active promotions — a deal the admin adds or cancels shows at once.
+  Stream<List<Promotion>> watchActivePromotions();
+
   /// Get a specific promotion by ID.
   Future<Promotion> getPromotion(String promotionId);
 
@@ -57,6 +60,9 @@ class FakePromotionRepository implements PromotionRepository {
       isActive: false, // Expired
     ),
   ];
+
+  @override
+  Stream<List<Promotion>> watchActivePromotions() => Stream.fromFuture(getActivePromotions());
 
   @override
   Future<List<Promotion>> getActivePromotions() async {

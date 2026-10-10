@@ -35,6 +35,7 @@ class _FakeCartRepository implements CartRepository {
 }
 
 class _FakeCatalogRepository implements CatalogRepository {
+  @override Future<List<Product>> getProductsByIds(List<String> ids) async => [];
   final Set<String> _unavailableIds;
 
   _FakeCatalogRepository({Set<String>? unavailableIds})

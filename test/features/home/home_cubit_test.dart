@@ -14,6 +14,7 @@ import 'package:m_h_nshopping/features/home/presentation/cubits/home_state.dart'
 import 'package:m_h_nshopping/features/suppliers/domain/entities/supplier.dart';
 
 class _FakeCatalogRepository implements CatalogRepository {
+  @override Future<List<Product>> getProductsByIds(List<String> ids) async => [];
   final bool _shouldThrow;
   _FakeCatalogRepository({bool shouldThrow = false}) : _shouldThrow = shouldThrow;
 
@@ -39,6 +40,7 @@ class _FakeCatalogRepository implements CatalogRepository {
 }
 
 class _FakePromotionRepository implements PromotionRepository {
+  @override Stream<List<Promotion>> watchActivePromotions() => Stream.fromFuture(getActivePromotions());
   final List<Promotion> _promotions;
   _FakePromotionRepository({List<Promotion>? promotions}) : _promotions = promotions ?? [];
 

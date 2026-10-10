@@ -13,6 +13,8 @@ import 'catalog_cache.dart';
 import 'catalog_repository.dart';
 
 class FirebaseCatalogRepository implements CatalogRepository {
+  static const int _whereInLimit = 30;
+
   static const int _pageSize = 24;
 
   final FirebaseFirestore _db;
@@ -120,6 +122,34 @@ class FirebaseCatalogRepository implements CatalogRepository {
       final product = _productFromDoc(doc);
       _cache.write(CatalogCache.productKey(productId), product);
       return product;
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? '', code: e.code);
+    }
+  }
+
+  @override
+  Future<List<Product>> getProductsByIds(List<String> productIds) async {
+    final result = <Product>[];
+    final missing = <String>[];
+    for (final id in productIds.toSet()) {
+      final cached = _cache.read<Product>(CatalogCache.productKey(id), CatalogCache.productsTtl);
+      if (cached == null) {
+        missing.add(id);
+      } else {
+        result.add(cached);
+      }
+    }
+    try {
+      for (var i = 0; i < missing.length; i += _whereInLimit) {
+        final chunk = missing.sublist(i, (i + _whereInLimit).clamp(0, missing.length));
+        final snap = await _db.collection('products').where(FieldPath.documentId, whereIn: chunk).get();
+        for (final doc in snap.docs) {
+          final product = _productFromDoc(doc);
+          _cache.write(CatalogCache.productKey(doc.id), product);
+          result.add(product);
+        }
+      }
+      return result;
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
