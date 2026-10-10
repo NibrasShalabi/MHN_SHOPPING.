@@ -134,10 +134,19 @@ service cloud.firestore {
     match /sizeSets/{id} { allow read, write: if isAdmin(); }
     match /paletteColors/{id} { allow read, write: if isAdmin(); }
     match /sizeGuides/{id} { allow read, write: if isAdmin(); }
+    // طلبات اللياقة: الزبونة بتبعت طلبها تحت حسابها بس، بحالة "جديد"
+    match /fitnessProfiles/{uid}/submissions/{submissionId} {
+      allow create: if isOwner(uid) && isFemale()
+        && request.resource.data.userId == uid
+        && request.resource.data.status == 'new'
+        && request.resource.data.answers is list
+        && request.resource.data.answers.size() <= 100;
+      allow read: if isOwner(uid);
+    }
+    // الأدمن بيقرا كل الطلبات وبيغيّر حالتها — ما حدا بيحذف بيانات صحية
     match /{path=**}/submissions/{submissionId} {
-      allow create: if isAuth();
-      allow read: if isAdmin();
-      allow update, delete: if false;
+      allow read, update: if isAdmin();
+      allow delete: if false;
     }
     match /{document=**} { allow read, write: if false; }
         // بيانات الأدمن فقط: سعر التكلفة ورابط المصدر

@@ -129,6 +129,8 @@ class CheckoutService {
         for (int i = 0; i < items.length; i++) {
           final p = products[i];
           if (p == null) throw ServerException(message: 'المنتج "${items[i].name}" غير موجود');
+          // Consult-only items (fitness) are ordered by the specialist, never from the cart.
+          if (p['isOrderable'] == false) throw ServerException(message: AppStrings.consultOnlyItem(items[i].name));
           // Deal-only products exist for their deal alone — once it ends they can't be bought.
           if (p['dealOnly'] == true && !promos.containsKey(items[i].productId)) {
             throw ServerException(message: AppStrings.dealEnded(items[i].name));

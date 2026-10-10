@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -9,13 +8,13 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
-import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../../home/presentation/widgets/categories_grid.dart';
 import '../cubits/catalog_categories_cubit.dart';
 import '../cubits/catalog_categories_state.dart';
 import '../widgets/medical_notice_card.dart';
+import '../widgets/specialist_contact.dart';
 
 /// Fitness shelves — the same category grid the store uses.
 ///
@@ -37,13 +36,7 @@ class _SupplementsPageState extends State<SupplementsPage> {
     context.read<CatalogCategoriesCubit>().load();
   }
 
-  Future<void> _contactSpecialist(BuildContext context) async {
-    final uri = Uri.parse('https://wa.me/${AppStrings.specialistWhatsappNumber}');
-    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!launched && context.mounted) {
-      AppSnackbar.error(context, AppStrings.somethingWentWrong);
-    }
-  }
+  Future<void> _contactSpecialist(BuildContext context) => SpecialistContact.open(context);
 
   @override
   Widget build(BuildContext context) {

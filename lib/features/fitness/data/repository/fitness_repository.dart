@@ -8,13 +8,17 @@ abstract class FitnessRepository {
 
   /// Submits one program form.
   ///
-  /// Takes the answers as a map keyed by field id rather than a typed
-  /// model — the fields are defined by the admin at runtime, so there is
-  /// no fixed shape to type against.
+  /// Takes the answers as a map keyed by field id — the fields are defined
+  /// by the admin at runtime. They're stored with each question's text so
+  /// the admin reads them as asked, even after the form changes.
   Future<void> submitProgramForm({
-    required String programId,
+    required HealthProgram program,
     required Map<String, dynamic> answers,
   });
+
+  /// The specialist's WhatsApp number (digits with country code), set by
+  /// the admin. Empty when not set yet.
+  Future<String> getSpecialistWhatsapp();
 }
 
 /// UI-phase implementation.
@@ -172,9 +176,12 @@ class FakeFitnessRepository implements FitnessRepository {
 
   @override
   Future<void> submitProgramForm({
-    required String programId,
+    required HealthProgram program,
     required Map<String, dynamic> answers,
   }) async {
     await Future.delayed(const Duration(milliseconds: 600));
   }
+
+  @override
+  Future<String> getSpecialistWhatsapp() async => '';
 }

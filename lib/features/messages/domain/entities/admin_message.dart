@@ -4,6 +4,7 @@ enum AdminMessageType {
   supportReply('support_reply'),
   orderUpdate('order_update'),
   suggestion('suggestion'),
+  fitness('fitness'),
   broadcast('broadcast');
 
   final String key;

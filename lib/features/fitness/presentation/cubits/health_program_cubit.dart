@@ -48,7 +48,7 @@ class HealthProgramCubit extends SafeCubit<HealthProgramState> {
 
     emit(state.copyWith(status: HealthProgramStatus.submitting, failure: null));
     try {
-      await _repository.submitProgramForm(programId: programId, answers: state.answers);
+      await _repository.submitProgramForm(program: program, answers: state.answers);
       emit(state.copyWith(status: HealthProgramStatus.submitted));
     } catch (e) {
       emit(state.copyWith(

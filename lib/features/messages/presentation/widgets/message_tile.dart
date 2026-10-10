@@ -21,6 +21,7 @@ class MessageTile extends StatelessWidget {
         AdminMessageType.supportReply => (Icons.support_agent, AppStrings.messageTypeSupport, AppColors.gold),
         AdminMessageType.orderUpdate => (Icons.receipt_long, AppStrings.messageTypeOrder, AppColors.info),
         AdminMessageType.suggestion => (Icons.lightbulb_outline, AppStrings.messageTypeSuggestion, AppColors.goldLight),
+        AdminMessageType.fitness => (Icons.spa_outlined, AppStrings.messageTypeFitness, AppColors.accentLight),
         AdminMessageType.broadcast => (Icons.campaign, AppStrings.messageBroadcast, AppColors.accent),
       };
 

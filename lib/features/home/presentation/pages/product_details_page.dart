@@ -22,6 +22,7 @@ import '../widgets/price_text.dart';
 import '../widgets/product_image_gallery.dart';
 import '../widgets/product_variant_selector.dart';
 import '../widgets/quantity_selector.dart';
+import '../../../fitness/presentation/widgets/specialist_contact.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -189,7 +190,7 @@ class _BottomBar extends StatelessWidget {
     final product = state.product!;
     final cubit = context.read<ProductDetailsCubit>();
 
-    if (!product.isOrderable) return const SizedBox.shrink();
+    if (!product.isOrderable) return _ConsultBar(productName: product.name);
 
     return Container(
       decoration: const BoxDecoration(
@@ -233,6 +234,44 @@ class _BottomBar extends StatelessWidget {
                   AppSnackbar.success(context, AppStrings.addedToCart);
                 }
                     : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Consult-only products (slimming, medicines…) aren't added to the cart —
+/// the specialist orders them for the customer after a WhatsApp consult.
+class _ConsultBar extends StatelessWidget {
+  final String productName;
+
+  const _ConsultBar({required this.productName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceWine,
+        border: Border(top: BorderSide(color: AppColors.border, width: AppConstants.borderThin)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.spacingMd),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(AppStrings.consultOnlyNote,
+                  textAlign: TextAlign.center, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+              const SizedBox(height: AppConstants.spacingSm),
+              CustomButton(
+                label: AppStrings.consultSpecialist,
+                icon: Icons.chat_outlined,
+                onPressed: () => SpecialistContact.open(context, about: productName),
               ),
             ],
           ),

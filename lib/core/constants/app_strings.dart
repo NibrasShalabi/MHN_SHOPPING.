@@ -229,6 +229,13 @@ class AppStrings {
   static const String sendData = 'إرسال البيانات';
   static const String optionalField = 'اختياري';
   static const String yes = 'نعم';
+  static const String notSignedIn = 'سجّلي دخولك أولاً';
+  static const String consultSpecialist = 'استشيري المختصة';
+  static const String consultOnlyNote = 'هالمنتج بيتطلب بعد استشارة المختصة';
+  static const String specialistUnavailable = 'رقم المختصة غير متوفر حالياً';
+  static String consultOnlyItem(String name) => '"$name" بيتطلب عن طريق المختصة — شيله من السلة';
+  static String consultAbout(String product) => 'مرحبا، بدي استشارة بخصوص: $product';
+  static const String messageTypeFitness = 'اللياقة';
   static const String no = 'لا';
   static const String medsDisclaimer =
       'المنتجات المعروضة للاطلاع فقط. لا تبدئي أي منتج قبل استشارة طبيبك، والتواصل مع الإدارة للاستفسار عن التوفر.';
@@ -266,7 +273,6 @@ class AppStrings {
   static const String askSpecialist = 'استشر المختص';
   // TODO(logic-phase): placeholder, same as adminWhatsappNumber — replace
   // with the real number (remote config) before launch.
-  static const String specialistWhatsappNumber = '000000000';
 
   static const String requiredField = 'مطلوب';
 
