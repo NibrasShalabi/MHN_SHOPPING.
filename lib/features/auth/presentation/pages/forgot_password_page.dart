@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -73,8 +75,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
+                    const SizedBox(height: AppConstants.spacingSm),
+                    Text(AppStrings.resetCheckSpam,
+                        style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary), textAlign: TextAlign.center),
                     const SizedBox(height: AppConstants.spacingLg),
-                    CustomButton(label: AppStrings.backToLogin, onPressed: () => Navigator.of(context).pop()),
+                    CustomButton(label: AppStrings.backToLogin, onPressed: () => context.go(RouteNames.login)),
                   ],
                 ),
               );

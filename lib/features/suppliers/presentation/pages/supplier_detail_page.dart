@@ -14,6 +14,7 @@ import '../../../fitness/presentation/cubits/catalog_categories_state.dart';
 import '../../../../core/utils/whatsapp.dart';
 import '../../domain/entities/supplier.dart';
 import '../../../home/presentation/widgets/categories_grid.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 /// One supplier's storefront: their own categories, browsed with the same
 /// grid and filters as the main store — a supplier is a different entry
@@ -53,12 +54,7 @@ class _SupplierDetailPageState extends State<SupplierDetailPage> {
           }
 
           if (state.status == CatalogCategoriesStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<CatalogCategoriesCubit>().load(forceRefresh: true));
           }
 
           return RefreshIndicator(

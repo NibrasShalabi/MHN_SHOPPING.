@@ -13,6 +13,8 @@ import 'route_names.dart';
 import '../widgets/app_bar_bottom_border.dart';
 import '../widgets/custom/app_logo.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/menu_button.dart';
+import '../widgets/badged_icon.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -139,12 +141,7 @@ class _TopNavBar extends StatelessWidget {
                       }),
                     ),
                   ),
-                  Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.menu, color: AppColors.iconPrimary),
-                      onPressed: () => Scaffold.of(context).openEndDrawer(),
-                    ),
-                  ),
+                  Builder(builder: (context) => const MenuButton()),
                 ],
               ),
             ),
@@ -274,30 +271,9 @@ class _OrdersIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MessagesCubit, MessagesState>(
-      buildWhen: (previous, current) => previous.messages.length != current.messages.length,
-      builder: (context, state) {
-        final count = state.messages.length;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            const Icon(Icons.local_shipping_outlined, size: AppConstants.iconMd, color: AppColors.iconPrimary),
-            if (count > 0)
-              Positioned(
-                top: -4,
-                left: -6,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                  ),
-                  child: Text('$count', style: AppTextStyles.caption.copyWith(color: AppColors.textOnPrimary)),
-                ),
-              ),
-          ],
-        );
-      },
+    return BlocSelector<MessagesCubit, MessagesState, int>(
+      selector: (s) => s.orderUpdates,
+      builder: (context, count) => BadgedIcon(icon: Icons.local_shipping_outlined, count: count),
     );
   }
 }

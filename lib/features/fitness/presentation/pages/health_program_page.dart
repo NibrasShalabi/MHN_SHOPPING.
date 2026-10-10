@@ -15,6 +15,7 @@ import '../cubits/health_program_cubit.dart';
 import '../cubits/health_program_state.dart';
 import '../widgets/dynamic_form_field_widget.dart';
 import '../widgets/medical_notice_card.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 /// One screen for every supervised program.
 ///
@@ -77,12 +78,7 @@ class _HealthProgramPageState extends State<HealthProgramPage> {
 
           final program = state.program;
           if (program == null) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<HealthProgramCubit>().load());
           }
 
           // After submitting, the form is replaced rather than kept around

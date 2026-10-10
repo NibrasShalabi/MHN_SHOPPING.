@@ -4,7 +4,6 @@ import '../../../deals/data/repositories/promotion_repository.dart';
 import '../../../deals/domain/entities/promotion.dart';
 import '../../data/repository/catalog_repository.dart';
 import '../../domain/entities/category.dart';
-import '../../domain/entities/product.dart';
 import '../../domain/entities/promo_banner.dart';
 import 'home_state.dart';
 
@@ -27,13 +26,8 @@ class HomeCubit extends SafeCubit<HomeState> {
 
       final promotions = results[2] as List<Promotion>;
 
-      final dealProducts = <Product>[];
-      for (final promo in promotions) {
-        try {
-          final product = await _catalogRepository.getProduct(promo.productId);
-          dealProducts.add(product);
-        } catch (_) {}
-      }
+      // One batched read (30 per query, cached) instead of one per deal.
+      final dealProducts = await _catalogRepository.getProductsByIds([for (final p in promotions) p.productId]);
 
       if (isClosed) return;
       emit(state.copyWith(

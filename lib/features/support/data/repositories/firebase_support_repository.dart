@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/data/rate_limit.dart';
+import '../../../account/data/repositories/account_repository.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/entities/support_message.dart';
 import 'support_repository.dart';
@@ -14,24 +16,25 @@ import 'support_repository.dart';
 class FirebaseSupportRepository implements SupportRepository {
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
+  final AccountRepository _account;
 
   // Cache للـ reviews — تتغير نادراً
   List<Review>? _reviewsCache;
 
-  FirebaseSupportRepository(this._db, this._auth);
+  FirebaseSupportRepository(this._db, this._auth, this._account);
 
-  /// إرسال رسالة دعم
-  /// إرسال رسالة دعم — الاسم يُخزَّن مع الرسالة حتى لوحة الأدمن ما تقرأ users لكل رسالة
+  /// The name is stored on the message so the admin never reads users per
+  /// message; it comes from the session's profile cache (no extra read).
   @override
   Future<void> sendMessage(SupportMessage message) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw const ServerException(message: 'غير مسجّل دخول');
 
     try {
-      final user = (await _db.collection('users').doc(uid).get()).data();
-      final userName = '${user?['fullName'] ?? ''} ${user?['familyName'] ?? ''}'.trim();
-
-      await _db.collection('support_messages').add({
+      final userName = (await _account.profile()).displayName;
+      final batch = _db.batch();
+      RateLimit.stamp(_db, batch, uid, RateLimited.support);
+      batch.set(_db.collection('support_messages').doc(), {
         'userId': uid,
         if (userName.isNotEmpty) 'userName': userName,
         'topic': message.topic.name,
@@ -39,6 +42,8 @@ class FirebaseSupportRepository implements SupportRepository {
         'sentAt': FieldValue.serverTimestamp(),
         'isRead': false,
       });
+      await batch.commit();
+      RateLimit.sent(RateLimited.support);
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }

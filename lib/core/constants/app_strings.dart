@@ -9,7 +9,6 @@ class AppStrings {
   static const String ok = 'حسناً';
   static const String cancel = 'إلغاء';
   static const String confirm = 'تأكيد';
-  static const String retry = 'إعادة المحاولة';
   static const String save = 'حفظ';
   static const String edit = 'تعديل';
   static const String delete = 'حذف';
@@ -49,6 +48,7 @@ class AppStrings {
   static const String sendResetLink = 'إرسال رابط إعادة التعيين';
   static const String checkYourEmail = 'تحقق من بريدك الإلكتروني';
   static const String resetLinkSentTo = 'أرسلنا رابط إعادة تعيين كلمة السر إلى';
+  static const String resetCheckSpam = 'إذا ما وصلك خلال دقائق، شوف مجلد البريد المزعج (Spam)';
   static const String backToLogin = 'رجوع لتسجيل الدخول';
   static const String selectGovernorate = 'اختر المحافظة';
   static const String selectGender = 'اختر الجنس';
@@ -72,6 +72,12 @@ class AppStrings {
   static const String itemNotFound = 'العنصر المطلوب غير موجود';
   static const String actionAlreadyDone = 'تم تنفيذ هذه العملية مسبقاً';
   static const String unknownError = 'حدث خطأ غير متوقع';
+  static const String actionNotAllowed = 'ما فيك تعمل هالشي هلأ — إذا بعتت من شوي، استنى قليلاً وجرّب';
+  static const String tooManyAttempts = 'محاولات كتير، جرّب بعد شوي';
+  static const String wrongCurrentPassword = 'كلمة السر الحالية غلط';
+  static const String weakPassword = 'كلمة السر ضعيفة — 8 أحرف على الأقل';
+  static const String signInAgain = 'سجّل دخولك من جديد وجرّب';
+  static const String retry = 'إعادة المحاولة';
 
   // ==================== الرئيسية / الأقسام ====================
   static const String home = 'الرئيسية';
@@ -232,7 +238,7 @@ class AppStrings {
   static const String sendData = 'إرسال البيانات';
   static const String optionalField = 'اختياري';
   static const String yes = 'نعم';
-  static const String notSignedIn = 'سجّلي دخولك أولاً';
+  static const String notSignedIn = 'سجّل دخولك أولاً';
   static const String consultSpecialist = 'استشيري المختصة';
   static const String consultOnlyNote = 'هالمنتج بيتطلب بعد استشارة المختصة';
   static const String contactUnavailable = 'رقم التواصل غير متوفر حالياً';
@@ -460,4 +466,21 @@ class AppStrings {
   static const String messageTypeOrder = 'تحديث الطلب';
   static const String messageBroadcast = 'إشعار عام';
   static const String messageTypeSuggestion = 'اقتراح منتج';
+
+  // Account
+  static const String myAccount = 'حسابي';
+  static const String profileDetails = 'معلوماتي';
+  static const String profileEditRule = 'فيك تعدّل معلوماتك مرة كل 7 أيام.';
+  static String profileEditTooSoon(DateTime next) =>
+      'عدّلت معلوماتك مؤخراً — التعديل الجاي متاح بتاريخ ${next.year}/${next.month}/${next.day}.';
+  static const String profileSaved = 'تم حفظ معلوماتك';
+  static const String saveChanges = 'حفظ التعديلات';
+  static const String changePassword = 'تغيير كلمة السر';
+  static const String currentPassword = 'كلمة السر الحالية';
+  static const String newPassword = 'كلمة السر الجديدة';
+  static const String confirmNewPassword = 'تأكيد كلمة السر الجديدة';
+  static const String samePassword = 'كلمة السر الجديدة لازم تختلف عن الحالية';
+  static const String passwordChanged = 'تم تغيير كلمة السر';
+  static const String logout = 'تسجيل الخروج';
+  static const String tooSoonRetry = 'استنّى شوي قبل ما تبعت طلب جديد.';
 }

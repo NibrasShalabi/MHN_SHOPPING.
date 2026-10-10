@@ -15,6 +15,13 @@ class MessagesState extends Equatable {
     this.failure,
   });
 
+  /// Everything still in the inbox — the menu and the messages entry.
+  int get unreadCount => messages.length;
+
+  /// Only order updates addressed to this customer — the orders tab.
+  /// Broadcasts never light it: a new account has no orders.
+  int get orderUpdates => messages.where((m) => m.type == AdminMessageType.orderUpdate).length;
+
   MessagesState copyWith({
     MessagesStatus? status,
     List<AdminMessage>? messages,

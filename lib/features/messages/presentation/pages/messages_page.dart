@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../cubits/messages_cubit.dart';
 import '../cubits/messages_state.dart';
 import '../widgets/message_tile.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 class MessagesPage extends StatelessWidget {
   const MessagesPage({super.key});
@@ -34,13 +35,8 @@ class MessagesPage extends StatelessWidget {
         builder: (context, state) => switch (state.status) {
           MessagesStatus.initial || MessagesStatus.loading =>
             const Center(child: CircularProgressIndicator(color: AppColors.gold)),
-          MessagesStatus.failure => _Centered(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body.copyWith(color: AppColors.error),
-                textAlign: TextAlign.center,
-              ),
-            ),
+          MessagesStatus.failure =>
+            ErrorRetry(failure: state.failure, onRetry: () => context.read<MessagesCubit>().watch()),
           MessagesStatus.ready when state.messages.isEmpty => const _EmptyInbox(),
           MessagesStatus.ready => ListView.separated(
               padding: const EdgeInsets.symmetric(

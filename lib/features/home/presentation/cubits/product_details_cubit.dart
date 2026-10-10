@@ -20,7 +20,6 @@ class ProductDetailsCubit extends SafeCubit<ProductDetailsState> {
         required this.productId,
       }) : super(const ProductDetailsState());
 
-  /// ط¸ظ¹ط¸عˆط·آ´ط·ط›ط¸â€کط¸â€‍ refresh ط¸ئ’ط¸â€‍ ط·آ¯ط¸â€ڑط¸ظ¹ط¸â€ڑط·آ© ط¸â€‍ط¸â€‍ط·ع¾ط·آ­ط¸â€ڑط¸â€ڑ ط¸â€¦ط¸â€  ط·آ§ط¸â€ ط·ع¾ط¸â€،ط·آ§ط·طŒ ط·آ§ط¸â€‍ط¸â‚¬ promotion
   void startPromotionRefresh() {
     _refreshTimer?.cancel();
     _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) => load());
@@ -37,7 +36,6 @@ class ProductDetailsCubit extends SafeCubit<ProductDetailsState> {
     try {
       final product = await _catalogRepository.getProduct(productId);
 
-      // ط·آ¬ط¸ظ¹ط·آ¨ ط·آ§ط¸â€‍ط¸â‚¬ promotion ط·آ¥ط¸â€  ط¸ظ¾ط¸ظ¹ ط¸ث†ط·آ·ط·آ¨ط¸â€ڑ ط·آ§ط¸â€‍ط·آ³ط·آ¹ط·آ± ط·آ§ط¸â€‍ط¸â€¦ط·آ®ط¸ظ¾ط·آ¶
       final discountPct = await _promotionRepository.getActiveDiscountPercentage(productId);
       final appliedPrice = discountPct > 0
           ? product.price * (1 - discountPct / 100)

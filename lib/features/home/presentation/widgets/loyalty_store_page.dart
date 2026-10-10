@@ -14,6 +14,7 @@ import '../../../orders/presentation/widgets/loyalty_explainer_card.dart';
 import '../cubits/category_cubit.dart';
 import '../cubits/category_state.dart';
 import '../widgets/products_grid.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 /// Loyalty store — the same product grid as the rest of the shop, priced
 /// in points.
@@ -83,12 +84,7 @@ class _LoyaltyStorePageState extends State<LoyaltyStorePage> {
           }
 
           if (state.status == CategoryStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<CategoryCubit>().load(forceRefresh: true));
           }
 
           return RefreshIndicator(

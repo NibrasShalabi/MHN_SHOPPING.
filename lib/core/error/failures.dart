@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../constants/app_strings.dart';
 import 'exceptions.dart';
 
@@ -54,11 +55,17 @@ class UnknownFailure extends Failure {
   const UnknownFailure([super.message = AppStrings.unknownError]);
 }
 
-/// Central mapper — every Repository catch-block should funnel exceptions
-/// through this instead of hand-rolling try/catch translation per method.
+/// Central mapper — every cubit funnels errors through this, so the
+/// customer always reads Arabic: Firebase's own (English) messages never
+/// reach the screen. Messages a repository wrote on purpose are kept.
 Failure mapExceptionToFailure(Object error) {
   return switch (error) {
-    ServerException e => ServerFailure(e.message),
+    // A repository's own (Arabic) wording wins; a raw Firebase message is
+    // replaced by the wording for its code.
+    ServerException(message: final m) when m.isNotEmpty && !_looksEnglish(m) => ServerFailure(m),
+    ServerException(code: final code?) when code.isNotEmpty => _byCode(code),
+    ServerException() => const ServerFailure(),
+    FirebaseException e => _byCode(e.code),
     NetworkException e => NetworkFailure(e.message),
     CacheException e => CacheFailure(e.message),
     ValidationException e => ValidationFailure(e.message),
@@ -68,3 +75,20 @@ Failure mapExceptionToFailure(Object error) {
     _ => const UnknownFailure(),
   };
 }
+
+/// Firebase / Firebase Auth error codes → what the customer should read.
+Failure _byCode(String code) => switch (code) {
+      'unavailable' || 'network-request-failed' || 'deadline-exceeded' => const NetworkFailure(),
+      'permission-denied' => const PermissionFailure(AppStrings.actionNotAllowed),
+      'not-found' || 'user-not-found' => const NotFoundFailure(),
+      'already-exists' => const DuplicateActionFailure(),
+      'resource-exhausted' || 'too-many-requests' => const ServerFailure(AppStrings.tooManyAttempts),
+      'wrong-password' || 'invalid-credential' => const ValidationFailure(AppStrings.wrongCurrentPassword),
+      'weak-password' => const ValidationFailure(AppStrings.weakPassword),
+      'requires-recent-login' => const ValidationFailure(AppStrings.signInAgain),
+      'unauthenticated' => const PermissionFailure(AppStrings.signInAgain),
+      _ => const ServerFailure(),
+    };
+
+/// Firebase's raw messages are English; a repository's own are Arabic.
+bool _looksEnglish(String s) => !RegExp(r'[\u0600-\u06FF]').hasMatch(s);

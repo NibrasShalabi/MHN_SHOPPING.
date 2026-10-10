@@ -15,6 +15,7 @@ import '../cubits/catalog_categories_cubit.dart';
 import '../cubits/catalog_categories_state.dart';
 import '../widgets/medical_notice_card.dart';
 import '../widgets/specialist_contact.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 /// Fitness shelves — the same category grid the store uses.
 ///
@@ -57,12 +58,7 @@ class _SupplementsPageState extends State<SupplementsPage> {
           }
 
           if (state.status == CatalogCategoriesStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<CatalogCategoriesCubit>().load(forceRefresh: true));
           }
 
           return RefreshIndicator(

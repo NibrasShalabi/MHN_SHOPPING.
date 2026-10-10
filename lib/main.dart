@@ -11,6 +11,7 @@ import 'core/services/shared_prefs_service.dart';
 import 'core/theme/app_colors.dart';
 import 'features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import 'features/messages/presentation/cubits/messages_cubit.dart';
+import 'features/account/data/repositories/account_repository.dart';
 import 'features/cart/data/repositories/cart_repository.dart';
 import 'features/cart/presentation/cubits/cart_cubit.dart';
 import 'features/home/data/repository/catalog_repository.dart';
@@ -25,7 +26,7 @@ Future<void> main() async {
   await initializeDateFormatting('ar');
   di.setupInjector();
 
-  final session = FirebaseUserSessionGate();
+  final session = FirebaseUserSessionGate(GetIt.instance<AccountRepository>());
   runApp(MyApp(session: session));
 }
 
@@ -72,14 +73,16 @@ class _AppViewState extends State<_AppView> {
   @override
   void initState() {
     super.initState();
+    String? lastUid = FirebaseAuth.instance.currentUser?.uid;
     widget.session.loadGender();
 
+    // A different account must not inherit the previous one's profile or cart.
     FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) {
-        widget.session.loadGender();
-      } else {
-        widget.session.clear();
-      }
+      if (user?.uid == lastUid) return;
+      lastUid = user?.uid;
+      widget.session.clear();
+      if (user != null) widget.session.loadGender();
+      if (mounted) context.read<CartCubit>().load();
     });
   }
 

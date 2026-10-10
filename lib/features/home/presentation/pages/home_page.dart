@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/widgets/menu_button.dart';import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/suppliers_entry_banner.dart';
 import '../../../loyalty/presentation/widgets/loyalty_balance_badge.dart';
@@ -20,6 +21,7 @@ import '../cubits/home_state.dart';
 import '../widgets/categories_grid.dart';
 import '../widgets/fitness_entry_banner.dart';
 import '../widgets/promo_swiper.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 class HomePage extends StatefulWidget {
   final bool showFitnessSection;
@@ -75,13 +77,7 @@ class _HomePageState extends State<HomePage> {
               ),
               actions: [
                 LoyaltyBalanceBadge(onTap: () => context.go(RouteNames.loyaltyStore)),
-                Builder(
-                  builder: (context) => IconButton(
-                    icon: const Icon(Icons.menu, color: AppColors.iconPrimary),
-                    tooltip: AppStrings.menu,
-                    onPressed: () => Scaffold.of(context).openEndDrawer(),
-                  ),
-                ),
+                Builder(builder: (context) => const MenuButton()),
                 const SizedBox(width: AppConstants.spacingXs),
               ],
             ),
@@ -92,12 +88,7 @@ class _HomePageState extends State<HomePage> {
             return const CustomLoadingIndicator();
           }
           if (state.status == HomeStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<HomeCubit>().load());
           }
 
           return RefreshIndicator(

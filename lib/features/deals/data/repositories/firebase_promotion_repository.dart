@@ -4,15 +4,18 @@ import '../../../../core/error/exceptions.dart';
 import '../../domain/entities/promotion.dart';
 import 'promotion_repository.dart';
 
-/// Firebase implementation لـ PromotionRepository
-///
-/// استراتيجية الـ reads:
-/// - Stream للعروض النشطة (real-time — تنتهي تلقائياً بدون polling)
-/// - Firestore يفلتر endTime > now مباشرة (ما نفلتر client-side)
+/// Active deals come from one live listener (opened by LivePromotions at
+/// app start). Once it has delivered, every other lookup — the home page,
+/// a product page's price — is answered from it with no extra read.
 class FirebasePromotionRepository implements PromotionRepository {
   final FirebaseFirestore _db;
 
   FirebasePromotionRepository(this._db);
+
+  /// The listener's latest snapshot; null until it first delivers.
+  List<Promotion>? _live;
+
+  List<Promotion>? get _liveNow => _live?.where((p) => p.isActive && !p.isExpired).toList();
 
   /// One read per active deal at start, then only the changed ones.
   @override
@@ -22,7 +25,7 @@ class FirebasePromotionRepository implements PromotionRepository {
         .where('isActive', isEqualTo: true)
         .where('endTime', isGreaterThan: Timestamp.now())
         .snapshots()
-        .map((snap) => snap.docs.map(_fromDoc).toList())
+        .map((snap) => _live = snap.docs.map(_fromDoc).toList())
         .handleError((Object e) => throw e is FirebaseException
             ? ServerException(message: e.message ?? '', code: e.code)
             : ServerException(message: e.toString()));
@@ -30,6 +33,7 @@ class FirebasePromotionRepository implements PromotionRepository {
 
   @override
   Future<List<Promotion>> getActivePromotions() async {
+    if (_liveNow case final live?) return live;
     try {
       final snap = await _db
           .collection('promotions')
@@ -55,6 +59,7 @@ class FirebasePromotionRepository implements PromotionRepository {
 
   @override
   Future<List<Promotion>> getPromotionsForProduct(String productId) async {
+    if (_liveNow case final live?) return live.where((p) => p.productId == productId).toList();
     try {
       final snap = await _db
           .collection('promotions')

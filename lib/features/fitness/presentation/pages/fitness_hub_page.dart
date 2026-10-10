@@ -13,6 +13,7 @@ import '../../../../core/widgets/surface_card.dart';
 import '../../domain/entities/health_program.dart';
 import '../cubits/fitness_hub_cubit.dart';
 import '../cubits/fitness_hub_state.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 /// Entry point for the fitness section: the supervised programs, plus the
 /// display-only supplements shelf.
@@ -66,12 +67,7 @@ class _FitnessHubPageState extends State<FitnessHubPage> {
           }
 
           if (state.status == FitnessHubStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<FitnessHubCubit>().load());
           }
 
           return ListView(

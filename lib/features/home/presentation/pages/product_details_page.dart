@@ -25,6 +25,7 @@ import '../widgets/quantity_selector.dart';
 import '../../../fitness/presentation/widgets/specialist_contact.dart';
 import '../../../suppliers/domain/entities/supplier.dart';
 import '../../../suppliers/presentation/widgets/supplier_order_bar.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -77,12 +78,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           }
 
           if (state.status == ProductDetailsStatus.failure || state.product == null) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<ProductDetailsCubit>().load());
           }
 
           final product = state.product!;

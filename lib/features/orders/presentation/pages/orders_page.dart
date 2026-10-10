@@ -11,6 +11,7 @@ import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../cubits/orders_cubit.dart';
 import '../cubits/orders_state.dart';
 import '../widgets/order_card.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -49,12 +50,7 @@ class _OrdersPageState extends State<OrdersPage> {
           }
 
           if (state.status == OrdersStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<OrdersCubit>().load());
           }
 
           return RefreshIndicator(

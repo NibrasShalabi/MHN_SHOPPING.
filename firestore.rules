@@ -39,15 +39,60 @@ service cloud.firestore {
         && isFirstRating(uid);
     }
 
+    function str(v, max) { return v is string && v.size() <= max; }
+    // The customer edits these fields only, once a week, with sane lengths.
+    // Email, gender and points are fixed for the client.
+    function isProfileEdit() {
+      let d = request.resource.data;
+      let last = resource.data.get('profileUpdatedAt', null);
+      return d.diff(resource.data).affectedKeys().hasOnly(
+               ['fullName', 'familyName', 'phone', 'secondaryPhone', 'governorate', 'area', 'profileUpdatedAt'])
+        && d.profileUpdatedAt == request.time
+        && (last == null || request.time > last + duration.value(7, 'd'))
+        && str(d.fullName, 40) && d.fullName.size() > 0
+        && str(d.familyName, 40) && d.familyName.size() > 0
+        && str(d.phone, 20) && str(d.secondaryPhone, 20)
+        && str(d.governorate, 40) && str(d.area, 80);
+    }
+
     match /users/{uid} {
       allow read: if isOwner(uid) || isAdmin();
-      allow create: if isOwner(uid) && request.resource.data.get('loyaltyPoints', 0) == 0;
-      allow update: if isAdmin() || (isOwner(uid) && (
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['loyaltyPoints'])
-        || isRatingRewardUpdate(uid)
-      ));
+      allow create: if isOwner(uid)
+        && request.resource.data.get('loyaltyPoints', 0) == 0
+        && request.resource.data.get('isAdmin', false) == false
+        && request.resource.data.gender in ['male', 'female']
+        && !request.resource.data.keys().hasAny(['profileUpdatedAt']);
+      allow update: if isAdmin() || (isOwner(uid) && (isProfileEdit() || isRatingRewardUpdate(uid)));
       allow delete: if isAdmin();
     }
+
+    // ===== Rate limits =====
+    // rateLimits/{uid}.<action> = time of the last send. Each send writes it
+    // in the same batch, so the previous value says when the last one was.
+    function lastSent(action) {
+      let path = /databases/$(database)/documents/rateLimits/$(request.auth.uid);
+      return exists(path) ? get(path).data.get(action, null) : null;
+    }
+    function throttled(action, minutes) {
+      let last = lastSent(action);
+      return getAfter(/databases/$(database)/documents/rateLimits/$(request.auth.uid)).data.get(action, null) == request.time
+        && (last == null || request.time > last + duration.value(minutes, 'm'));
+    }
+    function stampOk(changed, k) { return !(k in changed) || request.resource.data[k] == request.time; }
+    match /rateLimits/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      // Only the server time can be written: the stamp can't be faked or reset.
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['support', 'suggestion', 'fitness'])
+        && stampOk(resource == null ? request.resource.data.keys()
+             : request.resource.data.diff(resource.data).affectedKeys(), 'support')
+        && stampOk(resource == null ? request.resource.data.keys()
+             : request.resource.data.diff(resource.data).affectedKeys(), 'suggestion')
+        && stampOk(resource == null ? request.resource.data.keys()
+             : request.resource.data.diff(resource.data).affectedKeys(), 'fitness');
+      allow delete: if false;
+    }
+
     match /cart/{uid} { allow read, write: if isOwner(uid); }
     match /orders/{orderId} {
       allow read: if isAuth() && (resource.data.userId == request.auth.uid || isAdmin());
@@ -85,10 +130,12 @@ service cloud.firestore {
     match /users/{uid}/dismissedMessages/{msgId} {
       allow read, write: if isOwner(uid);
     }
-          match /support_messages/{id} {
-            allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
-            allow read, update, delete: if isAdmin();
-         }
+    match /support_messages/{id} {
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid
+        && str(request.resource.data.body, 2000)
+        && throttled('support', 2);
+      allow read, update, delete: if isAdmin();
+    }
     match /ratings/{uid} {
       allow read: if isAuth();
       allow create: if isOwner(uid) && !exists(/databases/$(database)/documents/ratings/$(uid));
@@ -102,7 +149,9 @@ service cloud.firestore {
       // الاقتراح بيبلش pending وباسم صاحبه — والنقاط بيعطيها الأدمن بس
       allow create: if isAuth() && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pending'
-        && !request.resource.data.keys().hasAny(['pointsAwarded']);
+        && !request.resource.data.keys().hasAny(['pointsAwarded'])
+        && str(request.resource.data.productName, 200) && str(request.resource.data.productLink, 500)
+        && throttled('suggestion', 10);
       allow read, update, delete: if isAdmin();
     }
     match /sharedCarts/{cartId} {
@@ -140,7 +189,8 @@ service cloud.firestore {
         && request.resource.data.userId == uid
         && request.resource.data.status == 'new'
         && request.resource.data.answers is list
-        && request.resource.data.answers.size() <= 100;
+        && request.resource.data.answers.size() <= 100
+        && throttled('fitness', 10);
       allow read: if isOwner(uid);
     }
     // الأدمن بيقرا كل الطلبات وبيغيّر حالتها — ما حدا بيحذف بيانات صحية

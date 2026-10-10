@@ -16,6 +16,7 @@ abstract class RouteNames {
   static const String about = '/about';
   static const String support = '/support';
   static const String rateApp = '/rate-app';
+  static const String account = '/account';
 
   // Catalog
   static const String category = '/category/:categoryId';

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/data/rate_limit.dart';
+import '../../../account/data/repositories/account_repository.dart';
 import '../../domain/entities/dynamic_form_field.dart';
 import '../../domain/entities/health_program.dart';
 import 'fitness_repository.dart';
@@ -13,12 +15,13 @@ import 'fitness_repository.dart';
 class FirebaseFitnessRepository implements FitnessRepository {
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
+  final AccountRepository _account;
 
   // Programs and the specialist number change rarely — one read per session.
   List<HealthProgram>? _programsCache;
   String? _specialistCache;
 
-  FirebaseFitnessRepository(this._db, this._auth);
+  FirebaseFitnessRepository(this._db, this._auth, this._account);
 
   @override
   Future<List<HealthProgram>> getPrograms() async {
@@ -57,26 +60,27 @@ class FirebaseFitnessRepository implements FitnessRepository {
     if (uid == null) throw const ServerException(message: AppStrings.notSignedIn);
 
     try {
-      final user = (await _db.collection('users').doc(uid).get()).data() ?? const <String, dynamic>{};
-      String? text(String key) {
-        final v = (user[key] as String?)?.trim();
-        return v == null || v.isEmpty ? null : v;
-      }
+      final user = await _account.profile();
+      String? text(String v) => v.trim().isEmpty ? null : v.trim();
 
-      final name = '${text('fullName') ?? ''} ${text('familyName') ?? ''}'.trim();
-      await _db.collection('fitnessProfiles').doc(uid).collection('submissions').add({
+      final name = user.displayName;
+      final batch = _db.batch();
+      RateLimit.stamp(_db, batch, uid, RateLimited.fitness);
+      batch.set(_db.collection('fitnessProfiles').doc(uid).collection('submissions').doc(), {
         'userId': uid,
         'programId': program.id,
         'programTitle': program.title,
         if (name.isNotEmpty) 'customerName': name,
-        'customerPhone': ?text('phone'),
-        'governorate': ?text('governorate'),
+        'customerPhone': ?text(user.phone),
+        'governorate': ?text(user.governorate),
         'answers': [
           for (final f in program.fields) {'id': f.id, 'label': f.label, 'value': _display(answers[f.id])},
         ],
         'status': 'new',
         'submittedAt': FieldValue.serverTimestamp(),
       });
+      await batch.commit();
+      RateLimit.sent(RateLimited.fitness);
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }

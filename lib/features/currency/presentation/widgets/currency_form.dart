@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/constants/app_strings.dart';
@@ -19,7 +20,7 @@ class CurrencyForm extends StatefulWidget {
 }
 
 class _CurrencyFormState extends State<CurrencyForm> {
-  final _repository = FakeCurrencyConverterRepository();
+  final _repository = GetIt.instance<CurrencyConverterRepository>();
   late final TextEditingController _amountController;
   final _rateController = TextEditingController();
   CurrencyType _selected = CurrencyType.syd;

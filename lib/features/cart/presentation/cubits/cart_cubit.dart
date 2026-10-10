@@ -6,7 +6,7 @@ import '../../../home/data/repository/catalog_repository.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
-/// Owns the cart for the whole app أ¢â‚¬â€‌ provided above the router so the
+/// Owns the cart for the whole app — provided above the router so the
 /// nav-bar badge and the cart screen always agree, and so adding from a
 /// product page doesn't need its own instance.
 ///
@@ -30,7 +30,6 @@ class CartCubit extends SafeCubit<CartState> {
     try {
       final items = await _cartRepository.getItems();
 
-      // ط·ع¾ط·آ­ط¸â€ڑط¸â€ڑ ط¸â€¦ط¸â€  ط¸ئ’ط¸â€‍ ط¸â€¦ط¸â€ ط·ع¾ط·آ¬ ط·آ¥ط·آ°ط·آ§ ط¸â€‍ط·آ³ط·آ§ ط¸â€¦ط¸ث†ط·آ¬ط¸ث†ط·آ¯
       // The product is fetched anyway for the availability check — its
       // pricing and supply shipping are re-applied too, so older carts stay correct.
       final unavailable = <String>{};

@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/messages/presentation/cubits/messages_cubit.dart';
+import '../../features/messages/presentation/cubits/messages_state.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_strings.dart';
 import '../router/route_names.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'badged_icon.dart';
 import 'custom/app_logo.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   static const List<_MenuEntry> _entries = [
+    _MenuEntry(path: RouteNames.account, icon: Icons.person_outline, label: AppStrings.myAccount),
     _MenuEntry(path: RouteNames.about, icon: Icons.info_outline, label: AppStrings.aboutUs),
     _MenuEntry(path: RouteNames.suppliers, icon: Icons.storefront_outlined, label: AppStrings.suppliers),
     _MenuEntry(path: RouteNames.messages, icon: Icons.inbox_outlined, label: AppStrings.messagesTitle),
@@ -83,6 +88,16 @@ class _MenuTile extends StatelessWidget {
               Icon(entry.icon, size: AppConstants.iconMd, color: AppColors.iconPrimary),
               const SizedBox(width: AppConstants.spacingMd),
               Expanded(child: Text(entry.label, style: AppTextStyles.body)),
+              if (entry.path == RouteNames.messages)
+                BlocSelector<MessagesCubit, MessagesState, int>(
+                  selector: (s) => s.unreadCount,
+                  builder: (context, count) => count == 0
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsetsDirectional.only(end: AppConstants.spacingSm),
+                          child: CountBubble(count: count),
+                        ),
+                ),
               const Icon(Icons.chevron_left, size: AppConstants.iconSm, color: AppColors.textDisabled),
             ],
           ),

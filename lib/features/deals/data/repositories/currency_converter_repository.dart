@@ -37,8 +37,9 @@ abstract class CurrencyConverterRepository {
   });
 }
 
-/// Fake implementation for UI phase.
-class FakeCurrencyConverterRepository implements CurrencyConverterRepository {
+/// Converts with the rate the customer enters; suggested rates are a
+/// starting point only.
+class LocalCurrencyConverterRepository implements CurrencyConverterRepository {
   /// Typical rates (for UI phase demo).
   /// In real implementation, these come from an API or Firebase.
   static const Map<CurrencyType, double> _suggestedRates = {

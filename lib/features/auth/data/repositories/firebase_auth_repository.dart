@@ -56,6 +56,8 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> sendPasswordResetEmail(String email) async {
     try {
+      // The email (and its reset page) in Arabic.
+      await _auth.setLanguageCode('ar');
       await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       throw ServerException(message: _mapAuthError(e.code), code: e.code);

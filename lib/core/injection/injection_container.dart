@@ -6,6 +6,8 @@ import 'package:get_it/get_it.dart';
 
 import '../../features/deals/data/repositories/live_promotions.dart';
 
+import '../../features/account/data/repositories/account_repository.dart';
+import '../../features/account/data/repositories/firebase_account_repository.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/auth/data/repositories/firebase_auth_repository.dart';
 import '../../features/cart/data/repositories/cart_repository.dart';
@@ -64,8 +66,10 @@ void setupInjector() {
   getIt.registerLazySingleton(() => LivePromotions(getIt<PromotionRepository>()));
 
   getIt.registerLazySingleton<CurrencyConverterRepository>(
-    () => FakeCurrencyConverterRepository(),
+    () => LocalCurrencyConverterRepository(),
   );
+
+  getIt.registerLazySingleton<AccountRepository>(() => FirebaseAccountRepository(db, auth));
 
   getIt.registerLazySingleton<AuthRepository>(
     () => FirebaseAuthRepository(auth, db),
@@ -76,11 +80,11 @@ void setupInjector() {
   );
 
   getIt.registerLazySingleton<FitnessRepository>(
-    () => FirebaseFitnessRepository(db, auth),
+    () => FirebaseFitnessRepository(db, auth, getIt<AccountRepository>()),
   );
 
   getIt.registerLazySingleton<SupportRepository>(
-    () => FirebaseSupportRepository(db, auth),
+    () => FirebaseSupportRepository(db, auth, getIt<AccountRepository>()),
   );
 
   getIt.registerLazySingleton<SharedCartRepository>(
@@ -101,6 +105,6 @@ void setupInjector() {
   getIt.registerFactory(() => LoyaltyBalanceCubit(getIt<LoyaltyBalanceRepository>()));
 
   getIt.registerLazySingleton<SuggestProductRepository>(
-    () => FirebaseSuggestProductRepository(db, auth),
+    () => FirebaseSuggestProductRepository(db, auth, getIt<AccountRepository>()),
   );
 }

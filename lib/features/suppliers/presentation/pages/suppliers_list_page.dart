@@ -13,6 +13,7 @@ import '../../../../core/widgets/surface_card.dart';
 import '../../domain/entities/supplier.dart';
 import '../cubits/suppliers_cubit.dart';
 import '../cubits/suppliers_state.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 class SuppliersListPage extends StatefulWidget {
   const SuppliersListPage({super.key});
@@ -47,12 +48,7 @@ class _SuppliersListPageState extends State<SuppliersListPage> {
           }
 
           if (state.status == SuppliersStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<SuppliersCubit>().load(forceRefresh: true));
           }
 
           // Pull-to-refresh works on the empty state too — a new supplier

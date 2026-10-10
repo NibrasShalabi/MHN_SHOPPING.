@@ -8,7 +8,7 @@ import 'catalog_categories_state.dart';
 /// Loads the category list for one scope.
 ///
 /// The store grid on the home screen and the fitness shelf need the same
-/// thing from the same repository, differing only by scope أ¢â‚¬â€‌ so they share
+/// thing from the same repository, differing only by scope — so they share
 /// this instead of each growing a cubit of its own.
 class CatalogCategoriesCubit extends SafeCubit<CatalogCategoriesState> {
   final CatalogRepository _repository;

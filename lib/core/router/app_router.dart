@@ -1,7 +1,5 @@
 import '../../features/loyalty/presentation/pages/loyalty_history_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -64,6 +62,9 @@ import '../../features/suppliers/presentation/pages/suppliers_list_page.dart';
 import '../injection/injection_container.dart';
 import '../services/seen_products_store.dart';
 import '../widgets/custom/custom_loading_indicator.dart';
+import '../../features/account/data/repositories/account_repository.dart';
+import '../../features/account/presentation/cubits/account_cubit.dart';
+import '../../features/account/presentation/pages/account_page.dart';
 import 'main_shell.dart';
 import 'route_names.dart';
 
@@ -72,10 +73,13 @@ abstract class UserSessionGate {
   bool get isFemale;
 }
 
-/// Firebase implementation — يقرأ الـ gender من Firestore مرة واحدة
-/// ويخزنه في الـ cache لتجنب reads متكررة
+/// Reads gender through the shared profile cache, so the router, the
+/// account page and the forms all cost one users/{uid} read per session.
 class FirebaseUserSessionGate implements UserSessionGate {
+  final AccountRepository _account;
   bool? _isFemale;
+
+  FirebaseUserSessionGate(this._account);
 
   @override
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
@@ -83,23 +87,19 @@ class FirebaseUserSessionGate implements UserSessionGate {
   @override
   bool get isFemale => _isFemale ?? false;
 
-  /// يُستدعى بعد login/signup وعند فتح التطبيق
   Future<void> loadGender() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) { _isFemale = null; return; }
+    if (FirebaseAuth.instance.currentUser == null) return clear();
     try {
-      final doc = await FirebaseFirestore.instanceFor(
-        app: Firebase.app(),
-        databaseId: 'default',
-      ).collection('users').doc(uid).get();
-      _isFemale = (doc.data()?['gender'] as String?) == 'female';
+      _isFemale = (await _account.profile()).isFemale;
     } catch (_) {
       _isFemale = false;
     }
   }
 
-  /// يُستدعى عند logout
-  void clear() => _isFemale = null;
+  void clear() {
+    _isFemale = null;
+    _account.clear();
+  }
 }
 
 /// كل ما تحت /fitness للإناث فقط
@@ -225,6 +225,15 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         path: RouteNames.orderDetails,
         builder: (context, state) => _PlaceholderScreen(
           title: 'Order: ${state.pathParameters['orderId']}',
+        ),
+      ),
+
+      // Account
+      GoRoute(
+        path: RouteNames.account,
+        builder: (context, state) => BlocProvider(
+          create: (_) => AccountCubit(getIt<AccountRepository>())..load(),
+          child: const AccountPage(),
         ),
       ),
 

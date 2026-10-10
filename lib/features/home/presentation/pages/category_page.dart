@@ -16,6 +16,7 @@ import '../cubits/category_cubit.dart';
 import '../cubits/category_state.dart';
 import '../widgets/filter_chips_row.dart';
 import '../widgets/products_grid.dart';
+import '../../../../core/widgets/error_retry.dart';
 
 class CategoryPage extends StatefulWidget {
   final SeenProductsStore seenProductsStore;
@@ -106,12 +107,7 @@ class _CategoryPageState extends State<CategoryPage> {
           }
 
           if (state.status == CategoryStatus.failure) {
-            return Center(
-              child: Text(
-                state.failure?.message ?? AppStrings.somethingWentWrong,
-                style: AppTextStyles.body,
-              ),
-            );
+            return ErrorRetry(failure: state.failure, onRetry: () => context.read<CategoryCubit>().load(forceRefresh: true));
           }
 
           return Column(
