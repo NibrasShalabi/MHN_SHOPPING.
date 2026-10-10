@@ -111,7 +111,7 @@ service cloud.firestore {
       allow update, delete: if false;
     }
     match /fitnessPrograms/{id} {
-      allow read: if isAuth() && isFemale();
+      allow read: if isAdmin() || (isAuth() && isFemale());
       allow write: if isAdmin();
     }
     match /fitnessProfiles/{uid} {
