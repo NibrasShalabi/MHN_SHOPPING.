@@ -41,18 +41,10 @@ class _FitnessHubPageState extends State<FitnessHubPage> {
 
   static HealthProgram? _byId(List<HealthProgram> programs, String id) {
     for (final program in programs) {
-      if (program.id == id) return program;
+      // A section shows once the specialist has given it questions.
+      if (program.id == id && program.fields.isNotEmpty) return program;
     }
     return null;
-  }
-
-  /// Base → middle → top, per 7.9: body management (the assessment
-  /// everything else builds on) is the most prominent, nutrition the
-  /// least. Yoga and pilates share the middle tier since the spec treats
-  /// them as one "activity" step.
-  static List<HealthProgram> _otherPrograms(List<HealthProgram> programs) {
-    const knownIds = {'hp1', 'yoga', 'pilates', 'nutrition'};
-    return programs.where((p) => !knownIds.contains(p.id)).toList();
   }
 
   @override
@@ -82,8 +74,6 @@ class _FitnessHubPageState extends State<FitnessHubPage> {
             );
           }
 
-          final others = _otherPrograms(state.programs);
-
           return ListView(
             padding: const EdgeInsets.all(AppConstants.spacingMd),
             children: [
@@ -97,16 +87,6 @@ class _FitnessHubPageState extends State<FitnessHubPage> {
                 icons: _programIcons,
                 onTapProgram: (id) => context.push(RouteNames.healthProgramPath(id)),
               ),
-              // Any program id the admin adds later that isn't one of the
-              // known four still renders here, rather than vanishing.
-              for (final program in others) ...[
-                const SizedBox(height: AppConstants.spacingSm),
-                _ProgramTile(
-                  program: program,
-                  icon: _programIcons[program.id] ?? Icons.spa_outlined,
-                  onTap: () => context.push(RouteNames.healthProgramPath(program.id)),
-                ),
-              ],
               const SizedBox(height: AppConstants.spacingXl),
               _SupplementsTile(
                 onTap: () => context.push(RouteNames.supplements),
@@ -156,59 +136,6 @@ class _Hero extends StatelessWidget {
               height: 1.7,
             ),
             textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProgramTile extends StatelessWidget {
-  final HealthProgram program;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _ProgramTile({required this.program, required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return SurfaceCard(
-      onTap: onTap,
-      margin: const EdgeInsets.only(bottom: AppConstants.spacingSm),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppConstants.spacingSm),
-            decoration: BoxDecoration(
-              gradient: AppColors.emberGradient,
-              borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-            ),
-            child: Icon(icon, size: AppConstants.iconMd, color: AppColors.goldLight),
-          ),
-          const SizedBox(width: AppConstants.spacingMd),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  program.title,
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: AppConstants.spacingXs),
-                Text(
-                  program.intro,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.6,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(
-            Icons.chevron_left,
-            color: AppColors.textDisabled,
-            size: AppConstants.iconMd,
           ),
         ],
       ),
