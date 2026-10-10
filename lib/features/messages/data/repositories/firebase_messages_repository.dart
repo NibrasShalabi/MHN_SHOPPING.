@@ -27,7 +27,7 @@ class FirebaseMessagesRepository implements MessagesRepository {
   @override
   Stream<List<AdminMessage>> watchInbox() => _auth
       .authStateChanges()
-      .switchMap((user) => user == null ? Stream.value(const <AdminMessage>[]) : _inbox(user.uid))
+      .switchMap((user) => user == null ? Stream.value(const <AdminMessage>[]) : _inbox(user))
       .transform(_mapErrors);
 
   @override
@@ -43,46 +43,50 @@ class FirebaseMessagesRepository implements MessagesRepository {
     }
   }
 
-  Stream<List<AdminMessage>> _inbox(String uid) {
-    final personal = _messages
-        .where('userId', isEqualTo: uid)
-        .where('isRead', isEqualTo: false)
-        .orderBy('sentAt', descending: true)
-        .snapshots();
-    final broadcast = _messages
-        .where('type', isEqualTo: 'broadcast')
-        .orderBy('sentAt', descending: true)
-        .limit(_broadcastLimit)
-        .snapshots();
+  /// Personal messages, broadcasts sent since the account was made (its
+  /// creation time comes from Auth — no read), and broadcasts the admin
+  /// marked for new customers too. Old ones are never read at all.
+  Stream<List<AdminMessage>> _inbox(User user) {
+    final uid = user.uid;
+    final broadcasts = _messages.where('type', isEqualTo: 'broadcast');
+    final joined = user.metadata.creationTime;
+    final streams = [
+      _messages
+          .where('userId', isEqualTo: uid)
+          .where('isRead', isEqualTo: false)
+          .orderBy('sentAt', descending: true)
+          .snapshots(),
+      (joined == null ? broadcasts : broadcasts.where('sentAt', isGreaterThanOrEqualTo: Timestamp.fromDate(joined)))
+          .orderBy('sentAt', descending: true)
+          .limit(_broadcastLimit)
+          .snapshots(),
+      broadcasts.where('forNewCustomers', isEqualTo: true).orderBy('sentAt', descending: true).limit(10).snapshots(),
+      _dismissed(uid).snapshots(),
+    ];
 
-    return _combine(personal, broadcast, _dismissed(uid).snapshots(), (p, b, d) {
-      final dismissedIds = d.docs.map((doc) => doc.id).toSet();
-      return [
-        ...p.docs.map(_fromDoc),
-        ...b.docs.where((doc) => !dismissedIds.contains(doc.id)).map(_fromDoc),
-      ]..sort((a, b) => b.sentAt.compareTo(a.sentAt));
+    return _combine(streams, (snaps) {
+      final dismissed = snaps.last.docs.map((d) => d.id).toSet();
+      final byId = <String, AdminMessage>{
+        for (final snap in snaps.take(3))
+          for (final doc in snap.docs)
+            if (!dismissed.contains(doc.id)) doc.id: _fromDoc(doc),
+      };
+      return byId.values.toList()..sort((a, b) => b.sentAt.compareTo(a.sentAt));
     });
   }
 
-  /// Emits once all three streams have produced, then on every change.
-  static Stream<R> _combine<R>(
-    Stream<_Snap> a,
-    Stream<_Snap> b,
-    Stream<_Snap> c,
-    R Function(_Snap, _Snap, _Snap) combiner,
-  ) {
-    final latest = List<_Snap?>.filled(3, null);
+  /// Emits once every stream has produced, then on every change.
+  static Stream<R> _combine<R>(List<Stream<_Snap>> streams, R Function(List<_Snap>) combiner) {
+    final latest = List<_Snap?>.filled(streams.length, null);
     final subs = <StreamSubscription<_Snap>>[];
     late final StreamController<R> controller;
 
     controller = StreamController<R>(
       onListen: () {
-        for (final (i, s) in [a, b, c].indexed) {
+        for (final (i, s) in streams.indexed) {
           subs.add(s.listen((snap) {
             latest[i] = snap;
-            if (latest.every((x) => x != null)) {
-              controller.add(combiner(latest[0]!, latest[1]!, latest[2]!));
-            }
+            if (latest.every((x) => x != null)) controller.add(combiner(latest.cast<_Snap>()));
           }, onError: controller.addError));
         }
       },

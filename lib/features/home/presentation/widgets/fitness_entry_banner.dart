@@ -33,19 +33,7 @@ class FitnessEntryBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppConstants.spacingSm),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceDark.withValues(alpha: 0.35),
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.gold, width: AppConstants.borderThin),
-              ),
-              child: const Icon(
-                Icons.spa_outlined,
-                size: AppConstants.iconLg,
-                color: AppColors.goldLight,
-              ),
-            ),
+            const _Emblem(),
             const SizedBox(width: AppConstants.spacingMd),
             Expanded(
               child: Column(
@@ -90,6 +78,31 @@ class FitnessEntryBanner extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The gold yoga-and-nutrition emblem on a dark medallion with a soft glow.
+class _Emblem extends StatelessWidget {
+  static const double size = 76;
+
+  const _Emblem();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      padding: const EdgeInsets.all(AppConstants.spacingXs),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const RadialGradient(colors: [AppColors.emberDeep, AppColors.surfaceDark]),
+        border: Border.all(color: AppColors.goldLight, width: AppConstants.borderThin),
+        boxShadow: [
+          BoxShadow(color: AppColors.gold.withValues(alpha: 0.45), blurRadius: 18, spreadRadius: 1),
+        ],
+      ),
+      child: Image.asset('assets/images/fitness_emblem.png', fit: BoxFit.contain),
     );
   }
 }
