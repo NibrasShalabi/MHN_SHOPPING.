@@ -78,7 +78,8 @@ service cloud.firestore {
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']) &&
         request.resource.data.isRead == true
       );
-      allow delete: if false;
+      // الأدمن بيحذف الرسائل العامة من قسم الرسائل
+      allow delete: if isAdmin();
     }
     // الـ broadcast المسكّرة لكل مستخدم — الرسالة الأصلية ما بتنلمس
     match /users/{uid}/dismissedMessages/{msgId} {
