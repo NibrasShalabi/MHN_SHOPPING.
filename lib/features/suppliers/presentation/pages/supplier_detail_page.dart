@@ -102,90 +102,113 @@ class _SupplierHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: AppConstants.iconLg + AppConstants.spacingLg,
-          height: AppConstants.iconLg + AppConstants.spacingLg,
-          decoration: const BoxDecoration(
-            color: AppColors.surfaceDark,
-            shape: BoxShape.circle,
-          ),
-          // TODO(logic-phase): swap for CachedNetworkImage(supplier.logoUrl).
-          child: const Icon(
-            Icons.storefront_outlined,
-            color: AppColors.iconPrimary,
-            size: AppConstants.iconLg,
-          ),
+    final radius = BorderRadius.circular(AppConstants.radiusLg);
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        gradient: const LinearGradient(
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+          colors: [AppColors.surfaceWine, AppColors.surfaceElevated],
         ),
-        const SizedBox(width: AppConstants.spacingMd),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.55), width: AppConstants.borderThin),
+        boxShadow: [BoxShadow(color: AppColors.gold.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 8))],
+      ),
+      padding: const EdgeInsets.all(AppConstants.spacingLg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            supplier.name,
+            style: AppTextStyles.heading2.copyWith(
+              color: AppColors.gold,
+              fontFamily: 'ArefRuqaa',
+              fontSize: (AppTextStyles.heading2.fontSize ?? 18) + 8,
+              height: 1.2,
+            ),
+          ),
+          if (supplier.description.isNotEmpty) ...[
+            const SizedBox(height: AppConstants.spacingSm),
+            Text(supplier.description, style: AppTextStyles.body.copyWith(color: AppColors.textSecondary, height: 1.7)),
+          ],
+          const SizedBox(height: AppConstants.spacingMd),
+          Container(height: 1, decoration: const BoxDecoration(gradient: AppColors.goldGradient)),
+          const SizedBox(height: AppConstants.spacingMd),
+          if (supplier.address.isNotEmpty) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.place_outlined, size: AppConstants.iconSm + 2, color: AppColors.goldLight),
+                const SizedBox(width: AppConstants.spacingSm),
+                Expanded(child: Text(supplier.address, style: AppTextStyles.caption.copyWith(height: 1.6))),
+              ],
+            ),
+            const SizedBox(height: AppConstants.spacingMd),
+          ],
+          Row(
             children: [
-              Text(
-                supplier.name,
-                style: AppTextStyles.heading2.copyWith(color: AppColors.gold),
-              ),
-              const SizedBox(height: AppConstants.spacingXs),
-              if (supplier.description.isNotEmpty)
-                Text(
-                  supplier.description,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.7,
+              if (supplier.phone.isNotEmpty)
+                Expanded(
+                  child: _HeaderAction(
+                    icon: Icons.chat_outlined,
+                    label: AppStrings.supplierWhatsapp,
+                    filled: true,
+                    onTap: () => WhatsApp.open(context, supplier.phone),
                   ),
                 ),
-              if (supplier.address.isNotEmpty) ...[
-                const SizedBox(height: AppConstants.spacingXs),
-                Row(
-                  children: [
-                    const Icon(Icons.place_outlined, size: AppConstants.iconSm, color: AppColors.goldLight),
-                    const SizedBox(width: AppConstants.spacingXs),
-                    Expanded(child: Text(supplier.address, style: AppTextStyles.caption)),
-                  ],
+              if (supplier.phone.isNotEmpty && supplier.mapsUrl.isNotEmpty) const SizedBox(width: AppConstants.spacingSm),
+              if (supplier.mapsUrl.isNotEmpty)
+                Expanded(
+                  child: _HeaderAction(
+                    icon: Icons.map_outlined,
+                    label: AppStrings.supplierMap,
+                    onTap: () => WhatsApp.openLink(context, supplier.mapsUrl),
+                  ),
                 ),
-              ],
-              const SizedBox(height: AppConstants.spacingSm),
-              Wrap(
-                spacing: AppConstants.spacingSm,
-                runSpacing: AppConstants.spacingSm,
-                children: [
-                  if (supplier.phone.isNotEmpty) ...[
-                    _ContactChip(icon: Icons.chat_outlined, label: AppStrings.supplierWhatsapp,
-                        onTap: () => WhatsApp.open(context, supplier.phone)),
-                    _ContactChip(icon: Icons.call_outlined, label: AppStrings.supplierCall,
-                        onTap: () => WhatsApp.call(context, supplier.phone)),
-                  ],
-                  if (supplier.mapsUrl.isNotEmpty)
-                    _ContactChip(icon: Icons.map_outlined, label: AppStrings.supplierMap,
-                        onTap: () => WhatsApp.openLink(context, supplier.mapsUrl)),
-                ],
-              ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _ContactChip extends StatelessWidget {
+/// Gold-filled for the main action, gold-outlined for the secondary one.
+class _HeaderAction extends StatelessWidget {
   final IconData icon;
   final String label;
+  final bool filled;
   final VoidCallback onTap;
 
-  const _ContactChip({required this.icon, required this.label, required this.onTap});
+  const _HeaderAction({required this.icon, required this.label, required this.onTap, this.filled = false});
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      onPressed: onTap,
-      avatar: Icon(icon, size: AppConstants.iconSm, color: AppColors.gold),
-      label: Text(label, style: AppTextStyles.caption),
-      backgroundColor: AppColors.surfaceDark,
-      side: const BorderSide(color: AppColors.border),
+    final radius = BorderRadius.circular(AppConstants.radiusMd);
+    final fg = filled ? AppColors.surface : AppColors.gold;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingSm + 2),
+          decoration: BoxDecoration(
+            gradient: filled ? AppColors.goldGradient : null,
+            borderRadius: radius,
+            border: filled ? null : Border.all(color: AppColors.gold.withValues(alpha: 0.6)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: AppConstants.iconSm + 2, color: fg),
+              const SizedBox(width: AppConstants.spacingSm),
+              Text(label, style: AppTextStyles.body.copyWith(color: fg, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

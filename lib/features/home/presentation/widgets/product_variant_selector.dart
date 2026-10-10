@@ -229,7 +229,10 @@ class _ColorSwatch extends StatelessWidget {
                 ),
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: AppConstants.iconSm, color: AppColors.gold)
+                  // Dark tick on light swatches, light on dark — readable on any colour.
+                  ? Icon(Icons.check,
+                      size: AppConstants.iconSm,
+                      color: Color(color.value).computeLuminance() > 0.5 ? Colors.black87 : Colors.white)
                   : null,
             ),
             const SizedBox(width: AppConstants.spacingXs),

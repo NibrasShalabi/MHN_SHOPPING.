@@ -235,7 +235,6 @@ class AppStrings {
   static const String contactUnavailable = 'رقم التواصل غير متوفر حالياً';
   static const String orderFromSupplier = 'اطلب من المورد على واتساب';
   static const String supplierWhatsapp = 'واتساب';
-  static const String supplierCall = 'اتصال';
   static const String supplierMap = 'الموقع';
   static String soldBy(String supplier) => 'المنتج من متجر $supplier — الطلب والتوصيل عن طريقه مباشرة';
   static String supplierOrderText(String product) => 'مرحبا، شفت عندكم على تطبيق MHN: $product — متوفر؟';

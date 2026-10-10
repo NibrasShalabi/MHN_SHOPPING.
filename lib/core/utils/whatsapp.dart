@@ -19,12 +19,6 @@ abstract final class WhatsApp {
     }
   }
 
-  static Future<void> call(BuildContext context, String number) async {
-    if (!await launchUrl(Uri(scheme: 'tel', path: '+${number.replaceAll(RegExp(r'[^0-9]'), '')}')) && context.mounted) {
-      AppSnackbar.error(context, AppStrings.somethingWentWrong);
-    }
-  }
-
   static Future<void> openLink(BuildContext context, String url) async {
     final uri = Uri.tryParse(url);
     if ((uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) && context.mounted) {
