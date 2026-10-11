@@ -106,7 +106,7 @@ class _DealTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-          border: Border.all(color: AppColors.error.withOpacity(0.4)),
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
         ),
         child: Row(
           children: [

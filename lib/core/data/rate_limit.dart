@@ -4,7 +4,7 @@ import '../constants/app_strings.dart';
 import '../error/exceptions.dart';
 
 /// Actions a customer can only repeat after a pause. Each submit stamps
-/// rateLimits/{uid}.<field> in the same batch, and the security rules
+/// `rateLimits/{uid}.<field>` in the same batch, and the security rules
 /// refuse the write when the previous stamp is too recent — the limit
 /// holds even for a modified app. The local check only spares a doomed
 /// round trip and gives a clear message.

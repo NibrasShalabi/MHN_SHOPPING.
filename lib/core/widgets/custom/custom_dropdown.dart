@@ -23,7 +23,8 @@ class CustomDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final r = AppConstants.radiusSm;
     return DropdownButtonFormField<T>(
-      value: value,
+      key: ValueKey(value), // initialValue only applies once; a new value rebuilds it
+      initialValue: value,
       onChanged: onChanged,
       style: AppTextStyles.body.copyWith(color: AppColors.gold),
       dropdownColor: AppColors.surface,

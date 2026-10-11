@@ -20,7 +20,7 @@ class CustomAvatar extends StatelessWidget {
     final s = size ?? 44.0;
     return CircleAvatar(
       radius: s / 2,
-      backgroundColor: backgroundColor ?? AppColors.primary.withOpacity(0.15),
+      backgroundColor: backgroundColor ?? AppColors.primary.withValues(alpha: 0.15),
       backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
       child: imageUrl == null
           ? Text(

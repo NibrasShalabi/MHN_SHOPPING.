@@ -67,7 +67,7 @@ class _SuppliersListPageState extends State<SuppliersListPage> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppConstants.spacingMd),
               itemCount: state.suppliers.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AppConstants.spacingSm),
+              separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spacingSm),
               itemBuilder: (context, index) {
                 final supplier = state.suppliers[index];
                 return _SupplierTile(

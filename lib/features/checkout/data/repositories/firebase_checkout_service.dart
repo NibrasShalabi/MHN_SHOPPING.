@@ -144,7 +144,7 @@ class CheckoutService {
         orderId = 'ORD-${newNumber.toString().padLeft(6, '0')}';
 
         final products = [for (final d in productDocs) d.data()];
-        final pieces = items.fold(0, (sum, i) => sum + i.quantity);
+        final pieces = items.fold(0, (total, i) => total + i.quantity);
         if (pieces > AppConstants.cartMaxPieces) {
           throw ServerException(message: AppStrings.cartOrderTooBig(AppConstants.cartMaxPieces));
         }

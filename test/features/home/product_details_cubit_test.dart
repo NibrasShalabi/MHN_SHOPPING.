@@ -8,7 +8,6 @@ import 'package:m_h_nshopping/features/home/data/repository/catalog_repository.d
 import 'package:m_h_nshopping/features/home/domain/entities/category.dart';
 import 'package:m_h_nshopping/features/home/domain/entities/product.dart';
 import 'package:m_h_nshopping/features/home/domain/entities/product_page_result.dart';
-import 'package:m_h_nshopping/features/home/domain/entities/product_variants.dart';
 import 'package:m_h_nshopping/features/home/domain/entities/promo_banner.dart';
 import 'package:m_h_nshopping/features/home/presentation/cubits/product_details_cubit.dart';
 import 'package:m_h_nshopping/features/home/presentation/cubits/product_details_state.dart';

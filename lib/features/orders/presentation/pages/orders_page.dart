@@ -92,9 +92,7 @@ class _OrdersPageState extends State<OrdersPage> {
 
 class _SectionTitle extends StatelessWidget {
   final String title;
-  final int badgeCount;
-
-  const _SectionTitle({required this.title, this.badgeCount = 0});
+  const _SectionTitle({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -110,23 +108,6 @@ class _SectionTitle extends StatelessWidget {
         ),
         const SizedBox(width: AppConstants.spacingSm),
         Expanded(child: Text(title, style: AppTextStyles.heading2)),
-        if (badgeCount > 0)
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.spacingSm,
-              vertical: 2,
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.error,
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-            ),
-            child: Text(
-              '$badgeCount',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textOnPrimary,
-              ),
-            ),
-          ),
       ],
     );
   }

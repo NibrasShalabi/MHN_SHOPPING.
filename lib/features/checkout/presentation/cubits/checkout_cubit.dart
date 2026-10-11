@@ -1,7 +1,5 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../../../core/bloc/safe_cubit.dart';
-import 'dart:io';
 
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';

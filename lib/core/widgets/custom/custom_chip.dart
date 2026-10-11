@@ -27,7 +27,7 @@ class CustomChip extends StatelessWidget {
           vertical: AppConstants.spacingXs,
         ),
         decoration: BoxDecoration(
-          color: selected ? base : base.withOpacity(0.1),
+          color: selected ? base : base.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         ),
         child: Text(

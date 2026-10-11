@@ -1,5 +1,4 @@
 import '../../domain/entities/order_entity.dart';
-import '../../domain/entities/order_status.dart';
 
 abstract class OrdersRepository {
   /// Only returns orders inside the retention window — see

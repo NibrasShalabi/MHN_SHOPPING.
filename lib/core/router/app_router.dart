@@ -45,7 +45,6 @@ import '../../features/home/presentation/pages/product_details_page.dart';
 import '../../features/home/presentation/widgets/loyalty_store_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/orders/data/repositories/orders_repository.dart';
-import '../../features/orders/presentation/cubits/orders_cubit.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/suggest_product/data/repositories/suggest_product_repository.dart';
 import '../../features/suggest_product/presentation/cubits/suggest_product_cubit.dart';
@@ -112,7 +111,6 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
   final CatalogRepository catalogRepository = getIt<CatalogRepository>();
   final PromotionRepository promotionRepository = getIt<PromotionRepository>();
   final AuthRepository authRepository = getIt<AuthRepository>();
-  final OrdersRepository ordersRepository = getIt<OrdersRepository>();
 
   // ===== Repositories لسا Fake (لاحقاً) =====
   final FitnessRepository fitnessRepository = getIt<FitnessRepository>();

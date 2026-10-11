@@ -20,7 +20,7 @@ class CustomSwitchTile extends StatelessWidget {
     return SwitchListTile(
       value: value,
       onChanged: onChanged,
-      activeColor: AppColors.primary,
+      activeThumbColor: AppColors.primary,
       title: Text(title, style: const TextStyle(color: AppColors.textPrimary)),
       subtitle: subtitle != null ? Text(subtitle!, style: const TextStyle(color: AppColors.textSecondary)) : null,
     );

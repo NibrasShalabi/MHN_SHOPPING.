@@ -75,7 +75,8 @@ class _CurrencyFormState extends State<CurrencyForm> {
             vertical: AppConstants.spacingXs,
           ),
           child: DropdownButtonFormField<CurrencyType>(
-            value: _selected,
+            key: ValueKey(_selected),
+            initialValue: _selected,
             dropdownColor: AppColors.surfaceElevated,
             decoration: const InputDecoration(
               labelText: AppStrings.currencyTarget,

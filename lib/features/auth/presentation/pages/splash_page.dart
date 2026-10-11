@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_durations.dart';
@@ -12,9 +11,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/custom/custom_button.dart';
 import '../widgets/fire_splash_intro.dart';
-
-// مفتاح SharedPreferences — ما يتغير
-const _kOnboardingSeen = 'onboarding_seen';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -123,7 +119,6 @@ class _OnboardingSlidesState extends State<_OnboardingSlides> {
 
   /// يحفظ الـ flag ويروح لـ login
   Future<void> _goToAuth() async {
-    final prefs = await SharedPreferences.getInstance();
     await SharedPrefsService.setOnboardingSeen();
     if (mounted) context.go(RouteNames.login);
   }

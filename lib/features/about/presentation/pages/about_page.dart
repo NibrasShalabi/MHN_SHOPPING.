@@ -5,7 +5,6 @@ import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/custom/custom_button.dart';
 import '../widgets/about_hero.dart';
 import '../widgets/about_info_card.dart';
 import '../widgets/about_section_title.dart';
