@@ -221,6 +221,8 @@ class FirebaseCatalogRepository implements CatalogRepository {
     }
   }
 
+  final Map<String, DocumentSnapshot<Map<String, dynamic>>> _cursors = {};
+
   Future<ProductPageResult> _rawProducts({
     required ProductQuery query,
     String? filterId,
@@ -241,11 +243,13 @@ class FirebaseCatalogRepository implements CatalogRepository {
       q = q.orderBy('createdAt', descending: true).limit(_pageSize);
 
       if (cursor != null) {
-        final cursorDoc = await _db.collection('products').doc(cursor).get();
+        // The previous page's last doc is kept, so continuing costs no read.
+        final cursorDoc = _cursors[cursor] ?? await _db.collection('products').doc(cursor).get();
         q = q.startAfterDocument(cursorDoc);
       }
 
       final snap = await q.get();
+      if (snap.docs.isNotEmpty) _cursors[snap.docs.last.id] = snap.docs.last;
       final products = snap.docs.map(_productFromDoc).toList();
       final result = ProductPageResult(
         products: products,

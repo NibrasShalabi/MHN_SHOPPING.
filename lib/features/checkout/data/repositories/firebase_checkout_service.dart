@@ -10,14 +10,31 @@ import '../../../../core/error/exceptions.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../domain/entities/order_breakdown.dart';
 import '../../domain/entities/shipping_rates.dart';
+import '../../../account/data/repositories/account_repository.dart';
 
 class CheckoutService {
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
   final FirebaseStorage _storage;
 
-  CheckoutService(this._db, this._auth, FirebaseStorage? storage)
+  final AccountRepository _account;
+
+  CheckoutService(this._db, this._auth, FirebaseStorage? storage, this._account)
     : _storage = storage ?? FirebaseStorage.instance;
+
+  /// Payment addresses and shipping rates change rarely; the order itself
+  /// re-reads shipping inside its transaction, so a cached copy here only
+  /// affects what the cart shows before sending.
+  static const Duration _configTtl = Duration(minutes: 10);
+  final Map<String, (DateTime, Map<String, dynamic>)> _config = {};
+
+  Future<Map<String, dynamic>> _readConfig(String id) async {
+    final hit = _config[id];
+    if (hit != null && DateTime.now().difference(hit.$1) < _configTtl) return hit.$2;
+    final data = (await _db.collection('config').doc(id).get()).data() ?? const <String, dynamic>{};
+    _config[id] = (DateTime.now(), data);
+    return data;
+  }
 
   static const paymentMethods = ['trc20', 'bep20', 'erc20', 'sham_cash'];
 
@@ -25,7 +42,7 @@ class CheckoutService {
   /// which the admin edits. A method with no address or switched off is left out.
   Future<Map<String, String>> getPaymentAddresses() async {
     try {
-      final data = (await _db.collection('config').doc('payment_addresses').get()).data() ?? const {};
+      final data = await _readConfig('payment_addresses');
       final disabled = (data['disabled'] as List? ?? const []).cast<String>().toSet();
       return {
         for (final m in paymentMethods)
@@ -68,17 +85,17 @@ class CheckoutService {
 
   Future<ShippingRates> getShippingRates() async {
     try {
-      return ShippingRates.fromMap((await _db.collection('config').doc('shipping').get()).data() ?? const {});
+      return ShippingRates.fromMap(await _readConfig('shipping'));
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
   }
 
   Future<String?> getGovernorate() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) return null;
+    if (_auth.currentUser == null) return null;
     try {
-      return (await _db.collection('users').doc(uid).get()).data()?['governorate'] as String?;
+      final g = (await _account.profile()).governorate;
+      return g.isEmpty ? null : g;
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }

@@ -76,7 +76,7 @@ void setupInjector() {
   );
 
   getIt.registerLazySingleton(
-    () => CheckoutService(db, auth, FirebaseStorage.instance),
+    () => CheckoutService(db, auth, FirebaseStorage.instance, getIt<AccountRepository>()),
   );
 
   getIt.registerLazySingleton<FitnessRepository>(
