@@ -9,6 +9,7 @@ import 'core/injection/injection_container.dart' as di;
 import 'core/router/app_router.dart';
 import 'core/services/shared_prefs_service.dart';
 import 'core/theme/app_colors.dart';
+import 'core/widgets/offline_banner.dart';
 import 'features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import 'features/messages/presentation/cubits/messages_cubit.dart';
 import 'features/account/data/repositories/account_repository.dart';
@@ -104,7 +105,7 @@ class _AppViewState extends State<_AppView> {
       ),
       builder: (context, child) => Directionality(
         textDirection: TextDirection.rtl,
-        child: child ?? const SizedBox.shrink(),
+        child: OfflineBanner(child: child ?? const SizedBox.shrink()),
       ),
       routerConfig: buildAppRouter(session: widget.session),
     );

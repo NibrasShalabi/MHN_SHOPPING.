@@ -10,7 +10,18 @@ class PriceText extends StatelessWidget {
   final Product product;
   final TextStyle style;
 
-  const PriceText({super.key, required this.product, required this.style});
+  /// Colours of the discounted price and the struck-out original; on the
+  /// fire backdrop red would vanish, so cards pass their own.
+  final Color discountColor;
+  final Color strikeColor;
+
+  const PriceText({
+    super.key,
+    required this.product,
+    required this.style,
+    this.discountColor = AppColors.error,
+    this.strikeColor = AppColors.textDisabled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +41,7 @@ class PriceText extends StatelessWidget {
               '\$ ${product.price.toStringAsFixed(2)}',
               style: style.copyWith(
                 fontSize: (style.fontSize ?? 12) - 2,
-                color: AppColors.textDisabled,
+                color: strikeColor,
                 decoration: TextDecoration.lineThrough,
               ),
               maxLines: 1,
@@ -39,7 +50,7 @@ class PriceText extends StatelessWidget {
           Text(
             '\$ ${price.toStringAsFixed(2)}',
             style: style.copyWith(
-              color: product.hasActiveDiscount ? AppColors.error : null,
+              color: product.hasActiveDiscount ? discountColor : null,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

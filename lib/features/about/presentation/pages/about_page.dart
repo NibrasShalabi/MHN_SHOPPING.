@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/about_hero.dart';
 import '../widgets/about_info_card.dart';
 import '../widgets/about_section_title.dart';
+import '../widgets/app_version.dart';
 
 /// Static content screen — no cubit, no repository.
 ///
@@ -70,7 +71,7 @@ class AboutPage extends StatelessWidget {
               body: AppStrings.productsSourceBody,
             ),
             const SizedBox(height: AppConstants.spacingXl),
-
+            const AppVersion(),
             const SizedBox(height: AppConstants.spacingLg),
           ],
         ),

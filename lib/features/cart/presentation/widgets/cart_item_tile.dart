@@ -5,10 +5,10 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/cart_item.dart';
+import '../../../../core/widgets/gold_frame.dart';
 import 'cart_amount.dart';
 
-/// One cart line: a dark card with a gold edge and an ember glow on the
-/// start side, the picture in a gold ring, the choices as chips, and the
+/// One cart line in the shared [GoldFrame]: fire backdrop, gold rim, the picture in a gold ring, the choices as chips, and the
 /// total in gold next to a capsule stepper.
 class CartItemTile extends StatelessWidget {
   final CartItem item;
@@ -26,33 +26,17 @@ class CartItemTile extends StatelessWidget {
     this.isUnavailable = false,
   });
 
-  static const _radius = BorderRadius.all(Radius.circular(AppConstants.radiusLg));
-
   @override
   Widget build(BuildContext context) {
     return Opacity(
       opacity: isUnavailable ? 0.55 : 1,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppConstants.spacingMd),
-        padding: const EdgeInsets.all(1.2), // gold hairline frame
-        decoration: BoxDecoration(
-          borderRadius: _radius,
-          gradient: isUnavailable ? null : AppColors.goldGradient,
-          color: isUnavailable ? AppColors.border : null,
-          boxShadow: [BoxShadow(color: AppColors.ember.withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6))],
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(AppConstants.spacingMd),
-          decoration: const BoxDecoration(
-            borderRadius: _radius,
-            gradient: LinearGradient(
-              begin: AlignmentDirectional.centerStart,
-              end: AlignmentDirectional.centerEnd,
-              colors: [AppColors.emberDeep, AppColors.surfaceDark, AppColors.surfaceDark],
-              stops: [0, 0.45, 1],
-            ),
-          ),
-          child: Column(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppConstants.spacingMd),
+        child: GoldFrame(
+          muted: isUnavailable,
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.spacingMd),
+            child: Column(
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,14 +58,11 @@ class CartItemTile extends StatelessWidget {
                       children: [
                         Text(
                           '${formatCartAmount(item.priceSnapshot, item.pricing)} × ${item.quantity}',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                          style: AppTextStyles.caption.copyWith(color: AppColors.textOnPrimary.withValues(alpha: 0.75)),
                         ),
-                        ShaderMask(
-                          shaderCallback: AppColors.goldGradient.createShader,
-                          child: Text(
-                            formatCartAmount(item.lineTotal, item.pricing),
-                            style: AppTextStyles.heading2.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
-                          ),
+                        GoldText(
+                          formatCartAmount(item.lineTotal, item.pricing),
+                          style: AppTextStyles.heading2.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ],
                     ),
@@ -90,6 +71,7 @@ class CartItemTile extends StatelessWidget {
                 ],
               ),
             ],
+          ),
           ),
         ),
       ),

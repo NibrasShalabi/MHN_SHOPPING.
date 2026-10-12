@@ -260,6 +260,7 @@ class AppStrings {
   static const String fitnessBannerTitle = 'الرياضة واللياقة';
   static const String fitnessBannerBody = 'برامج وتغذية بإشراف مختصين';
   static const String discoverSection = 'اكتشفي القسم';
+  static const String fitnessBannerTag = 'خاص بالسيدات';
   static const String sportsEquipment = 'مستلزمات رياضية';
   static const String programSubmit = 'إرسال البيانات';
   static const String programSubmitted = 'تم استلام بياناتك';
@@ -441,6 +442,7 @@ class AppStrings {
   static const String dealsTitle = 'شرار ونار';
   static const String dealsSubtitle = 'عروض حارقة لوقت محدود';
   static const String dealsButton = 'شوف العروض';
+  static const String dealsBannerTag = 'لوقت محدود';
   static const String dealsEmpty = 'ما في عروض هلأ';
   static const String dealsEmptySub = 'رح تنزل قريباً!';
   static const String dealsSaving = 'توفير';
@@ -483,4 +485,8 @@ class AppStrings {
   static const String passwordChanged = 'تم تغيير كلمة السر';
   static const String logout = 'تسجيل الخروج';
   static const String tooSoonRetry = 'استنّى شوي قبل ما تبعت طلب جديد.';
+
+  // Connectivity & version
+  static const String offline = 'ما في اتصال بالإنترنت';
+  static String appVersion(String version, String build) => 'الإصدار $version ($build)';
 }
