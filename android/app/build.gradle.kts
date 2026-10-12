@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.example.m_h_nshopping"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36 // some plugins (flutter_plugin_android_lifecycle) require 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
