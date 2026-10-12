@@ -9,7 +9,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
-import '../../../../core/widgets/surface_card.dart';
+import '../../../../core/widgets/fire_sparks.dart';
+import '../../../../core/widgets/gold_frame.dart';
 import '../../domain/entities/health_program.dart';
 import '../cubits/fitness_hub_cubit.dart';
 import '../cubits/fitness_hub_state.dart';
@@ -101,37 +102,31 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppConstants.spacingLg),
-      decoration: BoxDecoration(
-        gradient: AppColors.fireGradient,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.gold, width: AppConstants.borderThin),
-      ),
-      child: Column(
+    return GoldFrame(
+      child: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppConstants.spacingSm),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDark.withValues(alpha: 0.35),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.gold, width: AppConstants.borderThin),
+          const Positioned.fill(child: FireSparks(active: true)),
+          Padding(
+            padding: const EdgeInsets.all(AppConstants.spacingLg),
+            child: Column(
+              children: [
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: AppColors.gold.withValues(alpha: 0.45), blurRadius: 22, spreadRadius: 1)],
+                  ),
+                  child: Image.asset('assets/images/fitness_emblem.png', filterQuality: FilterQuality.medium),
+                ),
+                const SizedBox(height: AppConstants.spacingMd),
+                Text(
+                  AppStrings.fitnessIntro,
+                  style: AppTextStyles.body.copyWith(color: AppColors.textOnPrimary, height: 1.7),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            child: const Icon(
-              Icons.spa_outlined,
-              size: AppConstants.iconLg,
-              color: AppColors.goldLight,
-            ),
-          ),
-          const SizedBox(height: AppConstants.spacingMd),
-          Text(
-            AppStrings.fitnessIntro,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textOnPrimary,
-              height: 1.7,
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -183,6 +178,16 @@ class _FitnessPyramid extends StatelessWidget {
           width: width,
           child: Stack(
             children: [
+              // Same coal-to-fire fill and rising embers as the cards, cut to the triangle.
+              Positioned.fill(
+                child: ClipPath(
+                  clipper: const _TriangleClipper(),
+                  child: const DecoratedBox(
+                    decoration: BoxDecoration(gradient: AppColors.emberBackdrop),
+                    child: FireSparks(active: true),
+                  ),
+                ),
+              ),
               CustomPaint(
                 size: Size(width, _height),
                 painter: const _PyramidOutlinePainter(),
@@ -263,7 +268,21 @@ class _FitnessPyramid extends StatelessWidget {
   }
 }
 
-/// Draws the hollow triangle outline only — gold stroke, transparent
+class _TriangleClipper extends CustomClipper<Path> {
+  const _TriangleClipper();
+
+  @override
+  Path getClip(Size size) => Path()
+    ..moveTo(size.width / 2, 0)
+    ..lineTo(size.width, size.height)
+    ..lineTo(0, size.height)
+    ..close();
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+/// Draws the triangle outline — gold stroke, transparent
 /// fill, sharp (miter) corners so the apex is an actual point, not a
 /// rounded dome. Exactly 3 sides: two slopes + the base. Two horizontal
 /// seams cross the interior at the tier boundaries, each sized to the
@@ -295,7 +314,7 @@ class _PyramidOutlinePainter extends CustomPainter {
     canvas.drawPath(path, outline);
 
     final seam = Paint()
-      ..color = AppColors.gold.withValues(alpha: 0.5)
+      ..color = AppColors.goldLight.withValues(alpha: 0.6)
       ..strokeWidth = AppConstants.borderThin;
     canvas.drawLine(
       Offset(leftEdgeAt(bandHeight), bandHeight),
@@ -342,23 +361,23 @@ class _PyramidBandContent extends StatelessWidget {
             Icon(
               icon,
               size: compact ? AppConstants.iconMd : AppConstants.iconLg,
-              color: AppColors.iconPrimary,
+              color: AppColors.goldLight,
             ),
             const SizedBox(height: AppConstants.spacingXs),
-            Text(
+            GoldText(
               program.title,
-              style: compact
-                  ? AppTextStyles.body.copyWith(fontWeight: FontWeight.w600)
-                  : AppTextStyles.heading2,
+              style: (compact ? AppTextStyles.body : AppTextStyles.heading2).copyWith(
+                fontWeight: FontWeight.bold,
+                shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 6, offset: const Offset(0, 1))],
+              ),
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
             if (!compact) ...[
               const SizedBox(height: AppConstants.spacingXs),
               Text(
                 program.intro,
-                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.caption.copyWith(color: AppColors.goldLight.withValues(alpha: 0.85)),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
@@ -378,29 +397,20 @@ class _SupplementsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SurfaceCard(
+    return GoldFrame(
       onTap: onTap,
-      borderColor: AppColors.gold,
-      child: Row(
-        children: [
-          const Icon(
-            Icons.medical_services_outlined,
-            size: AppConstants.iconLg,
-            color: AppColors.iconPrimary,
-          ),
-          const SizedBox(width: AppConstants.spacingMd),
-          Expanded(
-            child: Text(
-              AppStrings.supplements,
-              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w500),
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.spacingMd),
+        child: Row(
+          children: [
+            const Icon(Icons.medical_services_outlined, size: AppConstants.iconLg, color: AppColors.goldLight),
+            const SizedBox(width: AppConstants.spacingMd),
+            Expanded(
+              child: GoldText(AppStrings.supplements, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
             ),
-          ),
-          const Icon(
-            Icons.chevron_left,
-            color: AppColors.textDisabled,
-            size: AppConstants.iconMd,
-          ),
-        ],
+            const Icon(Icons.chevron_left, color: AppColors.goldLight, size: AppConstants.iconMd),
+          ],
+        ),
       ),
     );
   }

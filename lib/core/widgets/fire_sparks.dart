@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../theme/app_colors.dart';
 
 /// Embers rising through the banner. Positions are a pure function of the
 /// animation value, so the painter allocates nothing per frame; it sits in

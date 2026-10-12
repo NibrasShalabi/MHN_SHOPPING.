@@ -60,13 +60,21 @@ class GoldFrame extends StatelessWidget {
 class GoldText extends StatelessWidget {
   final String text;
   final TextStyle style;
+  final int? maxLines;
+  final TextAlign? textAlign;
 
-  const GoldText(this.text, {super.key, required this.style});
+  const GoldText(this.text, {super.key, required this.style, this.maxLines, this.textAlign});
 
   @override
   Widget build(BuildContext context) => ShaderMask(
         blendMode: BlendMode.srcIn,
         shaderCallback: AppColors.goldGradient.createShader,
-        child: Text(text, style: style),
+        child: Text(
+          text,
+          style: style,
+          maxLines: maxLines,
+          textAlign: textAlign,
+          overflow: maxLines == null ? null : TextOverflow.ellipsis,
+        ),
       );
 }

@@ -8,7 +8,7 @@ import '../../../../core/widgets/pulsing_dot.dart';
 import '../../data/repositories/live_promotions.dart';
 import '../cubits/deals_pulse_cubit.dart';
 import 'fire_flame.dart';
-import 'fire_sparks.dart';
+import '../../../../core/widgets/fire_sparks.dart';
 
 /// Home entry to fire deals. While deals are live the flame breathes and
 /// embers rise; a "جديد" pill appears when a deal started after the
