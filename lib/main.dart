@@ -115,9 +115,14 @@ class _AppViewState extends State<_AppView> {
           refreshBackgroundColor: AppColors.surfaceElevated,
         ),
       ),
-      builder: (context, child) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: OfflineBanner(child: child ?? const SizedBox.shrink()),
+      // The design has fixed-height cards and banners: the phone's font-size
+      // setting would push text out of them, so the app keeps its own sizes.
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: OfflineBanner(child: child ?? const SizedBox.shrink()),
+        ),
       ),
       routerConfig: _router,
     );
