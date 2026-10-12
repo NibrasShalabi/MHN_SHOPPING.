@@ -19,7 +19,11 @@ class FirebaseSupportRepository implements SupportRepository {
   final AccountRepository _account;
 
   // Cache للـ reviews — تتغير نادراً
+  // Reviews change rarely, but a review the admin removes must leave the
+  // store within minutes, not at the next app restart.
+  static const Duration _reviewsTtl = Duration(minutes: 10);
   List<Review>? _reviewsCache;
+  DateTime? _reviewsAt;
 
   FirebaseSupportRepository(this._db, this._auth, this._account);
 
@@ -52,7 +56,8 @@ class FirebaseSupportRepository implements SupportRepository {
   /// قراءة التقييمات — مع cache
   @override
   Future<List<Review>> getReviews() async {
-    if (_reviewsCache != null) return _reviewsCache!;
+    final at = _reviewsAt;
+    if (_reviewsCache != null && at != null && DateTime.now().difference(at) < _reviewsTtl) return _reviewsCache!;
 
     try {
       final snap = await _db
@@ -63,6 +68,7 @@ class FirebaseSupportRepository implements SupportRepository {
           .get();
 
       _reviewsCache = snap.docs.map(_reviewFromDoc).toList();
+      _reviewsAt = DateTime.now();
       return _reviewsCache!;
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
