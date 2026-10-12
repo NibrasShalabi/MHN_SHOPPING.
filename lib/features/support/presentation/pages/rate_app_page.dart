@@ -15,6 +15,7 @@ import '../cubits/rate_app_cubit.dart';
 import '../cubits/rate_app_state.dart';
 import '../widgets/review_carousel.dart';
 import '../widgets/star_rating_input.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// Rating and customer reviews on one screen.
 ///
@@ -54,7 +55,9 @@ class _RateAppPageState extends State<RateAppPage> {
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.rateApp, style: AppTextStyles.heading2),
       ),
-      body: BlocConsumer<RateAppCubit, RateAppState>(
+      body: ContentWidth(
+        maxWidth: 640,
+        child: BlocConsumer<RateAppCubit, RateAppState>(
         listener: (context, state) {
           if (state.status == RateAppStatus.submitted) {
             _commentController.clear();
@@ -115,6 +118,7 @@ class _RateAppPageState extends State<RateAppPage> {
             ],
           );
         },
+      ),
       ),
     );
   }

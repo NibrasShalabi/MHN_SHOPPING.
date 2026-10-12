@@ -1,5 +1,6 @@
 import '../../features/loyalty/presentation/pages/loyalty_history_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -44,7 +45,6 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/product_details_page.dart';
 import '../../features/home/presentation/widgets/loyalty_store_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
-import '../../features/orders/data/repositories/orders_repository.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
 import '../../features/suggest_product/data/repositories/suggest_product_repository.dart';
 import '../../features/suggest_product/presentation/cubits/suggest_product_cubit.dart';
@@ -70,33 +70,40 @@ import 'route_names.dart';
 abstract class UserSessionGate {
   bool get isLoggedIn;
   bool get isFemale;
+
+  /// Notifies once the gender is known (it loads after the first frame),
+  /// so the home screen and the router react without waiting for a rebuild.
+  ValueListenable<bool> get female;
 }
 
 /// Reads gender through the shared profile cache, so the router, the
 /// account page and the forms all cost one users/{uid} read per session.
 class FirebaseUserSessionGate implements UserSessionGate {
   final AccountRepository _account;
-  bool? _isFemale;
+  final ValueNotifier<bool> _female = ValueNotifier(false);
 
   FirebaseUserSessionGate(this._account);
+
+  @override
+  ValueListenable<bool> get female => _female;
 
   @override
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
   @override
-  bool get isFemale => _isFemale ?? false;
+  bool get isFemale => _female.value;
 
   Future<void> loadGender() async {
     if (FirebaseAuth.instance.currentUser == null) return clear();
     try {
-      _isFemale = (await _account.profile()).isFemale;
+      _female.value = (await _account.profile()).isFemale;
     } catch (_) {
-      _isFemale = false;
+      _female.value = false;
     }
   }
 
   void clear() {
-    _isFemale = null;
+    _female.value = false;
     _account.clear();
   }
 }
@@ -119,6 +126,8 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
 
   return GoRouter(
     initialLocation: RouteNames.splash,
+    // Re-checks the fitness guard as soon as the gender arrives.
+    refreshListenable: session.female,
     redirect: (context, state) {
       final path = state.matchedLocation;
 
@@ -167,7 +176,10 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
             path: RouteNames.home,
             builder: (context, state) => BlocProvider(
               create: (_) => HomeCubit(catalogRepository, promotionRepository),
-              child: HomePage(showFitnessSection: session.isFemale),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: session.female,
+                builder: (_, female, _) => HomePage(showFitnessSection: female),
+              ),
             ),
           ),
           GoRoute(
@@ -186,10 +198,10 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
             ),
           ),
           GoRoute(
-            path: RouteNames.suggestProduct,
+            path: RouteNames.account,
             builder: (context, state) => BlocProvider(
-              create: (_) => SuggestProductCubit(getIt<SuggestProductRepository>()),
-              child: const SuggestProductPage(),
+              create: (_) => AccountCubit(getIt<AccountRepository>())..load(),
+              child: const AccountPage(),
             ),
           ),
         ],
@@ -226,12 +238,12 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         ),
       ),
 
-      // Account
+      // Suggest a product (from the side menu)
       GoRoute(
-        path: RouteNames.account,
+        path: RouteNames.suggestProduct,
         builder: (context, state) => BlocProvider(
-          create: (_) => AccountCubit(getIt<AccountRepository>())..load(),
-          child: const AccountPage(),
+          create: (_) => SuggestProductCubit(getIt<SuggestProductRepository>()),
+          child: const SuggestProductPage(),
         ),
       ),
 

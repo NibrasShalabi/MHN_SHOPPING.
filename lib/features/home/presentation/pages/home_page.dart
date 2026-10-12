@@ -22,6 +22,7 @@ import '../widgets/categories_grid.dart';
 import '../widgets/fitness_entry_banner.dart';
 import '../widgets/promo_swiper.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/web_footer.dart';
 
 class HomePage extends StatefulWidget {
   final bool showFitnessSection;
@@ -101,22 +102,15 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   PromoSwiper(banners: state.banners),
                   const SizedBox(height: AppConstants.spacingXl),
-                  if (widget.showFitnessSection) ...[
-                    FitnessEntryBanner(
-                      onTap: () => context.push(RouteNames.fitnessHome),
-                    ),
-                    const SizedBox(height: AppConstants.spacingXl),
-                  ],
-
-                  // NEW: بنر شرار ونار — يظهر بس إذا في عروض
-                    FireDealsBanner(
-                      onTap: () => context.push(RouteNames.deals),
-                    ),
-                    const SizedBox(height: AppConstants.spacingMd),
-                    SuppliersEntryBanner(
-                      onTap: () => context.push(RouteNames.suppliers),
-                    ),
-                    const SizedBox(height: AppConstants.spacingXl),
+                  _SectionBanners(
+                    banners: [
+                      if (widget.showFitnessSection)
+                        FitnessEntryBanner(onTap: () => context.push(RouteNames.fitnessHome)),
+                      FireDealsBanner(onTap: () => context.push(RouteNames.deals)),
+                      SuppliersEntryBanner(onTap: () => context.push(RouteNames.suppliers)),
+                    ],
+                  ),
+                  const SizedBox(height: AppConstants.spacingXl),
 
 
                   Text(AppStrings.categories, style: AppTextStyles.heading2),
@@ -152,12 +146,44 @@ class _HomePageState extends State<HomePage> {
                           context.push(RouteNames.categoryPath(category.id)),
                     ),
                   const SizedBox(height: AppConstants.spacingLg),
+                  if (AppConstants.isWideScreen(context)) const WebFooter(),
                 ],
               ),
             ),
           );
         },
       ),
+    );
+  }
+}
+
+/// Stacked on phones; side by side once the screen is desktop-wide, so the
+/// banners don't stretch into long empty strips.
+class _SectionBanners extends StatelessWidget {
+  final List<Widget> banners;
+
+  const _SectionBanners({required this.banners});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!AppConstants.isDesktop(context)) {
+      return Column(
+        children: [
+          for (final (i, b) in banners.indexed) ...[
+            if (i > 0) const SizedBox(height: AppConstants.spacingMd),
+            b,
+          ],
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final (i, b) in banners.indexed) ...[
+          if (i > 0) const SizedBox(width: AppConstants.spacingMd),
+          Expanded(child: b),
+        ],
+      ],
     );
   }
 }

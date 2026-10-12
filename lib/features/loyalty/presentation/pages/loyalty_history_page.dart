@@ -12,6 +12,7 @@ import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../../data/repositories/loyalty_balance_repository.dart';
 import '../../domain/entities/loyalty_transaction.dart';
 import '../widgets/loyalty_balance_badge.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// Where every point came from and went — ratings, purchases, suggestions, gifts, refunds.
 class LoyaltyHistoryPage extends StatefulWidget {
@@ -38,7 +39,9 @@ class _LoyaltyHistoryPageState extends State<LoyaltyHistoryPage> {
         title: Text(AppStrings.pointsHistory, style: AppTextStyles.heading2),
         actions: const [LoyaltyBalanceBadge(), SizedBox(width: AppConstants.spacingSm)],
       ),
-      body: RefreshIndicator(
+      body: ContentWidth(
+        maxWidth: 760,
+        child: RefreshIndicator(
         onRefresh: () async {
           setState(() => _history = _load());
           await _history;
@@ -62,6 +65,7 @@ class _LoyaltyHistoryPageState extends State<LoyaltyHistoryPage> {
             );
           },
         ),
+      ),
       ),
     );
   }

@@ -10,6 +10,8 @@ import '../cubits/messages_cubit.dart';
 import '../cubits/messages_state.dart';
 import '../widgets/message_tile.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
+import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 
 class MessagesPage extends StatelessWidget {
   const MessagesPage({super.key});
@@ -28,13 +30,15 @@ class MessagesPage extends StatelessWidget {
           child: Divider(height: AppConstants.borderThin, color: AppColors.border),
         ),
       ),
-      body: BlocConsumer<MessagesCubit, MessagesState>(
+      body: ContentWidth(
+        maxWidth: 760,
+        child: BlocConsumer<MessagesCubit, MessagesState>(
         listenWhen: (prev, curr) =>
             curr.status == MessagesStatus.ready && curr.failure != null && prev.failure != curr.failure,
         listener: (context, state) => AppSnackbar.error(context, state.failure!.message),
         builder: (context, state) => switch (state.status) {
           MessagesStatus.initial || MessagesStatus.loading =>
-            const Center(child: CircularProgressIndicator(color: AppColors.gold)),
+            const CustomLoadingIndicator(),
           MessagesStatus.failure =>
             ErrorRetry(failure: state.failure, onRetry: () => context.read<MessagesCubit>().watch()),
           MessagesStatus.ready when state.messages.isEmpty => const _EmptyInbox(),
@@ -54,6 +58,7 @@ class MessagesPage extends StatelessWidget {
               },
             ),
         },
+      ),
       ),
     );
   }

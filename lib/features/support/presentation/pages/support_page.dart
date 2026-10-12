@@ -13,6 +13,7 @@ import '../../../../core/widgets/surface_card.dart';
 import '../../domain/entities/support_message.dart';
 import '../cubits/support_cubit.dart';
 import '../cubits/support_state.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// One inbox for complaints, suggestions and bug reports.
 ///
@@ -46,7 +47,9 @@ class _SupportPageState extends State<SupportPage> {
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.support, style: AppTextStyles.heading2),
       ),
-      body: BlocConsumer<SupportCubit, SupportState>(
+      body: ContentWidth(
+        maxWidth: 760,
+        child: BlocConsumer<SupportCubit, SupportState>(
         listener: (context, state) {
           if (state.status == SupportStatus.sent) {
             _bodyController.clear();
@@ -108,6 +111,7 @@ class _SupportPageState extends State<SupportPage> {
             ],
           );
         },
+      ),
       ),
     );
   }

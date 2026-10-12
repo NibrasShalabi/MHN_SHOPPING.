@@ -16,6 +16,7 @@ import '../cubits/health_program_state.dart';
 import '../widgets/dynamic_form_field_widget.dart';
 import '../widgets/medical_notice_card.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// One screen for every supervised program.
 ///
@@ -62,7 +63,9 @@ class _HealthProgramPageState extends State<HealthProgramPage> {
               Text(state.program?.title ?? '', style: AppTextStyles.heading2),
         ),
       ),
-      body: BlocConsumer<HealthProgramCubit, HealthProgramState>(
+      body: ContentWidth(
+        maxWidth: 760,
+        child: BlocConsumer<HealthProgramCubit, HealthProgramState>(
         listenWhen: (previous, current) =>
         previous.status != current.status || previous.failure != current.failure,
         listener: (context, state) {
@@ -132,6 +135,7 @@ class _HealthProgramPageState extends State<HealthProgramPage> {
             ],
           );
         },
+      ),
       ),
     );
   }

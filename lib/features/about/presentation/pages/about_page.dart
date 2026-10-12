@@ -9,6 +9,7 @@ import '../widgets/about_hero.dart';
 import '../widgets/about_info_card.dart';
 import '../widgets/about_section_title.dart';
 import '../widgets/app_version.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// Static content screen — no cubit, no repository.
 ///
@@ -29,7 +30,9 @@ class AboutPage extends StatelessWidget {
         centerTitle: true,
         title: Text(AppStrings.aboutUs, style: AppTextStyles.heading2),
       ),
-      body: SingleChildScrollView(
+      body: ContentWidth(
+        maxWidth: 900,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppConstants.spacingMd),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,6 +78,7 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: AppConstants.spacingLg),
           ],
         ),
+      ),
       ),
     );
   }

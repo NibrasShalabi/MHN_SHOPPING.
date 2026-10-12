@@ -26,6 +26,7 @@ import '../../../fitness/presentation/widgets/specialist_contact.dart';
 import '../../../suppliers/domain/entities/supplier.dart';
 import '../../../suppliers/presentation/widgets/supplier_order_bar.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key});
@@ -83,15 +84,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
           final product = state.product!;
 
-          return Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ProductImageGallery(imageUrls: product.imageUrls),
-                      Padding(
+          final details = Padding(
                         padding: const EdgeInsets.all(AppConstants.spacingMd),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +133,58 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             ..._sections(product),
                           ],
                         ),
+                      );
+
+          if (AppConstants.isDesktop(context)) {
+            // Desktop: pictures on one side, everything to decide on the other,
+            // the add-to-cart bar right under the details instead of pinned.
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingLg),
+              child: ContentWidth(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                          child: ProductImageGallery(imageUrls: product.imageUrls),
+                        ),
                       ),
+                    ),
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          details,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                              child: _BottomBar(state: state),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ProductImageGallery(imageUrls: product.imageUrls),
+                      details,
                     ],
                   ),
                 ),
@@ -231,7 +275,7 @@ class _BottomBar extends StatelessWidget {
                     ),
                   );
                   if (added) {
-                    AppSnackbar.success(context, AppStrings.addedToCart);
+                    AppSnackbar.confirm(context);
                   } else {
                     AppSnackbar.error(context, AppStrings.cartFull);
                   }

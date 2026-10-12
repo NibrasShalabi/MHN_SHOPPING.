@@ -14,6 +14,7 @@ import '../../../../core/widgets/surface_card.dart';
 import '../../domain/entities/cart_item.dart';
 import '../cubits/shared_cart_cubit.dart';
 import '../cubits/shared_cart_state.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// A cart someone shared, opened from a link.
 ///
@@ -46,7 +47,9 @@ class _SharedCartPageState extends State<SharedCartPage> {
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.sharedCartTitle, style: AppTextStyles.heading2),
       ),
-      body: BlocBuilder<SharedCartCubit, SharedCartState>(
+      body: ContentWidth(
+        maxWidth: 900,
+        child: BlocBuilder<SharedCartCubit, SharedCartState>(
         builder: (context, state) {
           if (state.status == SharedCartStatus.loading) {
             return const CustomLoadingIndicator();
@@ -119,6 +122,7 @@ class _SharedCartPageState extends State<SharedCartPage> {
             ],
           );
         },
+      ),
       ),
     );
   }

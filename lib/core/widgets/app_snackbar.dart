@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../constants/app_constants.dart';
 import '../constants/app_durations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'gold_frame.dart';
 
 enum SnackType { info, success, error }
 
@@ -12,10 +15,11 @@ enum SnackType { info, success, error }
 /// Deliberately NOT ScaffoldMessenger/SnackBar: that widget is anchored to
 /// the bottom, where it sits on top of the nav bar and the pinned action
 /// bars (add-to-cart, checkout) — exactly the controls the user just
-/// touched. This one drops in from the top instead, on the app's own
-/// surfaces, and never covers a primary action.
+/// touched. This one drops in from the top instead, in the app's gold and
+/// fire frame, and never covers a primary action.
 ///
-/// Call it from anywhere: AppSnackbar.success(context, AppStrings.x)
+/// Call it from anywhere: AppSnackbar.success(context, AppStrings.x), or
+/// AppSnackbar.confirm(context) for a wordless "done" (added to cart).
 class AppSnackbar {
   AppSnackbar._();
 
@@ -25,15 +29,18 @@ class AppSnackbar {
   static final Map<OverlayState, OverlayEntry> _active = {};
 
   static void info(BuildContext context, String message) =>
-      _show(context, message, SnackType.info);
+      _show(context, (done) => _SnackbarView(message: message, type: SnackType.info, onDismissed: done));
 
   static void success(BuildContext context, String message) =>
-      _show(context, message, SnackType.success);
+      _show(context, (done) => _SnackbarView(message: message, type: SnackType.success, onDismissed: done));
 
   static void error(BuildContext context, String message) =>
-      _show(context, message, SnackType.error);
+      _show(context, (done) => _SnackbarView(message: message, type: SnackType.error, onDismissed: done));
 
-  static void _show(BuildContext context, String message, SnackType type) {
+  /// A small gold-and-coal medallion that drops in with a check being drawn.
+  static void confirm(BuildContext context) => _show(context, (done) => _ConfirmView(onDismissed: done));
+
+  static void _show(BuildContext context, Widget Function(VoidCallback done) build) {
     final overlay = Overlay.maybeOf(context);
     if (overlay == null) return;
 
@@ -42,16 +49,12 @@ class AppSnackbar {
 
     late final OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (context) => _SnackbarView(
-        message: message,
-        type: type,
-        onDismissed: () {
-          if (_active[overlay] == entry) {
-            _active.remove(overlay);
-            entry.remove();
-          }
-        },
-      ),
+      builder: (_) => build(() {
+        if (_active[overlay] == entry) {
+          _active.remove(overlay);
+          entry.remove();
+        }
+      }),
     );
 
     _active[overlay] = entry;
@@ -64,29 +67,21 @@ class _SnackbarView extends StatefulWidget {
   final SnackType type;
   final VoidCallback onDismissed;
 
-  const _SnackbarView({
-    required this.message,
-    required this.type,
-    required this.onDismissed,
-  });
+  const _SnackbarView({required this.message, required this.type, required this.onDismissed});
 
   @override
   State<_SnackbarView> createState() => _SnackbarViewState();
 }
 
 class _SnackbarViewState extends State<_SnackbarView> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<Offset> _slide;
-  late final Animation<double> _fade;
+  late final AnimationController _controller = AnimationController(vsync: this, duration: AppDurations.normal);
+  late final Animation<Offset> _slide = Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+  late final Animation<double> _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: AppDurations.normal);
-    _slide = Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-
     _controller.forward();
     _scheduleDismiss();
   }
@@ -95,8 +90,7 @@ class _SnackbarViewState extends State<_SnackbarView> with SingleTickerProviderS
     await Future.delayed(AppConstants.snackbarDuration);
     if (!mounted) return;
     await _controller.reverse();
-    if (!mounted) return;
-    widget.onDismissed();
+    if (mounted) widget.onDismissed();
   }
 
   @override
@@ -105,20 +99,15 @@ class _SnackbarViewState extends State<_SnackbarView> with SingleTickerProviderS
     super.dispose();
   }
 
-  Color get _accent => switch (widget.type) {
-    SnackType.info => AppColors.gold,
-    SnackType.success => AppColors.success,
-    SnackType.error => AppColors.error,
-  };
-
   IconData get _icon => switch (widget.type) {
-    SnackType.info => Icons.info_outline,
-    SnackType.success => Icons.check_circle_outline,
-    SnackType.error => Icons.error_outline,
-  };
+        SnackType.info => Icons.info_outline_rounded,
+        SnackType.success => Icons.check_rounded,
+        SnackType.error => Icons.priority_high_rounded,
+      };
 
   @override
   Widget build(BuildContext context) {
+    final isError = widget.type == SnackType.error;
     return Positioned(
       top: MediaQuery.of(context).padding.top + AppConstants.spacingSm,
       left: AppConstants.spacingMd,
@@ -127,34 +116,22 @@ class _SnackbarViewState extends State<_SnackbarView> with SingleTickerProviderS
         position: _slide,
         child: FadeTransition(
           opacity: _fade,
-          child: Material(
-            color: Colors.transparent,
-            child: Dismissible(
-              key: const ValueKey('app-snackbar'),
-              direction: DismissDirection.up,
-              onDismissed: (_) => widget.onDismissed(),
-              child: Container(
-                padding: const EdgeInsets.all(AppConstants.spacingMd),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                  border: Border.all(color: _accent, width: AppConstants.borderThin),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x66000000),
-                      blurRadius: AppConstants.elevationLg,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
+          child: Dismissible(
+            key: const ValueKey('app-snackbar'),
+            direction: DismissDirection.up,
+            onDismissed: (_) => widget.onDismissed(),
+            child: GoldFrame(
+              radius: AppConstants.radiusMd,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd, vertical: AppConstants.spacingSm + 2),
                 child: Row(
                   children: [
-                    Icon(_icon, color: _accent, size: AppConstants.iconMd),
-                    const SizedBox(width: AppConstants.spacingSm),
+                    _Medallion(size: 30, error: isError, child: Icon(_icon, size: 18, color: isError ? Colors.white : AppColors.surfaceDark)),
+                    const SizedBox(width: AppConstants.spacingSm + 2),
                     Expanded(
                       child: Text(
                         widget.message,
-                        style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+                        style: AppTextStyles.body.copyWith(color: AppColors.goldLight, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -166,4 +143,145 @@ class _SnackbarViewState extends State<_SnackbarView> with SingleTickerProviderS
       ),
     );
   }
+}
+
+/// A gold coin for success/info, a scarlet one with a gold rim for errors.
+class _Medallion extends StatelessWidget {
+  final double size;
+  final bool error;
+  final Widget child;
+
+  const _Medallion({required this.size, required this.child, this.error = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: error ? null : AppColors.goldGradient,
+        color: error ? AppColors.scarlet : null,
+        border: Border.all(color: AppColors.goldLight, width: 1),
+        boxShadow: [BoxShadow(color: (error ? AppColors.scarlet : AppColors.gold).withValues(alpha: 0.45), blurRadius: 10)],
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Drops in under the status bar, a gold check is drawn inside a coal disc
+/// with a gold ring, then it lifts away — about a second in all.
+class _ConfirmView extends StatefulWidget {
+  final VoidCallback onDismissed;
+
+  const _ConfirmView({required this.onDismissed});
+
+  @override
+  State<_ConfirmView> createState() => _ConfirmViewState();
+}
+
+class _ConfirmViewState extends State<_ConfirmView> with SingleTickerProviderStateMixin {
+  static const double _size = 64;
+
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 1300));
+
+  // 0–30%: drop with a bounce · 20–55%: check drawn · 80–100%: lift and fade.
+  late final Animation<double> _drop =
+      CurvedAnimation(parent: _controller, curve: const Interval(0, 0.3, curve: Curves.easeOutBack));
+  late final Animation<double> _check =
+      CurvedAnimation(parent: _controller, curve: const Interval(0.2, 0.55, curve: Curves.easeOut));
+  late final Animation<double> _leave =
+      CurvedAnimation(parent: _controller, curve: const Interval(0.8, 1, curve: Curves.easeIn));
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.forward().whenComplete(() {
+      if (mounted) widget.onDismissed();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top + AppConstants.spacingLg;
+    return Positioned(
+      top: top,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            final y = (1 - _drop.value) * -(_size + top) - _leave.value * 24;
+            return Opacity(
+              opacity: (1 - _leave.value).clamp(0.0, 1.0),
+              child: Transform.translate(
+                offset: Offset(0, y),
+                child: Center(
+                  child: Container(
+                    width: _size,
+                    height: _size,
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.goldGradient,
+                      boxShadow: [
+                        BoxShadow(color: AppColors.gold.withValues(alpha: 0.5), blurRadius: 20, spreadRadius: 1),
+                        const BoxShadow(color: Color(0x88000000), blurRadius: 12, offset: Offset(0, 6)),
+                      ],
+                    ),
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(colors: [AppColors.emberDeep, AppColors.surfaceDark]),
+                      ),
+                      child: CustomPaint(painter: _CheckPainter(_check.value)),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// A check mark drawn up to [progress] (0–1), in the gold gradient.
+class _CheckPainter extends CustomPainter {
+  final double progress;
+
+  const _CheckPainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress <= 0) return;
+    final w = size.width, h = size.height;
+    final path = Path()
+      ..moveTo(w * 0.28, h * 0.52)
+      ..lineTo(w * 0.44, h * 0.67)
+      ..lineTo(w * 0.73, h * 0.36);
+    final metric = path.computeMetrics().first;
+    final drawn = metric.extractPath(0, metric.length * progress);
+    final paint = Paint()
+      ..shader = AppColors.goldGradient.createShader(Offset.zero & size)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(3, w * 0.08)
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(drawn, paint);
+  }
+
+  @override
+  bool shouldRepaint(_CheckPainter old) => old.progress != progress;
 }

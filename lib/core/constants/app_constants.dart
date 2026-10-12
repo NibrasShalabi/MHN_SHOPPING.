@@ -52,7 +52,7 @@ class AppConstants {
 
   // Grid / layout
   static const double productCardMinWidth = 165; // drives responsive grid column count
-  static const double productCardMaxWidth = 200; // sliver grid: max card width before adding a column
+  static const double productCardMaxWidth = 230; // sliver grid: max card width before adding a column
 
   /// Below this, MainShell renders the mobile bottom bar; at or above,
   /// the web top nav. The one branch point 7.13 asks for.
@@ -60,7 +60,15 @@ class AppConstants {
 
   /// Content stays this wide at most on a wide screen — an ultrawide
   /// monitor gets breathing room on the sides, not one giant stretched row.
-  static const double webContentMaxWidth = 1100;
+  static const double webContentMaxWidth = 1200;
+
+  /// From here the home banners sit side by side and pages may use two columns.
+  static const double desktopBreakpoint = 1024;
+
+  /// The promo swiper never grows taller than this on a wide screen.
+  static const double swiperMaxHeight = 360;
+
+  static bool isDesktop(BuildContext context) => MediaQuery.sizeOf(context).width >= desktopBreakpoint;
 
   /// True once the screen is wide enough that MainShell shows the web top
   /// nav. Each of the five tab-root pages uses this to skip its own

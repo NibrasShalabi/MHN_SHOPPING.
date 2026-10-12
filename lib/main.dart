@@ -3,12 +3,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core/constants/app_strings.dart';
 import 'core/injection/injection_container.dart' as di;
 import 'core/router/app_router.dart';
 import 'core/services/shared_prefs_service.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/app_scroll_behavior.dart';
 import 'core/widgets/offline_banner.dart';
 import 'features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import 'features/messages/presentation/cubits/messages_cubit.dart';
@@ -71,6 +73,10 @@ class _AppView extends StatefulWidget {
 }
 
 class _AppViewState extends State<_AppView> {
+  // Built once: rebuilding it on every frame of this widget reset the
+  // navigation stack and every route's providers.
+  late final GoRouter _router = buildAppRouter(session: widget.session);
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +98,7 @@ class _AppViewState extends State<_AppView> {
     return MaterialApp.router(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const AppScrollBehavior(),
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.surface,
@@ -102,12 +109,17 @@ class _AppViewState extends State<_AppView> {
           error: AppColors.error,
         ),
         fontFamily: 'Tajawal',
+        // Pull-to-refresh and any stray progress spinner in the brand colours.
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: AppColors.gold,
+          refreshBackgroundColor: AppColors.surfaceElevated,
+        ),
       ),
       builder: (context, child) => Directionality(
         textDirection: TextDirection.rtl,
         child: OfflineBanner(child: child ?? const SizedBox.shrink()),
       ),
-      routerConfig: buildAppRouter(session: widget.session),
+      routerConfig: _router,
     );
   }
 }

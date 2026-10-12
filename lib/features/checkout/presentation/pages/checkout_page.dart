@@ -25,6 +25,7 @@ import '../../../cart/presentation/cubits/cart_cubit.dart';
 import '../../../cart/presentation/cubits/cart_state.dart';
 import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
+import '../../../../core/widgets/content_width.dart';
 
 String _methodLabel(String method) => switch (method) {
   'trc20' => 'USDT — TRC20 (Tron)',
@@ -87,7 +88,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           ],
         ),
-        body: BlocBuilder<CheckoutCubit, CheckoutState>(
+        body: ContentWidth(
+          maxWidth: 760,
+          child: BlocBuilder<CheckoutCubit, CheckoutState>(
           builder: (context, checkoutState) {
             if (checkoutState.status == CheckoutStatus.loadingAddresses ||
                 checkoutState.status == CheckoutStatus.initial) {
@@ -178,6 +181,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               },
             );
           },
+        ),
         ),
       ),
     );

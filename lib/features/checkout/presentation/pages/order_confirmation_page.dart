@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/surface_card.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class OrderConfirmationPage extends StatelessWidget {
   final String orderId;
@@ -28,7 +29,9 @@ class OrderConfirmationPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Text(AppStrings.orderConfirmed, style: AppTextStyles.heading2),
       ),
-      body: Padding(
+      body: ContentWidth(
+        maxWidth: 640,
+        child: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingMd),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,6 +107,7 @@ class OrderConfirmationPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

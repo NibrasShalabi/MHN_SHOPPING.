@@ -2,6 +2,20 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../constants/app_constants.dart';
 
+/// Taps closer together than this are dropped app-wide, so a double tap
+/// never adds twice, submits twice or opens a screen twice.
+const Duration _tapGap = Duration(milliseconds: 600);
+DateTime _lastTap = DateTime.fromMillisecondsSinceEpoch(0);
+
+VoidCallback? _guarded(VoidCallback? action) => action == null
+    ? null
+    : () {
+        final now = DateTime.now();
+        if (now.difference(_lastTap) < _tapGap) return;
+        _lastTap = now;
+        action();
+      };
+
 class CustomButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -57,7 +71,7 @@ class CustomButton extends StatelessWidget {
         height: h,
         width: width,
         child: OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: isLoading ? null : _guarded(onPressed),
           style: OutlinedButton.styleFrom(
             foregroundColor: bg,
             side: BorderSide(color: bg),
@@ -72,7 +86,7 @@ class CustomButton extends StatelessWidget {
       height: h,
       width: width,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading ? null : _guarded(onPressed),
         style: ElevatedButton.styleFrom(
           backgroundColor: bg,
           foregroundColor: fg,

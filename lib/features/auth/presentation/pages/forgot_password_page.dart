@@ -13,6 +13,7 @@ import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/custom/custom_text_field.dart';
 import '../cubits/forgot_password_cubit.dart';
 import '../cubits/forgot_password_state.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -49,7 +50,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         bottom: const AppBarBottomBorder(),
         centerTitle: true,
       ),
-      body: SafeArea(
+      body: ContentWidth(
+        maxWidth: 480,
+        child: SafeArea(
         child: BlocConsumer<ForgotPasswordCubit, ForgotPasswordState>(
           listener: (context, state) {
             if (state.status == ForgotPasswordStatus.failure && state.failure != null) {
@@ -118,6 +121,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             );
           },
         ),
+      ),
       ),
     );
   }

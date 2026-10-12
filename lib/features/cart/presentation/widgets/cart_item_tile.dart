@@ -44,7 +44,7 @@ class CartItemTile extends StatelessWidget {
                   _Thumb(url: item.imageUrl),
                   const SizedBox(width: AppConstants.spacingMd),
                   Expanded(child: _Details(item: item, isUnavailable: isUnavailable)),
-                  _RoundIcon(icon: Icons.delete_outline, color: AppColors.scarlet, onTap: onRemove),
+                  _RoundIcon(icon: Icons.delete_outline, color: AppColors.goldLight, onTap: onRemove),
                 ],
               ),
               const SizedBox(height: AppConstants.spacingMd),

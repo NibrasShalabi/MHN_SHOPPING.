@@ -18,6 +18,7 @@ import '../cubits/account_cubit.dart';
 import '../cubits/account_state.dart';
 import '../widgets/change_password_form.dart';
 import '../widgets/profile_form.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// "حسابي": the customer's details, password, and sign-out.
 class AccountPage extends StatelessWidget {
@@ -44,10 +45,14 @@ class AccountPage extends StatelessWidget {
         backgroundColor: AppColors.surfaceWine,
         elevation: 0,
         centerTitle: true,
+        // A bottom-nav tab, not a pushed page — no back arrow.
+        automaticallyImplyLeading: false,
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.myAccount, style: AppTextStyles.heading2),
       ),
-      body: BlocBuilder<AccountCubit, AccountState>(
+      body: ContentWidth(
+        maxWidth: 760,
+        child: BlocBuilder<AccountCubit, AccountState>(
         buildWhen: (a, b) => a.status != b.status || a.profile != b.profile,
         builder: (context, state) => switch (state.status) {
           AccountStatus.loading => const CustomLoadingIndicator(),
@@ -78,6 +83,7 @@ class AccountPage extends StatelessWidget {
               ],
             ),
         },
+      ),
       ),
     );
   }

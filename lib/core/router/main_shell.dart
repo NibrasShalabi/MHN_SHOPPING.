@@ -8,12 +8,12 @@ import '../../features/messages/presentation/cubits/messages_state.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_durations.dart';
 import '../theme/app_colors.dart';
+import '../constants/app_strings.dart';
 import '../theme/app_text_styles.dart';
 import 'route_names.dart';
 import '../widgets/app_bar_bottom_border.dart';
 import '../widgets/custom/app_logo.dart';
 import '../widgets/app_drawer.dart';
-import '../widgets/menu_button.dart';
 import '../widgets/badged_icon.dart';
 
 class MainShell extends StatelessWidget {
@@ -22,11 +22,11 @@ class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.child});
 
   static const List<_NavTab> _tabs = [
-    _NavTab(path: RouteNames.home, icon: Icons.home_outlined),
-    _NavTab(path: RouteNames.cart, icon: Icons.shopping_cart_outlined),
-    _NavTab(path: RouteNames.orderTracking, icon: Icons.local_shipping_outlined),
-    _NavTab(path: RouteNames.loyaltyStore, icon: Icons.star_outline),
-    _NavTab(path: RouteNames.suggestProduct, icon: Icons.add_shopping_cart_outlined),
+    _NavTab(path: RouteNames.home, icon: Icons.home_outlined, label: AppStrings.home),
+    _NavTab(path: RouteNames.cart, icon: Icons.shopping_cart_outlined, label: AppStrings.cart),
+    _NavTab(path: RouteNames.orderTracking, icon: Icons.local_shipping_outlined, label: AppStrings.orderTracking),
+    _NavTab(path: RouteNames.loyaltyStore, icon: Icons.star_outline, label: AppStrings.loyaltyStore),
+    _NavTab(path: RouteNames.account, icon: Icons.person_outline, label: AppStrings.myAccount),
   ];
 
   int _currentIndex(BuildContext context) {
@@ -46,16 +46,13 @@ class MainShell extends StatelessWidget {
   Widget _buildWeb(BuildContext context, int currentIndex) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      endDrawer: const AppDrawer(),
       body: Column(
         children: [
           _TopNavBar(tabs: _tabs, currentIndex: currentIndex),
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: AppConstants.webContentMaxWidth,
-                ),
+                constraints: const BoxConstraints(maxWidth: AppConstants.webContentMaxWidth),
                 child: child,
               ),
             ),
@@ -101,6 +98,9 @@ class MainShell extends StatelessWidget {
   }
 }
 
+/// Desktop header: logo, the five sections with their names, messages with
+/// the unread count, and "المزيد" holding the side-menu links — a site
+/// header rather than an app's icon strip.
 class _TopNavBar extends StatelessWidget {
   final List<_NavTab> tabs;
   final int currentIndex;
@@ -115,34 +115,30 @@ class _TopNavBar extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppConstants.spacingLg,
-                vertical: AppConstants.spacingSm,
-              ),
-              child: Row(
-                children: [
-                  const AppLogo(),
-                  const SizedBox(width: AppConstants.spacingXl),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(tabs.length, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppConstants.spacingMd,
-                          ),
-                          child: _TopNavItem(
-                            tab: tabs[index],
-                            isActive: index == currentIndex,
-                            onTap: () => context.go(tabs[index].path),
-                          ),
-                        );
-                      }),
-                    ),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: AppConstants.webContentMaxWidth),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingLg, vertical: AppConstants.spacingSm),
+                  child: Row(
+                    children: [
+                      const AppLogo(),
+                      const SizedBox(width: AppConstants.spacingXl),
+                      Expanded(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: AppConstants.spacingXs,
+                          children: [
+                            for (final (i, tab) in tabs.indexed)
+                              _TopNavItem(tab: tab, isActive: i == currentIndex, onTap: () => context.go(tab.path)),
+                          ],
+                        ),
+                      ),
+                      const _MessagesAction(),
+                      const _MoreMenu(),
+                    ],
                   ),
-                  Builder(builder: (context) => const MenuButton()),
-                ],
+                ),
               ),
             ),
             const AppBarBottomBorder(),
@@ -162,23 +158,88 @@ class _TopNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = isActive ? AppColors.goldLight : AppColors.textPrimary;
+    final icon = switch (tab.path) {
+      RouteNames.cart => const _CartIcon(),
+      RouteNames.orderTracking => const _OrdersIcon(),
+      _ => Icon(tab.icon, size: AppConstants.iconMd, color: isActive ? AppColors.goldLight : AppColors.iconPrimary),
+    };
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.spacingSm,
-          vertical: AppConstants.spacingSm,
+      borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+      child: AnimatedContainer(
+        duration: AppDurations.fast,
+        padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd, vertical: AppConstants.spacingSm),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+          color: isActive ? AppColors.ember.withValues(alpha: 0.55) : Colors.transparent,
+          border: Border.all(color: isActive ? AppColors.gold : Colors.transparent, width: AppConstants.borderThin),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            tab.path == RouteNames.cart
-                ? const _CartIcon()
-                : tab.path == RouteNames.orderTracking
-                ? const _OrdersIcon()
-                : Icon(tab.icon, size: AppConstants.iconMd, color: AppColors.iconPrimary),
-            const SizedBox(width: AppConstants.spacingXs),
+            icon,
+            const SizedBox(width: AppConstants.spacingSm),
+            Text(tab.label, style: AppTextStyles.body.copyWith(color: color, fontWeight: isActive ? FontWeight.bold : null)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MessagesAction extends StatelessWidget {
+  const _MessagesAction();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<MessagesCubit, MessagesState, int>(
+      selector: (s) => s.unreadCount,
+      builder: (context, count) => IconButton(
+        tooltip: AppStrings.messagesTitle,
+        onPressed: () => context.push(RouteNames.messages),
+        icon: BadgedIcon(icon: Icons.inbox_outlined, count: count),
+      ),
+    );
+  }
+}
+
+/// The side-menu links as a dropdown — on a desktop they belong in the header.
+class _MoreMenu extends StatelessWidget {
+  const _MoreMenu();
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      tooltip: AppStrings.more,
+      color: AppColors.surfaceElevated,
+      position: PopupMenuPosition.under,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        side: const BorderSide(color: AppColors.gold, width: AppConstants.borderThin),
+      ),
+      onSelected: (path) => context.push(path),
+      itemBuilder: (_) => [
+        for (final e in AppDrawer.entries)
+          if (e.path != RouteNames.messages)
+            PopupMenuItem(
+              value: e.path,
+              child: Row(
+                children: [
+                  Icon(e.icon, size: AppConstants.iconSm + 2, color: AppColors.iconPrimary),
+                  const SizedBox(width: AppConstants.spacingSm),
+                  Text(e.label, style: AppTextStyles.body),
+                ],
+              ),
+            ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingSm, vertical: AppConstants.spacingSm),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(AppStrings.more, style: AppTextStyles.body.copyWith(color: AppColors.textPrimary)),
+            const Icon(Icons.expand_more, color: AppColors.goldLight),
           ],
         ),
       ),
@@ -189,8 +250,9 @@ class _TopNavItem extends StatelessWidget {
 class _NavTab {
   final String path;
   final IconData icon;
+  final String label;
 
-  const _NavTab({required this.path, required this.icon});
+  const _NavTab({required this.path, required this.icon, required this.label});
 }
 
 class _NavItem extends StatelessWidget {

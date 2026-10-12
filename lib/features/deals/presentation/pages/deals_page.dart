@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../cubits/deals_cubit.dart';
 import '../cubits/deals_state.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class DealsPage extends StatefulWidget {
   const DealsPage({super.key});
@@ -47,7 +48,8 @@ class _DealsPageState extends State<DealsPage> {
           ],
         ),
       ),
-      body: BlocBuilder<DealsCubit, DealsState>(
+      body: ContentWidth(
+        child: BlocBuilder<DealsCubit, DealsState>(
         builder: (context, state) {
           if (state.status == DealsStatus.loading ||
               state.status == DealsStatus.initial) {
@@ -83,6 +85,7 @@ class _DealsPageState extends State<DealsPage> {
             ),
           );
         },
+      ),
       ),
     );
   }

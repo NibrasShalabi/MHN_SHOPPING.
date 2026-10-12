@@ -15,14 +15,15 @@ import 'custom/app_logo.dart';
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
-  static const List<_MenuEntry> _entries = [
-    _MenuEntry(path: RouteNames.account, icon: Icons.person_outline, label: AppStrings.myAccount),
-    _MenuEntry(path: RouteNames.about, icon: Icons.info_outline, label: AppStrings.aboutUs),
-    _MenuEntry(path: RouteNames.suppliers, icon: Icons.storefront_outlined, label: AppStrings.suppliers),
-    _MenuEntry(path: RouteNames.messages, icon: Icons.inbox_outlined, label: AppStrings.messagesTitle),
-    _MenuEntry(path: RouteNames.currency, icon: Icons.currency_exchange, label: AppStrings.currencyConverter),
-    _MenuEntry(path: RouteNames.support, icon: Icons.headset_mic_outlined, label: AppStrings.support),
-    _MenuEntry(path: RouteNames.rateApp, icon: Icons.thumb_up_outlined, label: AppStrings.rateApp),
+  /// Also listed in the desktop header's "المزيد" menu.
+  static const List<MenuEntry> entries = [
+    MenuEntry(path: RouteNames.suggestProduct, icon: Icons.add_shopping_cart_outlined, label: AppStrings.suggestProduct),
+    MenuEntry(path: RouteNames.about, icon: Icons.info_outline, label: AppStrings.aboutUs),
+    MenuEntry(path: RouteNames.suppliers, icon: Icons.storefront_outlined, label: AppStrings.suppliers),
+    MenuEntry(path: RouteNames.messages, icon: Icons.inbox_outlined, label: AppStrings.messagesTitle),
+    MenuEntry(path: RouteNames.currency, icon: Icons.currency_exchange, label: AppStrings.currencyConverter),
+    MenuEntry(path: RouteNames.support, icon: Icons.headset_mic_outlined, label: AppStrings.support),
+    MenuEntry(path: RouteNames.rateApp, icon: Icons.thumb_up_outlined, label: AppStrings.rateApp),
   ];
 
   @override
@@ -42,7 +43,7 @@ class AppDrawer extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingSm),
-                children: _entries
+                children: entries
                     .map((entry) => _MenuTile(
                   entry: entry,
                   onTap: () {
@@ -60,15 +61,15 @@ class AppDrawer extends StatelessWidget {
   }
 }
 
-class _MenuEntry {
+class MenuEntry {
   final String path;
   final IconData icon;
   final String label;
-  const _MenuEntry({required this.path, required this.icon, required this.label});
+  const MenuEntry({required this.path, required this.icon, required this.label});
 }
 
 class _MenuTile extends StatelessWidget {
-  final _MenuEntry entry;
+  final MenuEntry entry;
   final VoidCallback onTap;
   const _MenuTile({required this.entry, required this.onTap});
 

@@ -157,7 +157,6 @@ class _Pill extends StatelessWidget {
           minHeight: AppConstants.minTouchTarget,
         ),
         padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingMd),
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(AppConstants.radiusSm),
@@ -166,10 +165,15 @@ class _Pill extends StatelessWidget {
             width: AppConstants.borderThin,
           ),
         ),
-        child: Text(
-          label,
-          style: AppTextStyles.body.copyWith(
-            color: isSelected ? AppColors.goldLight : AppColors.textSecondary,
+        // widthFactor keeps the pill as wide as its label — plain alignment
+        // stretched every size to the full row on wide screens.
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            label,
+            style: AppTextStyles.body.copyWith(
+              color: isSelected ? AppColors.goldLight : AppColors.textSecondary,
+            ),
           ),
         ),
       ),

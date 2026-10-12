@@ -48,7 +48,12 @@ class EntryBanner extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+        // Side by side on desktop a card is narrower: the art gives way first.
+        builder: (context, c) => _build(context, c.maxWidth.isFinite ? (c.maxWidth * 0.36).clamp(96.0, artWidth) : artWidth),
+      );
+
+  Widget _build(BuildContext context, double artWidth) {
     final copyEnd = fadeArt ? artWidth * 0.55 : artWidth;
     return Stack(
       clipBehavior: Clip.none,

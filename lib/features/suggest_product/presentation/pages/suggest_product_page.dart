@@ -14,6 +14,7 @@ import '../../domain/entities/product_suggestion.dart';
 import '../cubits/suggest_product_cubit.dart';
 import '../cubits/suggest_product_state.dart';
 import '../widgets/suggestion_terms_card.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class SuggestProductPage extends StatefulWidget {
   const SuggestProductPage({super.key});
@@ -68,18 +69,16 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppConstants.isWideScreen(context)
-          ? null
-          : AppBar(
+      appBar: AppBar(
         backgroundColor: AppColors.surfaceWine,
         elevation: 0,
         centerTitle: true,
-        // It's a bottom-nav tab now, not a pushed page — no back arrow.
-        automaticallyImplyLeading: false,
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.suggestProduct, style: AppTextStyles.heading2),
       ),
-      body: BlocConsumer<SuggestProductCubit, SuggestProductState>(
+      body: ContentWidth(
+        maxWidth: 640,
+        child: BlocConsumer<SuggestProductCubit, SuggestProductState>(
         listener: (context, state) {
           if (state.status == SuggestProductStatus.success) {
             _clear();
@@ -135,6 +134,7 @@ class _SuggestProductPageState extends State<SuggestProductPage> {
             ),
           );
         },
+      ),
       ),
     );
   }

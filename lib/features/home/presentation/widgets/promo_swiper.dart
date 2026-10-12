@@ -69,7 +69,7 @@ class _PromoSwiperState extends State<PromoSwiper> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final height = constraints.maxWidth / AppConstants.swiperAspectRatio;
+        final height = (constraints.maxWidth / AppConstants.swiperAspectRatio).clamp(0.0, AppConstants.swiperMaxHeight);
         return Column(
           children: [
             SizedBox(

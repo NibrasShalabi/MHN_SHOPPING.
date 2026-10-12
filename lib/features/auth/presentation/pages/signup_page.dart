@@ -18,6 +18,7 @@ import '../../../../core/widgets/inline_error.dart';
 import '../../domain/entities/signup_data.dart';
 import '../cubits/signup_cubit.dart';
 import '../cubits/signup_state.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -110,7 +111,9 @@ class _SignupPageState extends State<SignupPage> {
         bottom: const AppBarBottomBorder(),
         centerTitle: true,
       ),
-      body: SafeArea(
+      body: ContentWidth(
+        maxWidth: 560,
+        child: SafeArea(
         child: BlocConsumer<SignupCubit, SignupState>(
           listener: (context, state) {
             if (state.status == SignupStatus.success) {
@@ -237,6 +240,7 @@ class _SignupPageState extends State<SignupPage> {
             );
           },
         ),
+      ),
       ),
     );
   }

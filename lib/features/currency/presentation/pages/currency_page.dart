@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/widgets/app_bar_bottom_border.dart';
 import '../widgets/currency_form.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class CurrencyPage extends StatelessWidget {
   const CurrencyPage({super.key});
@@ -21,9 +22,12 @@ class CurrencyPage extends StatelessWidget {
         centerTitle: true,
         title: Text(AppStrings.currencyConverter, style: AppTextStyles.heading2),
       ),
-      body: const SingleChildScrollView(
+      body: ContentWidth(
+        maxWidth: 640,
+        child: const SingleChildScrollView(
         padding: EdgeInsets.all(AppConstants.spacingMd),
         child: CurrencyForm(),
+      ),
       ),
     );
   }

@@ -17,6 +17,7 @@ import '../cubits/category_state.dart';
 import '../widgets/filter_chips_row.dart';
 import '../widgets/products_grid.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class CategoryPage extends StatefulWidget {
   final SeenProductsStore seenProductsStore;
@@ -64,15 +65,32 @@ class _CategoryPageState extends State<CategoryPage> {
     }
   }
 
-  bool _shouldShowNewBadge(Product product) =>
-      product.isNew && !_seenBeforeVisit.contains(product.id);
+  /// Decided the first time a card is built this visit, straight from the
+  /// store — not from a state listener, which a cached first emission could
+  /// slip past and leave every product looking new forever. The badge stays
+  /// for this visit and is gone the next time.
+  bool _shouldShowNewBadge(Product product) {
+    if (!product.isNew) return false;
+    if (_checked.add(product.id)) {
+      if (widget.seenProductsStore.hasSeen(product.id)) _seenBeforeVisit.add(product.id);
+      _pendingSeen.add(product.id);
+      _flushSeenSoon();
+    }
+    return !_seenBeforeVisit.contains(product.id);
+  }
 
-  /// Snapshot first, then record — so marking a product seen never hides
-  /// its badge on the screen it was just shown on.
-  void _recordSeen(List<Product> products) {
-    final unchecked = products.where((p) => p.isNew && _checked.add(p.id)).toList();
-    _seenBeforeVisit.addAll(unchecked.where((p) => widget.seenProductsStore.hasSeen(p.id)).map((p) => p.id));
-    widget.seenProductsStore.markSeen(unchecked.map((p) => p.id));
+  final Set<String> _pendingSeen = {};
+  bool _flushScheduled = false;
+
+  /// One write after the frame, however many new cards were built in it.
+  void _flushSeenSoon() {
+    if (_flushScheduled) return;
+    _flushScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _flushScheduled = false;
+      widget.seenProductsStore.markSeen(_pendingSeen.toList());
+      _pendingSeen.clear();
+    });
   }
 
   @override
@@ -92,11 +110,9 @@ class _CategoryPageState extends State<CategoryPage> {
           ),
         ),
       ),
-      body: BlocConsumer<CategoryCubit, CategoryState>(
+      body: ContentWidth(
+        child: BlocConsumer<CategoryCubit, CategoryState>(
         listener: (context, state) {
-          if (state.status == CategoryStatus.success) {
-            _recordSeen(state.products);
-          }
           if (state.failure != null && state.status != CategoryStatus.failure) {
             AppSnackbar.error(context, state.failure!.message);
           }
@@ -169,6 +185,7 @@ class _CategoryPageState extends State<CategoryPage> {
             ],
           );
         },
+      ),
       ),
     );
   }

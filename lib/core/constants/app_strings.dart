@@ -489,4 +489,12 @@ class AppStrings {
   // Connectivity & version
   static const String offline = 'ما في اتصال بالإنترنت';
   static String appVersion(String version, String build) => 'الإصدار $version ($build)';
+
+  // Web header & footer
+  static const String more = 'المزيد';
+  static const String footerAbout = 'متجرك الموثوق للتسوق أونلاين في سوريا — منتجات مختارة، أسعار بالدولار، وتوصيل لكل المحافظات.';
+  static const String footerLinks = 'روابط';
+  static const String footerHelp = 'المساعدة';
+  static String footerRights(int year) => '© $year MHN Shopping — جميع الحقوق محفوظة';
+  static const String browseStore = 'تصفّح المتجر';
 }

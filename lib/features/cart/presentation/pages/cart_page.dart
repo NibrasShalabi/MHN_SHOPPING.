@@ -17,6 +17,7 @@ import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 import '../widgets/cart_item_tile.dart';
+import '../../../../core/widgets/gold_frame.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -76,10 +77,7 @@ class _CartPageState extends State<CartPage> {
           if (state.isEmpty) return const _EmptyCart();
 
           final cubit = context.read<CartCubit>();
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
+          final list = ListView.builder(
                   padding: const EdgeInsets.all(AppConstants.spacingMd),
                   itemCount: state.items.length,
                   itemBuilder: (context, index) {
@@ -95,8 +93,27 @@ class _CartPageState extends State<CartPage> {
                       onRemove: () => cubit.removeItem(item.lineKey),
                     );
                   },
+                );
+
+          // Desktop: the lines on one side, a sticky order summary on the other.
+          if (AppConstants.isDesktop(context)) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: list),
+                SizedBox(
+                  width: 380,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppConstants.spacingMd),
+                    child: GoldFrame(child: _CheckoutBar(state: state, inline: true)),
+                  ),
                 ),
-              ),
+              ],
+            );
+          }
+          return Column(
+            children: [
+              Expanded(child: list),
               _CheckoutBar(state: state),
             ],
           );
@@ -108,16 +125,22 @@ class _CartPageState extends State<CartPage> {
 
 class _CheckoutBar extends StatelessWidget {
   final CartState state;
-  const _CheckoutBar({required this.state});
+
+  /// Inside the desktop summary card: no bar background of its own.
+  final bool inline;
+
+  const _CheckoutBar({required this.state, this.inline = false});
 
   @override
   Widget build(BuildContext context) {
     final balance = context.watch<LoyaltyBalanceCubit>().state;
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceWine,
-        border: Border(top: BorderSide(color: AppColors.border, width: AppConstants.borderThin)),
-      ),
+      decoration: inline
+          ? null
+          : const BoxDecoration(
+              color: AppColors.surfaceWine,
+              border: Border(top: BorderSide(color: AppColors.border, width: AppConstants.borderThin)),
+            ),
       child: SafeArea(
         top: false,
         child: Padding(

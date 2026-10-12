@@ -15,6 +15,7 @@ import '../../domain/entities/health_program.dart';
 import '../cubits/fitness_hub_cubit.dart';
 import '../cubits/fitness_hub_state.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// Entry point for the fitness section: the supervised programs, plus the
 /// display-only supplements shelf.
@@ -60,7 +61,9 @@ class _FitnessHubPageState extends State<FitnessHubPage> {
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.fitness, style: AppTextStyles.heading2),
       ),
-      body: BlocBuilder<FitnessHubCubit, FitnessHubState>(
+      body: ContentWidth(
+        maxWidth: 760,
+        child: BlocBuilder<FitnessHubCubit, FitnessHubState>(
         builder: (context, state) {
           if (state.status == FitnessHubStatus.loading ||
               state.status == FitnessHubStatus.initial) {
@@ -93,6 +96,7 @@ class _FitnessHubPageState extends State<FitnessHubPage> {
           );
         },
       ),
+      ),
     );
   }
 }
@@ -106,7 +110,8 @@ class _Hero extends StatelessWidget {
       child: Stack(
         children: [
           const Positioned.fill(child: FireSparks(active: true)),
-          Padding(
+          Container(
+            width: double.infinity, // a Stack child otherwise hugs the corner on wide screens
             padding: const EdgeInsets.all(AppConstants.spacingLg),
             child: Column(
               children: [
@@ -170,10 +175,12 @@ class _FitnessPyramid extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth;
+        // Wider than this the triangle turns into a flat roof.
+        final width = constraints.maxWidth.clamp(0.0, 560.0);
         const bandHeight = _height / 3;
 
-        return SizedBox(
+        return Center(
+          child: SizedBox(
           height: _height,
           width: width,
           child: Stack(
@@ -183,7 +190,16 @@ class _FitnessPyramid extends StatelessWidget {
                 child: ClipPath(
                   clipper: const _TriangleClipper(),
                   child: const DecoratedBox(
-                    decoration: BoxDecoration(gradient: AppColors.emberBackdrop),
+                    // Fire rising from the base into coal at the tip — a
+                    // side-to-side sweep split the shape in two halves.
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [AppColors.flame, AppColors.scarlet, AppColors.ember, AppColors.surfaceDark],
+                        stops: [0.0, 0.3, 0.7, 1.0],
+                      ),
+                    ),
                     child: FireSparks(active: true),
                   ),
                 ),
@@ -262,6 +278,7 @@ class _FitnessPyramid extends StatelessWidget {
                 ),
             ],
           ),
+        ),
         );
       },
     );

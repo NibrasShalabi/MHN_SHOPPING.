@@ -9,11 +9,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
-import '../../../../core/widgets/surface_card.dart';
-import '../../domain/entities/supplier.dart';
+import '../widgets/supplier_card.dart';
 import '../cubits/suppliers_cubit.dart';
 import '../cubits/suppliers_state.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class SuppliersListPage extends StatefulWidget {
   const SuppliersListPage({super.key});
@@ -40,7 +40,8 @@ class _SuppliersListPageState extends State<SuppliersListPage> {
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.suppliers, style: AppTextStyles.heading2),
       ),
-      body: BlocBuilder<SuppliersCubit, SuppliersState>(
+      body: ContentWidth(
+        child: BlocBuilder<SuppliersCubit, SuppliersState>(
         builder: (context, state) {
           if (state.status == SuppliersStatus.loading ||
               state.status == SuppliersStatus.initial) {
@@ -63,80 +64,28 @@ class _SuppliersListPageState extends State<SuppliersListPage> {
                       Center(child: Text(AppStrings.noResultsFound, style: AppTextStyles.body)),
                     ],
                   )
-                : ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppConstants.spacingMd),
-              itemCount: state.suppliers.length,
-              separatorBuilder: (_, _) => const SizedBox(height: AppConstants.spacingSm),
-              itemBuilder: (context, index) {
-                final supplier = state.suppliers[index];
-                return _SupplierTile(
-                  supplier: supplier,
-                  onTap: () => context.push(RouteNames.supplierPath(supplier.id)),
-                );
-              },
-            ),
+                : GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(AppConstants.spacingMd),
+                    // One per row on phones, two on tablets, three on desktop.
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 420,
+                      mainAxisExtent: SupplierCard.height,
+                      crossAxisSpacing: AppConstants.spacingMd,
+                      mainAxisSpacing: AppConstants.spacingMd,
+                    ),
+                    itemCount: state.suppliers.length,
+                    itemBuilder: (context, index) {
+                      final supplier = state.suppliers[index];
+                      return SupplierCard(
+                        supplier: supplier,
+                        onTap: () => context.push(RouteNames.supplierPath(supplier.id)),
+                      );
+                    },
+                  ),
           );
         },
       ),
-    );
-  }
-}
-
-class _SupplierTile extends StatelessWidget {
-  final Supplier supplier;
-  final VoidCallback onTap;
-
-  const _SupplierTile({required this.supplier, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return SurfaceCard(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            width: AppConstants.iconLg + AppConstants.spacingMd,
-            height: AppConstants.iconLg + AppConstants.spacingMd,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDark,
-              shape: BoxShape.circle,
-            ),
-            // TODO(logic-phase): swap for CachedNetworkImage(supplier.logoUrl).
-            child: const Icon(
-              Icons.storefront_outlined,
-              color: AppColors.iconPrimary,
-              size: AppConstants.iconMd,
-            ),
-          ),
-          const SizedBox(width: AppConstants.spacingMd),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  supplier.name,
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.gold,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: AppConstants.spacingXs),
-                Text(
-                  supplier.description,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const Icon(
-            Icons.chevron_left,
-            color: AppColors.textDisabled,
-            size: AppConstants.iconMd,
-          ),
-        ],
       ),
     );
   }

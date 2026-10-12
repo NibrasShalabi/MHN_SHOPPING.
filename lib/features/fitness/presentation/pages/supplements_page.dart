@@ -16,6 +16,7 @@ import '../cubits/catalog_categories_state.dart';
 import '../widgets/medical_notice_card.dart';
 import '../widgets/specialist_contact.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 /// Fitness shelves — the same category grid the store uses.
 ///
@@ -50,7 +51,9 @@ class _SupplementsPageState extends State<SupplementsPage> {
         bottom: const AppBarBottomBorder(),
         title: Text(AppStrings.supplements, style: AppTextStyles.heading2),
       ),
-      body: BlocBuilder<CatalogCategoriesCubit, CatalogCategoriesState>(
+      body: ContentWidth(
+        maxWidth: 900,
+        child: BlocBuilder<CatalogCategoriesCubit, CatalogCategoriesState>(
         builder: (context, state) {
           if (state.status == CatalogCategoriesStatus.loading ||
               state.status == CatalogCategoriesStatus.initial) {
@@ -90,6 +93,7 @@ class _SupplementsPageState extends State<SupplementsPage> {
             ),
           );
         },
+      ),
       ),
     );
   }

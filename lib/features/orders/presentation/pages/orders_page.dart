@@ -12,6 +12,7 @@ import '../cubits/orders_cubit.dart';
 import '../cubits/orders_state.dart';
 import '../widgets/order_card.dart';
 import '../../../../core/widgets/error_retry.dart';
+import '../../../../core/widgets/content_width.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -37,7 +38,9 @@ class _OrdersPageState extends State<OrdersPage> {
                 style: AppTextStyles.heading2,
               ),
             ),
-      body: BlocConsumer<OrdersCubit, OrdersState>(
+      body: ContentWidth(
+        maxWidth: 900,
+        child: BlocConsumer<OrdersCubit, OrdersState>(
         listener: (context, state) {
           if (state.failure != null && state.status != OrdersStatus.failure) {
             AppSnackbar.error(context, state.failure!.message);
@@ -85,6 +88,7 @@ class _OrdersPageState extends State<OrdersPage> {
             ),
           );
         },
+      ),
       ),
     );
   }
