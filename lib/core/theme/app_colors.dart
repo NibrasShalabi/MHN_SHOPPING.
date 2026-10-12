@@ -100,13 +100,13 @@ class AppColors {
   /// Same family, much darker — the two deepest stops only, no scarlet or
   /// flame. For surfaces that want the brand colour without brightness
   /// (e.g. a drawer header sitting above plain dark content).
-  /// The premium cards' fill: fire across 85% from the start side, fading
-  /// into coal on the last 15%.
+  /// The premium cards' fill: coal on the start (text) side for the first
+  /// 45%, warming into fire toward the end.
   static const LinearGradient emberBackdrop = LinearGradient(
     begin: AlignmentDirectional.centerStart,
     end: AlignmentDirectional.centerEnd,
-    colors: [flame, scarlet, crimson, ember, surfaceDark],
-    stops: [0.0, 0.3, 0.6, 0.85, 1.0],
+    colors: [surfaceDark, surfaceDark, emberDeep, crimson, scarlet, flame],
+    stops: [0.0, 0.3, 0.45, 0.7, 0.88, 1.0],
   );
 
   static const LinearGradient emberDarkGradient = LinearGradient(
