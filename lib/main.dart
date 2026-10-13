@@ -121,7 +121,17 @@ class _AppViewState extends State<_AppView> {
         data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: OfflineBanner(child: child ?? const SizedBox.shrink()),
+          // Android 15 draws apps edge to edge: without this, buttons at
+          // the bottom of a page sit under the system navigation bar. One
+          // place for every page; screens that already pad themselves see
+          // no extra space (the inset is consumed here).
+          child: ColoredBox(
+            color: AppColors.surface,
+            child: SafeArea(
+              top: false,
+              child: OfflineBanner(child: child ?? const SizedBox.shrink()),
+            ),
+          ),
         ),
       ),
       routerConfig: _router,
