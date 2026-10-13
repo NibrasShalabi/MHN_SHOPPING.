@@ -2,7 +2,6 @@ import 'dart:async';
 
 import '../../../../core/bloc/safe_cubit.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../data/repositories/messages_repository.dart';
 import '../../domain/entities/admin_message.dart';
@@ -42,8 +41,7 @@ class MessagesCubit extends SafeCubit<MessagesState> {
     }
   }
 
-  Failure _failureOf(Object e) =>
-      e is ServerException && e.message.isNotEmpty ? ServerFailure(e.message) : const ServerFailure();
+  Failure _failureOf(Object e) => mapExceptionToFailure(e);
 
   @override
   Future<void> close() async {

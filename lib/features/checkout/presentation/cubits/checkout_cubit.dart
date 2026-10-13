@@ -1,7 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/bloc/safe_cubit.dart';
 
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../data/repositories/firebase_checkout_service.dart';
@@ -42,11 +41,11 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
         shippingRates: rates,
         governorate: governorate,
       ));
-    } on ServerException catch (e) {
+    } catch (e) {
       if (isClosed) return;
       emit(state.copyWith(
         status: CheckoutStatus.failure,
-        failure: ServerFailure(e.message),
+        failure: mapExceptionToFailure(e),
       ));
     }
   }
@@ -80,11 +79,11 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
 
       if (isClosed) return;
       emit(state.copyWith(status: CheckoutStatus.success, orderId: orderId));
-    } on ServerException catch (e) {
+    } catch (e) {
       if (isClosed) return;
       emit(state.copyWith(
         status: CheckoutStatus.failure,
-        failure: ServerFailure(e.message),
+        failure: mapExceptionToFailure(e),
       ));
     }
   }
