@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/shipping_rates.dart';
+import '../../../../core/config/features.dart';
 
 enum CheckoutStatus { initial, loadingAddresses, ready, submitting, success, failure }
 
@@ -28,8 +29,12 @@ class CheckoutState extends Equatable {
   String get selectedAddress => paymentAddresses[selectedMethod] ?? '';
   bool get hasPaymentMethods => paymentAddresses.isNotEmpty;
   bool get isShamCash => selectedMethod == 'sham_cash';
+  /// Sham Cash proves payment with a receipt photo only while uploads are on;
+  /// otherwise every method uses a transaction number (checked on the page).
+  bool get needsReceipt => isShamCash && Features.receiptUploads;
+
   bool get canSubmit =>
-      selectedAddress.isNotEmpty && status == CheckoutStatus.ready && (isShamCash ? hasReceipt : true);
+      selectedAddress.isNotEmpty && status == CheckoutStatus.ready && (needsReceipt ? hasReceipt : true);
 
   CheckoutState copyWith({
     CheckoutStatus? status,

@@ -44,7 +44,8 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   bool _termsAccepted = false;
-  final _txidController = TextEditingController();
+  // Rebuilds so the submit button follows what's typed.
+  late final _txidController = TextEditingController()..addListener(() => setState(() {}));
 
   @override
   void initState() {
@@ -165,13 +166,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       enabled:
                           _termsAccepted &&
                           checkoutState.status == CheckoutStatus.ready &&
-                          (cartState.isPointsOnly || checkoutState.canSubmit) &&
+                          (cartState.isPointsOnly ||
+                              (checkoutState.canSubmit &&
+                                  (checkoutState.needsReceipt || _txidController.text.trim().isNotEmpty))) &&
                           cartState.canAffordPoints(context.watch<LoyaltyBalanceCubit>().state),
                       loading:
                           checkoutState.status == CheckoutStatus.submitting,
                       onSubmit: () => context.read<CheckoutCubit>().submit(
                         items: cartState.items,
-                        txid: cartState.isPointsOnly || checkoutState.isShamCash
+                        txid: cartState.isPointsOnly || checkoutState.needsReceipt
                             ? null
                             : _txidController.text.trim(),
                       ),
@@ -301,9 +304,10 @@ class _PaymentDetails extends StatelessWidget {
               ),
             ],
           ),
-          if (checkoutState.isShamCash) ...[
+          if (checkoutState.needsReceipt) ...[
             const SizedBox(height: AppConstants.spacingMd),
-            _ReceiptPicker(hasReceipt: checkoutState.hasReceipt, onPick: onPickFile),          ] else ...[
+            _ReceiptPicker(hasReceipt: checkoutState.hasReceipt, onPick: onPickFile),
+          ] else ...[
             const SizedBox(height: AppConstants.spacingXs),
             Text(
               AppStrings.sendExactAmount,
@@ -316,9 +320,9 @@ class _PaymentDetails extends StatelessWidget {
               controller: txidController,
               style: AppTextStyles.caption,
               decoration: InputDecoration(
-                labelText: AppStrings.txid,
+                labelText: checkoutState.isShamCash ? AppStrings.shamCashTxid : AppStrings.txid,
                 labelStyle: AppTextStyles.caption,
-                hintText: AppStrings.txidHint,
+                hintText: checkoutState.isShamCash ? AppStrings.shamCashTxidHint : AppStrings.txidHint,
                 hintStyle: AppTextStyles.caption.copyWith(
                   color: AppColors.textDisabled,
                 ),

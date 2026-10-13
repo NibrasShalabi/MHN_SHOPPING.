@@ -11,6 +11,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom/custom_button.dart';
 import '../../data/repositories/firebase_checkout_service.dart';
+import '../../../../core/config/features.dart';
 
 /// New TXID (USDT) or new receipt (Sham Cash) for an order whose payment was rejected.
 Future<void> showPaymentResubmitSheet(BuildContext context, {required String orderId, required String? paymentMethod}) =>
@@ -18,7 +19,7 @@ Future<void> showPaymentResubmitSheet(BuildContext context, {required String ord
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surfaceElevated,
-      builder: (_) => _ResubmitSheet(orderId: orderId, isShamCash: paymentMethod == 'sham_cash'),
+      builder: (_) => _ResubmitSheet(orderId: orderId, isShamCash: paymentMethod == 'sham_cash' && Features.receiptUploads),
     );
 
 class _ResubmitSheet extends StatefulWidget {

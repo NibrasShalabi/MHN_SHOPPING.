@@ -499,4 +499,6 @@ class AppStrings {
   static const String browseStore = 'تصفّح المتجر';
   static const String uploadUnavailable = 'ما قدرنا نرفع صورة الإيصال حالياً. جرّب بعد شوي أو تواصل معنا.';
   static const String uploadCanceled = 'انلغى رفع الصورة.';
+  static const String shamCashTxid = 'رقم عملية شام كاش';
+  static const String shamCashTxidHint = 'الرقم يلي بيطلع بإشعار التحويل';
 }
