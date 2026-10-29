@@ -168,42 +168,53 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         ),
       ),
 
-      // Bottom-nav tabs
-      ShellRoute(
-        builder: (context, state, child) => MainShell(child: child),
-        routes: [
-          GoRoute(
-            path: RouteNames.home,
-            builder: (context, state) => BlocProvider(
-              create: (_) => HomeCubit(catalogRepository, promotionRepository),
-              child: ValueListenableBuilder<bool>(
-                valueListenable: session.female,
-                builder: (_, female, _) => HomePage(showFitnessSection: female),
+      // Bottom-nav tabs — each tab keeps its page (and cubit) alive, so
+      // switching tabs doesn't rebuild the page or re-read its data.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => MainShell(shell: shell),
+        branches: [
+          StatefulShellBranch(routes: [
+              GoRoute(
+                path: RouteNames.home,
+                builder: (context, state) => BlocProvider(
+                  create: (_) => HomeCubit(catalogRepository, promotionRepository),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: session.female,
+                    builder: (_, female, _) => HomePage(showFitnessSection: female),
+                  ),
+                ),
               ),
-            ),
-          ),
-          GoRoute(
-            path: RouteNames.cart,
-            builder: (context, state) => const CartPage(),
-          ),
-          GoRoute(
-            path: RouteNames.orderTracking,
-            builder: (context, state) => const OrdersPage(),
-          ),
-          GoRoute(
-            path: RouteNames.loyaltyStore,
-            builder: (context, state) => BlocProvider(
-              create: (_) => CategoryCubit(catalogRepository, query: const ProductQuery.pricing(PricingKind.points)),
-              child: const LoyaltyStorePage(),
-            ),
-          ),
-          GoRoute(
-            path: RouteNames.account,
-            builder: (context, state) => BlocProvider(
-              create: (_) => AccountCubit(getIt<AccountRepository>())..load(),
-              child: const AccountPage(),
-            ),
-          ),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(
+                path: RouteNames.cart,
+                builder: (context, state) => const CartPage(),
+              ),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(
+                path: RouteNames.orderTracking,
+                builder: (context, state) => const OrdersPage(),
+              ),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(
+                path: RouteNames.loyaltyStore,
+                builder: (context, state) => BlocProvider(
+                  create: (_) => CategoryCubit(catalogRepository, query: const ProductQuery.pricing(PricingKind.points)),
+                  child: const LoyaltyStorePage(),
+                ),
+              ),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(
+                path: RouteNames.account,
+                builder: (context, state) => BlocProvider(
+                  create: (_) => AccountCubit(getIt<AccountRepository>())..load(),
+                  child: const AccountPage(),
+                ),
+              ),
+          ]),
         ],
       ),
 

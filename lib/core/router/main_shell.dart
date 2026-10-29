@@ -16,10 +16,11 @@ import '../widgets/custom/app_logo.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/badged_icon.dart';
 
+/// Tab order here matches the branch order in the router.
 class MainShell extends StatelessWidget {
-  final Widget child;
+  final StatefulNavigationShell shell;
 
-  const MainShell({super.key, required this.child});
+  const MainShell({super.key, required this.shell});
 
   static const List<_NavTab> _tabs = [
     _NavTab(path: RouteNames.home, icon: Icons.home_outlined, label: AppStrings.home),
@@ -29,15 +30,15 @@ class MainShell extends StatelessWidget {
     _NavTab(path: RouteNames.account, icon: Icons.person_outline, label: AppStrings.myAccount),
   ];
 
-  int _currentIndex(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
-    final index = _tabs.indexWhere((tab) => tab.path == location);
-    return index == -1 ? 0 : index;
+  /// Tapping the open tab does nothing — repeated taps used to rebuild the
+  /// page and re-read its data.
+  void _select(int index) {
+    if (index != shell.currentIndex) shell.goBranch(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = _currentIndex(context);
+    final currentIndex = shell.currentIndex;
     final isWeb = AppConstants.isWideScreen(context);
 
     return isWeb ? _buildWeb(context, currentIndex) : _buildMobile(context, currentIndex);
@@ -48,12 +49,12 @@ class MainShell extends StatelessWidget {
       backgroundColor: AppColors.surface,
       body: Column(
         children: [
-          _TopNavBar(tabs: _tabs, currentIndex: currentIndex),
+          _TopNavBar(tabs: _tabs, currentIndex: currentIndex, onSelect: _select),
           Expanded(
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: AppConstants.webContentMaxWidth),
-                child: child,
+                child: shell,
               ),
             ),
           ),
@@ -65,7 +66,7 @@ class MainShell extends StatelessWidget {
   Widget _buildMobile(BuildContext context, int currentIndex) {
     return Scaffold(
       backgroundColor: AppColors.surface,
-      body: child,
+      body: shell,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(color: AppColors.surfaceWine),
         child: Column(
@@ -84,7 +85,7 @@ class MainShell extends StatelessWidget {
                       child: _NavItem(
                         tab: _tabs[index],
                         isActive: index == currentIndex,
-                        onTap: () => context.go(_tabs[index].path),
+                        onTap: () => _select(index),
                       ),
                     );
                   }),
@@ -104,8 +105,9 @@ class MainShell extends StatelessWidget {
 class _TopNavBar extends StatelessWidget {
   final List<_NavTab> tabs;
   final int currentIndex;
+  final ValueChanged<int> onSelect;
 
-  const _TopNavBar({required this.tabs, required this.currentIndex});
+  const _TopNavBar({required this.tabs, required this.currentIndex, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +132,7 @@ class _TopNavBar extends StatelessWidget {
                           spacing: AppConstants.spacingXs,
                           children: [
                             for (final (i, tab) in tabs.indexed)
-                              _TopNavItem(tab: tab, isActive: i == currentIndex, onTap: () => context.go(tab.path)),
+                              _TopNavItem(tab: tab, isActive: i == currentIndex, onTap: () => onSelect(i)),
                           ],
                         ),
                       ),
