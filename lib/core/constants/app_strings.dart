@@ -439,7 +439,7 @@ class AppStrings {
   static const String priceUpdated = 'تم تحديث السعر';
 
   // ==================== شرار ونار ====================
-  static const String dealsTitle = 'شرار ونار';
+  static const String dealsTitle = 'نار وشرار';
   static const String dealsSubtitle = 'عروض حارقة لوقت محدود';
   static const String dealsButton = 'شوف العروض';
   static const String dealsBannerTag = 'لوقت محدود';
