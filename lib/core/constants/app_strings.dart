@@ -125,6 +125,7 @@ class AppStrings {
   static const String size = 'المقاس';
   static const String color = 'اللون';
   static const String cartFull = 'السلة فيها 20 قطعة — كمّل الطلب أو فضّي منها لتضيف غيرها';
+  static const String cartNoStock = 'وصلت لكل الكمية المتوفرة من هالمنتج';
   static String pickVariant(String name) => 'اختار المقاس واللون لـ "$name" من صفحة المنتج';
   static String cartOrderTooBig(int max) => 'الطلب الواحد ما بيزيد عن $max قطعة';
   static const String sizeGuide = 'دليل المقاسات';

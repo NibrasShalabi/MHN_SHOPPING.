@@ -6,6 +6,8 @@ import '../../../home/data/repository/catalog_repository.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
+enum CartAdd { added, full, noStock }
+
 /// Owns the cart for the whole app — provided above the router so the
 /// nav-bar badge and the cart screen always agree, and so adding from a
 /// product page doesn't need its own instance.
@@ -58,9 +60,10 @@ class CartCubit extends SafeCubit<CartState> {
   }
 
   /// Same product, size and colour stack on one line; anything else is a
-  /// new line. Refused when it would take the cart past its cap.
-  bool addItem(CartItem item) {
-    if (item.quantity > state.room) return false;
+  /// new line. Refused past the cart cap or past the product's stock.
+  CartAdd addItem(CartItem item) {
+    final refused = _check(item, item.quantity);
+    if (refused != null) return refused;
     final items = [...state.items];
     final index = items.indexWhere((i) => i.lineKey == item.lineKey);
     if (index == -1) {
@@ -73,15 +76,24 @@ class CartCubit extends SafeCubit<CartState> {
       );
     }
     _emitItems(items);
-    return true;
+    return CartAdd.added;
   }
 
-  /// False when the cart is already full.
-  bool increaseQuantity(String lineKey) {
+  CartAdd increaseQuantity(String lineKey) {
     final item = _find(lineKey);
-    if (item == null || state.isFull) return false;
+    if (item == null) return CartAdd.added;
+    final refused = _check(item, 1);
+    if (refused != null) return refused;
     setQuantity(lineKey, item.quantity + 1);
-    return true;
+    return CartAdd.added;
+  }
+
+  /// Null when [extra] more pieces of [item] fit.
+  CartAdd? _check(CartItem item, int extra) {
+    if (extra > state.room) return CartAdd.full;
+    final stock = item.stock ?? _find(item.lineKey)?.stock;
+    if (stock != null && state.inCart(item.productId) + extra > stock) return CartAdd.noStock;
+    return null;
   }
 
   void decreaseQuantity(String lineKey) {

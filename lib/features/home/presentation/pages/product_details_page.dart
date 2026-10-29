@@ -6,6 +6,7 @@ import '../../../currency/presentation/widgets/currency_sheet.dart';
 import '../../../cart/presentation/widgets/cart_amount.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../../cart/presentation/cubits/cart_cubit.dart';
+import '../../../cart/presentation/widgets/cart_add_feedback.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -272,13 +273,11 @@ class _BottomBar extends StatelessWidget {
                       shippingPerUnit: product.shippingPrice,
                       size: state.size,
                       color: state.color,
+                      stock: product.stock,
                     ),
                   );
-                  if (added) {
-                    AppSnackbar.confirm(context);
-                  } else {
-                    AppSnackbar.error(context, AppStrings.cartFull);
-                  }
+                  if (added == CartAdd.added) AppSnackbar.confirm(context);
+                  added.showRefusal(context);
                 }
                     : null,
               ),

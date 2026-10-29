@@ -15,6 +15,7 @@ import '../../../../core/widgets/custom/custom_button.dart';
 import '../../../../core/widgets/custom/custom_dialog.dart';
 import '../../../../core/widgets/custom/custom_loading_indicator.dart';
 import '../cubits/cart_cubit.dart';
+import '../widgets/cart_add_feedback.dart';
 import '../cubits/cart_state.dart';
 import '../widgets/cart_item_tile.dart';
 import '../../../../core/widgets/gold_frame.dart';
@@ -86,9 +87,7 @@ class _CartPageState extends State<CartPage> {
                       key: ValueKey(item.lineKey),
                       item: item,
                       isUnavailable: state.unavailableProductIds.contains(item.productId),
-                      onIncrease: () {
-                        if (!cubit.increaseQuantity(item.lineKey)) AppSnackbar.error(context, AppStrings.cartFull);
-                      },
+                      onIncrease: () => cubit.increaseQuantity(item.lineKey).showRefusal(context),
                       onDecrease: () => cubit.decreaseQuantity(item.lineKey),
                       onRemove: () => cubit.removeItem(item.lineKey),
                     );

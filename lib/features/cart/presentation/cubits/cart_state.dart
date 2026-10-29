@@ -30,6 +30,10 @@ class CartState extends Equatable {
   int get room => AppConstants.cartMaxPieces - totalCount;
   bool get isFull => room <= 0;
 
+  /// Pieces of one product across all its lines (sizes/colours share stock).
+  int inCart(String productId) =>
+      items.where((i) => i.productId == productId).fold(0, (sum, i) => sum + i.quantity);
+
   /// Display totals only — checkout recomputes both server-side.
   double get moneyTotal => items.where((i) => !i.isPoints).fold(0, (sum, i) => sum + i.lineTotal);
   /// Supply shipping on money items — delivery is added at checkout by governorate.

@@ -25,6 +25,10 @@ class CartItem extends Equatable {
   final String? size;
   final ProductColor? color;
 
+  /// Product stock when last seen — refreshed on every cart load. Null for
+  /// carts saved before this field existed; the server re-checks anyway.
+  final int? stock;
+
   const CartItem({
     required this.productId,
     required this.name,
@@ -35,6 +39,7 @@ class CartItem extends Equatable {
     this.shippingPerUnit = 0,
     this.size,
     this.color,
+    this.stock,
   });
 
   /// Identifies the line: product plus the chosen size and colour.
@@ -58,6 +63,7 @@ class CartItem extends Equatable {
         shippingPerUnit: product.shippingPrice,
         size: size,
         color: color,
+        stock: product.stock,
       );
 
   CartItem copyWith({int? quantity, double? priceSnapshot}) => CartItem(
@@ -70,6 +76,7 @@ class CartItem extends Equatable {
         shippingPerUnit: shippingPerUnit,
         size: size,
         color: color,
+        stock: stock,
       );
 
   Map<String, dynamic> toMap() => {
@@ -81,6 +88,7 @@ class CartItem extends Equatable {
         'pricing': pricing.name,
         'shippingPerUnit': shippingPerUnit,
         'size': ?size,
+        'stock': ?stock,
         if (color case final c?) 'color': {'name': c.name, 'value': c.value},
       };
 
@@ -97,8 +105,9 @@ class CartItem extends Equatable {
           {'name': final String name, 'value': final int value} => ProductColor(name: name, value: value),
           _ => null,
         },
+        stock: (m['stock'] as num?)?.toInt(),
       );
 
   @override
-  List<Object?> get props => [productId, name, imageUrl, priceSnapshot, quantity, pricing, shippingPerUnit, size, color];
+  List<Object?> get props => [productId, name, imageUrl, priceSnapshot, quantity, pricing, shippingPerUnit, size, color, stock];
 }
