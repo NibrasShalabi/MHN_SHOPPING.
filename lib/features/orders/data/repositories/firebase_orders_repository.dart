@@ -29,6 +29,7 @@ class FirebaseOrdersRepository implements OrdersRepository {
             .where('userId', isEqualTo: user.uid)
             .where('createdAt', isGreaterThan: cutoff)
             .orderBy('createdAt', descending: true)
+            .limit(OrdersRetention.maxOrders)
             .snapshots()
             .map((snap) => snap.docs.map(_orderFromDoc).toList());
       }).handleError((Object e) => throw e is FirebaseException
@@ -51,6 +52,7 @@ class FirebaseOrdersRepository implements OrdersRepository {
           .where('userId', isEqualTo: uid)
           .where('createdAt', isGreaterThan: cutoff)
           .orderBy('createdAt', descending: true)
+          .limit(OrdersRetention.maxOrders)
           .get();
 
       return snap.docs.map(_orderFromDoc).toList();
@@ -82,6 +84,10 @@ class FirebaseOrdersRepository implements OrdersRepository {
         name: item['name'] as String? ?? '',
         quantity: (item['quantity'] as num? ?? 1).toInt(),
         price: ((item['unitPrice'] ?? item['priceSnapshot']) as num? ?? 0).toDouble(),
+        imageUrl: item['imageUrl'] as String?,
+        size: item['size'] as String?,
+        colorName: item['color'] as String?,
+        isPoints: item['pricing'] == 'points',
       ))
           .toList(),
       paymentMethod: d['paymentMethod'] as String?,
@@ -89,6 +95,12 @@ class FirebaseOrdersRepository implements OrdersRepository {
       receiptUrl: d['receiptUrl'] as String?,
       paymentStatus: d['paymentStatus'] as String?,
       paymentRejectReason: d['paymentRejectReason'] as String?,
+      itemsTotal: (d['itemsTotal'] as num? ?? 0).toDouble(),
+      supplyShipping: (d['supplyShipping'] as num? ?? 0).toDouble(),
+      deliveryFee: (d['deliveryFee'] as num? ?? 0).toDouble(),
+      pointsTotal: (d['pointsTotal'] as num? ?? 0).toInt(),
+      governorate: d['governorate'] as String?,
+      area: d['area'] as String?,
     );
   }
 }

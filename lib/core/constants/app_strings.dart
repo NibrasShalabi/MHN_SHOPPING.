@@ -191,6 +191,15 @@ class AppStrings {
   static const String noOrdersYet = 'لا يوجد طلبات بعد';
   static const String noOrdersYetSubtitle = 'ابدأ التسوّق وستظهر طلباتك هنا';
   static const String orderPlacedAt = 'وقت الطلب';
+  static const String orderDetailsTitle = 'تفاصيل الطلب';
+  static const String orderItems = 'المنتجات المطلوبة';
+  static const String orderPayment = 'الدفع';
+  static const String orderDeliveryTo = 'عنوان التوصيل';
+  static const String orderTxid = 'رقم المعاملة';
+  static const String orderNotFound = 'ما لقينا هالطلب — يمكن أقدم من 25 يوم';
+  static const String paymentPending = 'قيد التحقق';
+  static const String paymentVerified = 'تم التحقق';
+  static const String paymentRejectedShort = 'مرفوض';
   static const String orderElapsed = 'مدة الطلب';
   static const String currentOrders = 'الطلبات الحالية';
   static const String pastOrders = 'الطلبات السابقة';

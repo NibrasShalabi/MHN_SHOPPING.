@@ -46,6 +46,7 @@ import '../../features/home/presentation/pages/product_details_page.dart';
 import '../../features/home/presentation/widgets/loyalty_store_page.dart';
 import '../../features/messages/presentation/pages/messages_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
+import '../../features/orders/presentation/pages/order_details_page.dart';
 import '../../features/suggest_product/data/repositories/suggest_product_repository.dart';
 import '../../features/suggest_product/presentation/cubits/suggest_product_cubit.dart';
 import '../../features/suggest_product/presentation/pages/suggest_product_page.dart';
@@ -244,9 +245,7 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
       // Orders
       GoRoute(
         path: RouteNames.orderDetails,
-        builder: (context, state) => _PlaceholderScreen(
-          title: 'Order: ${state.pathParameters['orderId']}',
-        ),
+        builder: (context, state) => OrderDetailsPage(orderId: state.pathParameters['orderId']!),
       ),
 
       // Suggest a product (from the side menu)
@@ -372,10 +371,6 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
         builder: (context, state) => const MessagesPage(),
       ),
       GoRoute(
-        path: RouteNames.notifications,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Notifications'),
-      ),
-      GoRoute(
         path: RouteNames.sharedCart,
         builder: (context, state) => BlocProvider(
           create: (_) => SharedCartCubit(
@@ -388,17 +383,4 @@ GoRouter buildAppRouter({required UserSessionGate session}) {
       ),
     ],
   );
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const _PlaceholderScreen({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text(title)),
-    );
-  }
 }

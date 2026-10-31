@@ -26,14 +26,7 @@ import '../../../cart/presentation/cubits/cart_state.dart';
 import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
 import '../../../../core/widgets/content_width.dart';
-
-String _methodLabel(String method) => switch (method) {
-  'trc20' => 'USDT — TRC20 (Tron)',
-  'bep20' => 'USDT — BEP20 (BNB Smart Chain)',
-  'erc20' => 'USDT — ERC20 (Ethereum)',
-  'sham_cash' => AppStrings.shamCash,
-  _ => method,
-};
+import '../../../../core/utils/payment_methods.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -248,7 +241,7 @@ class _MethodSelector extends StatelessWidget {
                   const SizedBox(width: AppConstants.spacingXs),
                 ],
                 Text(
-                  _methodLabel(m),
+                  paymentMethodLabel(m),
                   style: AppTextStyles.caption.copyWith(
                     color: isSelected
                         ? AppColors.iconPrimary

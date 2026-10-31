@@ -7,18 +7,28 @@ class OrderLine extends Equatable {
   final String name;
   final int quantity;
   final double price;
+  final String? imageUrl;
+  final String? size;
+  final String? colorName;
+
+  /// Loyalty gift — [price] is in points.
+  final bool isPoints;
 
   const OrderLine({
     required this.productId,
     required this.name,
     required this.quantity,
     required this.price,
+    this.imageUrl,
+    this.size,
+    this.colorName,
+    this.isPoints = false,
   });
 
   double get lineTotal => price * quantity;
 
   @override
-  List<Object?> get props => [productId, name, quantity, price];
+  List<Object?> get props => [productId, name, quantity, price, imageUrl, size, colorName, isPoints];
 }
 
 class OrderEntity extends Equatable {
@@ -35,6 +45,14 @@ class OrderEntity extends Equatable {
   final String? paymentStatus;   // 'pending' | 'verified' | 'rejected'
   final String? paymentRejectReason;
 
+  /// The breakdown saved at checkout; [total] = items + supply shipping + delivery.
+  final double itemsTotal;
+  final double supplyShipping;
+  final double deliveryFee;
+  final int pointsTotal;
+  final String? governorate;
+  final String? area;
+
   const OrderEntity({
     required this.id,
     required this.createdAt,
@@ -48,6 +66,12 @@ class OrderEntity extends Equatable {
     this.receiptUrl,
     this.paymentStatus,
     this.paymentRejectReason,
+    this.itemsTotal = 0,
+    this.supplyShipping = 0,
+    this.deliveryFee = 0,
+    this.pointsTotal = 0,
+    this.governorate,
+    this.area,
   });
 
   /// Money order whose payment the admin rejected — the customer can send a new one.
@@ -61,5 +85,6 @@ class OrderEntity extends Equatable {
     id, createdAt, status, lines, total,
     expectedDelivery, statusNote,
     paymentMethod, txid, receiptUrl, paymentStatus, paymentRejectReason,
+    itemsTotal, supplyShipping, deliveryFee, pointsTotal, governorate, area,
   ];
 }

@@ -20,6 +20,10 @@ class OrdersRetention {
 
   static const Duration window = Duration(days: 25);
 
+  /// Caps one customer's live list — a bulk buyer with hundreds of orders
+  /// would otherwise pay a read for each on every app open.
+  static const int maxOrders = 30;
+
   static bool isVisible(DateTime createdAt) =>
       DateTime.now().difference(createdAt) <= window;
 }

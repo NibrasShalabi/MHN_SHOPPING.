@@ -49,7 +49,6 @@ abstract class RouteNames {
   static const String supplierDetails = '/suppliers/:supplierId';
 
   // Notifications
-  static const String notifications = '/notifications';
 
   static String categoryPath(String categoryId) => '/category/$categoryId';
   static String productPath(String productId) => '/product/$productId';

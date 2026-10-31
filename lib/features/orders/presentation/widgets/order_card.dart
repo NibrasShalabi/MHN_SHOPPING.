@@ -13,7 +13,10 @@ import 'order_status_timeline.dart';
 class OrderCard extends StatelessWidget {
   final OrderEntity order;
 
-  const OrderCard({super.key, required this.order});
+  /// Opens the order's details; null on the details page itself.
+  final VoidCallback? onTap;
+
+  const OrderCard({super.key, required this.order, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +26,8 @@ class OrderCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        child: InkWell(
+        onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -80,6 +85,7 @@ class OrderCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

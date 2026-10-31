@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/route_names.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/app_bar_bottom_border.dart';
@@ -70,7 +72,11 @@ class _OrdersPageState extends State<OrdersPage> {
                     const SizedBox(height: AppConstants.spacingMd),
                     ...state.activeOrders.map(
                       (order) =>
-                          OrderCard(key: ValueKey(order.id), order: order),
+                          OrderCard(
+                            key: ValueKey(order.id),
+                            order: order,
+                            onTap: () => context.push(RouteNames.orderPath(order.id)),
+                          ),
                     ),
                     const SizedBox(height: AppConstants.spacingLg),
                   ],
@@ -79,7 +85,11 @@ class _OrdersPageState extends State<OrdersPage> {
                     const SizedBox(height: AppConstants.spacingMd),
                     ...state.pastOrders.map(
                       (order) =>
-                          OrderCard(key: ValueKey(order.id), order: order),
+                          OrderCard(
+                            key: ValueKey(order.id),
+                            order: order,
+                            onTap: () => context.push(RouteNames.orderPath(order.id)),
+                          ),
                     ),
                     const SizedBox(height: AppConstants.spacingLg),
                   ],
