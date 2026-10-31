@@ -23,6 +23,13 @@ class SharedPrefsService {
   static const _kLanguage       = 'language';
   static const _kSeenNewProducts = 'seen_new_products';
   static const _kDealsSeenAt     = 'deals_seen_at';
+  static const _kDismissedUpdate = 'dismissed_update_build';
+
+  // ===== App update =====
+
+  /// The release the customer chose "لاحقاً" for — not offered again until a newer one.
+  static int? get dismissedUpdateBuild => _i.getInt(_kDismissedUpdate);
+  static Future<void> setDismissedUpdateBuild(int build) => _i.setInt(_kDismissedUpdate, build);
 
   // ===== Onboarding =====
 

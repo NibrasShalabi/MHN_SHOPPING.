@@ -8,6 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'core/constants/app_strings.dart';
 import 'core/injection/injection_container.dart' as di;
 import 'core/router/app_router.dart';
+import 'core/services/crash_reporter.dart';
 import 'core/services/shared_prefs_service.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_scroll_behavior.dart';
@@ -16,6 +17,7 @@ import 'features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import 'features/messages/presentation/cubits/messages_cubit.dart';
 import 'features/account/data/repositories/account_repository.dart';
 import 'features/cart/data/repositories/cart_repository.dart';
+import 'features/app_update/presentation/update_gate.dart';
 import 'features/cart/presentation/cubits/cart_cubit.dart';
 import 'features/home/data/repository/catalog_repository.dart';
 import 'features/orders/data/repositories/orders_repository.dart';
@@ -25,6 +27,7 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await CrashReporter.init();
   await SharedPrefsService.init();
   await initializeDateFormatting('ar');
   di.setupInjector();
@@ -81,12 +84,14 @@ class _AppViewState extends State<_AppView> {
   void initState() {
     super.initState();
     String? lastUid = FirebaseAuth.instance.currentUser?.uid;
+    CrashReporter.setUser(lastUid);
     widget.session.loadGender();
 
     // A different account must not inherit the previous one's profile or cart.
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user?.uid == lastUid) return;
       lastUid = user?.uid;
+      CrashReporter.setUser(lastUid);
       widget.session.clear();
       if (user != null) widget.session.loadGender();
       if (mounted) context.read<CartCubit>().load();
@@ -129,7 +134,7 @@ class _AppViewState extends State<_AppView> {
             color: AppColors.surface,
             child: SafeArea(
               top: false,
-              child: OfflineBanner(child: child ?? const SizedBox.shrink()),
+              child: UpdateGate(child: OfflineBanner(child: child ?? const SizedBox.shrink())),
             ),
           ),
         ),

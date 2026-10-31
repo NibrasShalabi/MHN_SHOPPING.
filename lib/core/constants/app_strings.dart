@@ -192,6 +192,11 @@ class AppStrings {
   static const String noOrdersYetSubtitle = 'ابدأ التسوّق وستظهر طلباتك هنا';
   static const String orderPlacedAt = 'وقت الطلب';
   static const String orderDetailsTitle = 'تفاصيل الطلب';
+  static const String updateAvailableTitle = 'في نسخة جديدة من التطبيق';
+  static const String updateRequiredTitle = 'لازم تحدّث التطبيق لتكمّل';
+  static String updateVersion(String name) => 'النسخة $name';
+  static const String updateNow = 'حدّث هلأ';
+  static const String updateLater = 'لاحقاً';
   static const String orderItems = 'المنتجات المطلوبة';
   static const String orderPayment = 'الدفع';
   static const String orderDeliveryTo = 'عنوان التوصيل';

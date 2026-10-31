@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../constants/app_strings.dart';
+import '../services/crash_reporter.dart';
 import 'exceptions.dart';
 
 /// Failures are what Repositories return to the domain/presentation layer
@@ -72,8 +73,14 @@ Failure mapExceptionToFailure(Object error) {
     PermissionException e => PermissionFailure(e.message),
     NotFoundException e => NotFoundFailure(e.message),
     DuplicateActionException e => DuplicateActionFailure(e.message),
-    _ => const UnknownFailure(),
+    _ => _unexpected(error),
   };
+}
+
+/// Nothing mapped it — worth knowing about, so it goes to Crashlytics.
+Failure _unexpected(Object error) {
+  CrashReporter.record(error);
+  return const UnknownFailure();
 }
 
 /// Firebase / Firebase Auth error codes → what the customer should read.
