@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_constants.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/widgets/custom/app_logo.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/custom/app_logo.dart';
 import 'fire_splash_painter.dart';
 
 /// Splash intro: an opaque sheet covers the screen and burns away from the

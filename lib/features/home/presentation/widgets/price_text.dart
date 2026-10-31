@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_constants.dart';
-import '../../../../../core/constants/app_strings.dart';
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/product.dart';
 
 /// Renders a product's price in the right unit.

@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// Splash fire: a sheet covers the screen, catches in the middle, and the
 /// hole eats outward in every direction until nothing is left — paper

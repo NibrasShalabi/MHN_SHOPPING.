@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../../../core/constants/app_constants.dart';
-import '../../../../../core/constants/app_strings.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_text_styles.dart';
-import '../../../../../core/utils/amount_format.dart';
-import '../../../../../core/widgets/surface_card.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/amount_format.dart';
+import '../../../../core/widgets/surface_card.dart';
 import '../../../deals/data/repositories/currency_converter_repository.dart';
 import '../../../deals/domain/entities/currency_rate.dart';
 

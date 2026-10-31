@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_constants.dart';
-import '../../../../../core/constants/app_durations.dart';
-import '../../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_durations.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// Swipeable product images with a dot indicator.
 class ProductImageGallery extends StatefulWidget {

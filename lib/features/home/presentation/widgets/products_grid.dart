@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:m_h_nshopping/features/home/presentation/widgets/product_card.dart';
 
-import '../../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../domain/entities/product.dart';
 
 /// Sliver grid of products.
