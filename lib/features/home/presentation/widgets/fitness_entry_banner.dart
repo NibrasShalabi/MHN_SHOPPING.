@@ -24,7 +24,7 @@ class FitnessEntryBanner extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: AppColors.gold.withValues(alpha: 0.45), blurRadius: 22, spreadRadius: 1)],
         ),
-        child: Image.asset('assets/images/fitness_emblem.png', filterQuality: FilterQuality.medium),
+        child: Image.asset('assets/images/fitness_emblem.png', filterQuality: FilterQuality.medium ,),
       ),
       tagIcon: Icons.spa_outlined,
       tag: AppStrings.fitnessBannerTag,

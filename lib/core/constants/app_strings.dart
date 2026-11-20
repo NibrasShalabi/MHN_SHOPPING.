@@ -401,22 +401,22 @@ class AppStrings {
   static const String aboutUs = 'من نحن';
   static const String aboutHeadline = 'نُقدّم لكِ الأفضل';
   static const String aboutTagline =
-      'منتجات مختارة بعناية، وخدمة تليق بك — منذ اليوم الأول.';
+      'شركة متخصصة ب استيراد و تسويق كل ما يلزم العائلة وأفرادها .';
 
   static const String ourMission = 'رسالتنا';
   static const String ourMissionBody =
-      'أن نوفّر منتجات أصلية بجودة عالية وسعر عادل، مع تجربة تسوّق مريحة وواضحة من الطلب حتى التسليم.';
+      'أن ندخل بيوت السورين بمنتجات أنيقة ومبتكرة ترتب لهم حياتهم و تُسهل عليهم مَهامهم اليومية وتُضفي رونقاً وبريقاً على اسلوب حياتهم اليومية.';
 
   static const String ourVision = 'رؤيتنا';
   static const String ourVisionBody =
-      'أن نكون الوجهة الأولى للتسوق الموثوق، حيث تلتقي الجودة بالسهولة في كل عملية شراء.';
+      'الإرتقاء بكم بحياة سهلة وجميلة وعصرية تناسب أذواق الجميع .';
 
   static const String ourGoal = 'هدفنا';
   static const String ourGoalBody =
-      'نسعى لتقديم تجربة تسوق تجمع بين الجودة المضمونة والسعر العادل والتوصيل الموثوق، مع دعم قريب منك في كل خطوة.';
+      'التطور و الإنجاز ليس حكراً على أحد ... نريد ان نصل بكم الى ارقى الأفكار و الأماكن التي تطلق العنان لإبداعاتكم , بتزويدكم بكل ما يلزم لخلق حس الإلهام و الأبتكار لديكم.';
 
   static const String ourSlogan = 'شعارنا';
-  static const String ourSloganBody = 'جودة تستحق ثقتك.';
+  static const String ourSloganBody = 'رتب حياتك .... أبدع بأفكارك.';
 
   static const String productsSource = 'مصدر بضائعنا';
   static const String productsSourceBody =
