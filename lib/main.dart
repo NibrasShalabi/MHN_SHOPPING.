@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core/constants/app_strings.dart';
 import 'core/injection/injection_container.dart' as di;
+import 'core/media/media_config.dart';
 import 'core/router/app_router.dart';
 import 'core/services/crash_reporter.dart';
 import 'core/services/shared_prefs_service.dart';
@@ -31,6 +33,7 @@ Future<void> main() async {
   await SharedPrefsService.init();
   await initializeDateFormatting('ar');
   di.setupInjector();
+  await MediaConfig.load(FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'default'));
 
   final session = FirebaseUserSessionGate(GetIt.instance<AccountRepository>());
   runApp(MyApp(session: session));

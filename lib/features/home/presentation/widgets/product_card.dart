@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -116,9 +117,7 @@ class _Picture extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.radiusSm - 1.5),
         child: ColoredBox(
           color: AppColors.surfaceDark,
-          child: url == null || url!.isEmpty
-              ? placeholder
-              : Image.network(url!, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder),
+          child: AppImage(url, thumb: true, placeholder: placeholder),
         ),
       ),
     );

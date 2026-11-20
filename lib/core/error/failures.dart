@@ -94,7 +94,7 @@ Failure _byCode(String code) => switch (code) {
       'weak-password' => const ValidationFailure(AppStrings.weakPassword),
       'requires-recent-login' => const ValidationFailure(AppStrings.signInAgain),
       'unauthenticated' => const PermissionFailure(AppStrings.signInAgain),
-      // Firebase Storage (receipt upload).
+      // Receipt upload (ReceiptUploader).
       'object-not-found' || 'bucket-not-found' || 'project-not-found' => const ServerFailure(AppStrings.uploadUnavailable),
       'unauthorized' => const PermissionFailure(AppStrings.uploadUnavailable),
       'canceled' => const ServerFailure(AppStrings.uploadCanceled),

@@ -512,6 +512,7 @@ class AppStrings {
   static const String footerHelp = 'المساعدة';
   static String footerRights(int year) => '© $year MHN Shopping — جميع الحقوق محفوظة';
   static const String browseStore = 'تصفّح المتجر';
+  static const String receiptTooLarge = 'صورة الإيصال كبيرة — ابعت لقطة شاشة (screenshot) بدلها';
   static const String uploadUnavailable = 'ما قدرنا نرفع صورة الإيصال حالياً. جرّب بعد شوي أو تواصل معنا.';
   static const String uploadCanceled = 'انلغى رفع الصورة.';
   static const String shamCashTxid = 'رقم عملية شام كاش';

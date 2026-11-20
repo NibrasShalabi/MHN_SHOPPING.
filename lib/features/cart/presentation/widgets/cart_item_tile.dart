@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -100,9 +101,7 @@ class _Thumb extends StatelessWidget {
         borderRadius: const BorderRadius.all(Radius.circular(AppConstants.radiusMd - 2)),
         child: ColoredBox(
           color: AppColors.surface,
-          child: url == null || url!.isEmpty
-              ? const Center(child: placeholder)
-              : Image.network(url!, fit: BoxFit.cover, errorBuilder: (_, _, _) => const Center(child: placeholder)),
+          child: AppImage(url, thumb: true, placeholder: const Center(child: placeholder)),
         ),
       ),
     );

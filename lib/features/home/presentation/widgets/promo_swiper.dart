@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_durations.dart';
 import '../../../../core/router/route_names.dart';
@@ -143,8 +144,6 @@ class _BannerCard extends StatelessWidget {
   }
 
   Widget _card() {
-    final hasImage = banner.imageUrl != null && banner.imageUrl!.isNotEmpty;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingXs),
       child: ClipRRect(
@@ -152,27 +151,11 @@ class _BannerCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (hasImage)
-              Image.network(
-                banner.imageUrl!,
-                fit: BoxFit.cover,
-                // A failed load (bad URL, offline) falls back to the
-                // fire ramp rather than a broken-image icon — same
-                // placeholder as "no image set at all".
-                errorBuilder: (context, error, stackTrace) => const DecoratedBox(
-                  decoration: BoxDecoration(gradient: AppColors.fireGradient),
-                ),
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return const DecoratedBox(
-                    decoration: BoxDecoration(gradient: AppColors.fireGradient),
-                  );
-                },
-              )
-            else
-              const DecoratedBox(
-                decoration: BoxDecoration(gradient: AppColors.fireGradient),
-              ),
+            // No image, while loading or a failed load: the fire ramp.
+            AppImage(
+              banner.imageUrl,
+              placeholder: const DecoratedBox(decoration: BoxDecoration(gradient: AppColors.fireGradient)),
+            ),
 
             if (banner.title != null)
               Positioned(

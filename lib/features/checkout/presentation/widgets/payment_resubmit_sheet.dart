@@ -1,5 +1,4 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_constants.dart';
@@ -50,10 +49,12 @@ class _ResubmitSheetState extends State<_ResubmitSheet> {
   Future<void> _pick() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+      // The bytes are what gets uploaded, on every platform.
+      withData: true,
     );
     final file = result?.files.single;
-    if (file == null || (!kIsWeb && file.path == null)) return;
+    if (file == null || file.bytes == null) return;
     setState(() => _receipt = file);
   }
 
@@ -61,7 +62,7 @@ class _ResubmitSheetState extends State<_ResubmitSheet> {
     setState(() => _sending = true);
     try {
       final receiptUrl = widget.isShamCash
-          ? await _service.uploadReceipt(orderId: '${widget.orderId}_${DateTime.now().millisecondsSinceEpoch}', file: _receipt)
+          ? await _service.uploadReceipt(orderId: '${widget.orderId}_${DateTime.now().millisecondsSinceEpoch}', file: _receipt!)
           : null;
       await _service.resubmitPayment(
         orderId: widget.orderId,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -75,9 +76,7 @@ class SupplierMonogram extends StatelessWidget {
         ],
       ),
       child: ClipOval(
-        child: logo != null && logo.isNotEmpty
-            ? Image.network(logo, fit: BoxFit.cover, errorBuilder: (_, _, _) => _Letter(letter: letter, size: size))
-            : _Letter(letter: letter, size: size),
+        child: AppImage(logo, placeholder: _Letter(letter: letter, size: size)),
       ),
     );
   }

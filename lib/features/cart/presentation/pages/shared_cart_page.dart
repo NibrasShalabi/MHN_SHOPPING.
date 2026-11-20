@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../widgets/cart_amount.dart';
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -148,17 +149,16 @@ class _SharedItemTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TODO(logic-phase): CachedNetworkImage with the thumbnail variant.
           ClipRRect(
             borderRadius: BorderRadius.circular(AppConstants.radiusSm),
             child: Container(
               width: AppConstants.cartThumbSize,
               height: AppConstants.cartThumbSize,
               color: AppColors.surfaceDark,
-              child: const Icon(
-                Icons.image_outlined,
-                color: AppColors.textDisabled,
-                size: AppConstants.iconMd,
+              child: AppImage(
+                item.imageUrl,
+                thumb: true,
+                placeholder: const Icon(Icons.image_outlined, color: AppColors.textDisabled, size: AppConstants.iconMd),
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -163,9 +164,7 @@ class _LineTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppConstants.radiusSm),
             child: SizedBox.square(
               dimension: 48,
-              child: line.imageUrl == null
-                  ? placeholder
-                  : Image.network(line.imageUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => placeholder),
+              child: AppImage(line.imageUrl, thumb: true, placeholder: placeholder),
             ),
           ),
           const SizedBox(width: AppConstants.spacingSm),

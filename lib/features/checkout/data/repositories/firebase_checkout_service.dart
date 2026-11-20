@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/media/receipt_uploader.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../domain/entities/order_breakdown.dart';
 import '../../domain/entities/shipping_rates.dart';
@@ -15,12 +15,11 @@ import '../../../account/data/repositories/account_repository.dart';
 class CheckoutService {
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
-  final FirebaseStorage _storage;
+  final ReceiptUploader _receipts;
 
   final AccountRepository _account;
 
-  CheckoutService(this._db, this._auth, FirebaseStorage? storage, this._account)
-    : _storage = storage ?? FirebaseStorage.instance;
+  CheckoutService(this._db, this._auth, this._receipts, this._account);
 
   /// Payment addresses and shipping rates change rarely; the order itself
   /// re-reads shipping inside its transaction, so a cached copy here only
@@ -54,34 +53,13 @@ class CheckoutService {
     }
   }
 
-  /// يرفع إيصال شام كاش لـ Firebase Storage
-  /// يرجع الـ download URL
-  /// يرفع إيصال شام كاش — يدعم ويب وموبايل
-  Future<String> uploadReceipt({
-    required String orderId,
-    required dynamic file, // PlatformFile
-  }) async {
-    try {
-      final uid = _auth.currentUser?.uid ?? 'unknown';
-      final ext = file.name.split('.').last;
-      final ref = _storage
-          .ref()
-          .child('receipts')
-          .child(uid)
-          .child('$orderId.$ext');
-
-      TaskSnapshot task;
-      if (kIsWeb) {
-        final bytes = file.bytes as Uint8List;
-        task = await ref.putData(bytes);
-      } else {
-        task = await ref.putFile(File(file.path!));
-      }
-      return await task.ref.getDownloadURL();
-    } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? '', code: e.code);
-    }
-  }
+  /// Sham Cash receipt → R2 through the media Worker. Returns the bucket
+  /// path saved as the order's receiptUrl.
+  Future<String> uploadReceipt({required String orderId, required PlatformFile file}) => _receipts.upload(
+        name: orderId,
+        bytes: file.bytes ?? Uint8List(0),
+        extension: file.extension ?? 'jpg',
+      );
 
   Future<ShippingRates> getShippingRates() async {
     try {

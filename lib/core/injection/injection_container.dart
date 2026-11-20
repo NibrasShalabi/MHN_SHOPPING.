@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
+
+import '../media/receipt_uploader.dart';
 
 import '../../features/deals/data/repositories/live_promotions.dart';
 
@@ -76,7 +77,7 @@ void setupInjector() {
   );
 
   getIt.registerLazySingleton(
-    () => CheckoutService(db, auth, FirebaseStorage.instance, getIt<AccountRepository>()),
+    () => CheckoutService(db, auth, ReceiptUploader(auth), getIt<AccountRepository>()),
   );
 
   getIt.registerLazySingleton<FitnessRepository>(

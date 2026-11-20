@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_durations.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -36,15 +37,12 @@ class _ProductImageGalleryState extends State<ProductImageGallery> {
             controller: _controller,
             itemCount: count,
             onPageChanged: (index) => setState(() => _currentPage = index),
-            // TODO(logic-phase): swap for CachedNetworkImage served from R2,
-            // using the full-resolution variant here (thumbnails stay on the
-            // product cards).
-            itemBuilder: (context, index) => Container(
+            // Full size here; cards use the thumbnails.
+            itemBuilder: (context, index) => ColoredBox(
               color: AppColors.surfaceDark,
-              child: const Icon(
-                Icons.image_outlined,
-                color: AppColors.textDisabled,
-                size: AppConstants.iconXl,
+              child: AppImage(
+                widget.imageUrls.elementAtOrNull(index),
+                placeholder: const Icon(Icons.image_outlined, color: AppColors.textDisabled, size: AppConstants.iconXl),
               ),
             ),
           ),
