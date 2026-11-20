@@ -8,7 +8,7 @@ import '../error/exceptions.dart';
 import 'media_config.dart';
 
 /// Sends a payment receipt to the media Worker, which lets a customer write
-/// only under receipts/<own uid>/, once per file. Returns the bucket path
+/// only under `receipts/<own uid>/`, once per file. Returns the bucket path
 /// stored on the order.
 class ReceiptUploader {
   /// The Worker's limit for receipts.
