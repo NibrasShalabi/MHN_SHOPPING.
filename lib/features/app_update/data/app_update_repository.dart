@@ -42,7 +42,12 @@ class AppUpdateRepository {
   AppUpdateRepository(this._db);
 
   /// The installed build — the `+N` of pubspec's `version`.
-  Future<int> installedBuild() async => int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0;
+  ///
+  /// `flutter build apk --split-per-abi` adds 1000 × the ABI to Android's
+  /// versionCode (arm64 build 1 installs as 2001), so only the last three
+  /// digits are the build. Builds therefore stay below 1000.
+  Future<int> installedBuild() async =>
+      (int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0) % 1000;
 
   Future<AppUpdateInfo?> fetch() async {
     try {
