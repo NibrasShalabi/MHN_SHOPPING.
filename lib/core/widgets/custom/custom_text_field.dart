@@ -44,8 +44,13 @@ class CustomTextField extends StatelessWidget {
       keyboardType: keyboardType,
       onChanged: onChanged,
       style: AppTextStyles.body.copyWith(color: AppColors.gold),
+      cursorColor: AppColors.goldLight,
       decoration: InputDecoration(
         labelText: label,
+        // Gold, not the theme's red: the label floats onto the border, and
+        // on a red card (rate the app) red-on-red disappears.
+        labelStyle: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+        floatingLabelStyle: AppTextStyles.caption.copyWith(color: AppColors.goldLight),
         hintText: hint,
         errorText: errorText,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.flame) : null,
@@ -62,7 +67,7 @@ class CustomTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(r),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.goldLight, width: 1.5),
         ),
       ),
     );

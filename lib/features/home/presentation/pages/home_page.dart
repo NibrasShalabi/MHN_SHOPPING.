@@ -44,6 +44,14 @@ class _HomePageState extends State<HomePage> {
     context.read<HomeCubit>().load();
   }
 
+  /// The gender loads after the first frame; female-only categories and
+  /// products appear (or go) once it is known.
+  @override
+  void didUpdateWidget(HomePage old) {
+    super.didUpdateWidget(old);
+    if (old.showFitnessSection != widget.showFitnessSection) context.read<HomeCubit>().load();
+  }
+
   @override
   void dispose() {
     _categorySearchController.dispose();

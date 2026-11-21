@@ -8,43 +8,39 @@ enum RateAppStatus { loading, ready, submitting, submitted, failure }
 class RateAppState extends Equatable {
   final RateAppStatus status;
 
-  /// True when this user already rated — the form is replaced by the
-  /// reviews list, since rating is once per account.
-  final bool hasRated;
+  /// When the next rating opens; null while the form is open.
+  final DateTime? nextRatingAt;
 
   final int stars;
   final String comment;
-  final String? imagePath;
   final List<Review> reviews;
   final Failure? failure;
 
   const RateAppState({
     this.status = RateAppStatus.loading,
-    this.hasRated = false,
+    this.nextRatingAt,
     this.stars = 0,
     this.comment = '',
-    this.imagePath,
     this.reviews = const [],
     this.failure,
   });
 
-  bool get canSubmit => stars > 0;
+  bool get canRate => nextRatingAt == null;
+  bool get canSubmit => canRate && stars > 0;
 
   RateAppState copyWith({
     RateAppStatus? status,
-    bool? hasRated,
+    DateTime? Function()? nextRatingAt,
     int? stars,
     String? comment,
-    String? imagePath,
     List<Review>? reviews,
     Failure? failure,
   }) {
     return RateAppState(
       status: status ?? this.status,
-      hasRated: hasRated ?? this.hasRated,
+      nextRatingAt: nextRatingAt != null ? nextRatingAt() : this.nextRatingAt,
       stars: stars ?? this.stars,
       comment: comment ?? this.comment,
-      imagePath: imagePath ?? this.imagePath,
       reviews: reviews ?? this.reviews,
       failure: failure,
     );
@@ -52,5 +48,5 @@ class RateAppState extends Equatable {
 
   @override
   List<Object?> get props =>
-      [status, hasRated, stars, comment, imagePath, reviews, failure];
+      [status, nextRatingAt, stars, comment, reviews, failure];
 }

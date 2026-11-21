@@ -80,56 +80,84 @@ class _ReviewCarouselState extends State<ReviewCarousel> {
   }
 }
 
-/// A review as a gold-framed card: a big face that matches the stars,
-/// glowing like an ember, then the stars, the words and who said them.
+/// A review as a quote: who and when on top, the stars beside them, and
+/// the words under a large faint quotation mark.
 class _ReviewCard extends StatelessWidget {
   final Review review;
 
   const _ReviewCard({required this.review});
 
-  static String _face(int stars) => switch (stars) {
-        >= 5 => '😍',
-        4 => '😊',
-        3 => '🙂',
-        2 => '😕',
-        _ => '😞',
-      };
+  /// "اليوم", "قبل 3 أيام", "قبل شهرين" — reviews read better by age than by date.
+  static String _ago(DateTime at) {
+    final days = DateTime.now().difference(at).inDays;
+    if (days < 1) return AppStrings.today;
+    if (days < 30) return AppStrings.daysAgo(days);
+    return AppStrings.monthsAgo(days ~/ 30);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final name = review.authorName.trim();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingXs),
       child: GoldFrame(
         child: Padding(
           padding: const EdgeInsets.all(AppConstants.spacingLg),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(),
-              Container(
-                width: 104,
-                height: 104,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const RadialGradient(colors: [AppColors.ember, AppColors.surfaceDark]),
-                  border: Border.all(color: AppColors.goldLight, width: 1.5),
-                  boxShadow: [BoxShadow(color: AppColors.flame.withValues(alpha: 0.4), blurRadius: 24, spreadRadius: 1)],
-                ),
-                child: Text(_face(review.stars), style: const TextStyle(fontSize: 56, height: 1)),
+              Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.emberGradient,
+                      border: Border.all(color: AppColors.goldLight, width: 1.2),
+                      boxShadow: [BoxShadow(color: AppColors.flame.withValues(alpha: 0.35), blurRadius: 14)],
+                    ),
+                    child: GoldText(
+                      name.isEmpty ? '؟' : name.characters.first,
+                      style: AppTextStyles.heading2.copyWith(height: 1),
+                    ),
+                  ),
+                  const SizedBox(width: AppConstants.spacingSm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GoldText(name, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold)),
+                        Text(_ago(review.createdAt), style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  ),
+                  _Stars(count: review.stars),
+                ],
               ),
               const SizedBox(height: AppConstants.spacingMd),
-              _Stars(count: review.stars),
-              const Spacer(),
-              if (review.comment != null)
-                Text(
-                  review.comment!,
-                  textAlign: TextAlign.center,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.body.copyWith(color: AppColors.textOnPrimary, height: 1.6),
+              Container(height: 1, color: AppColors.goldDark.withValues(alpha: 0.5)),
+              Expanded(
+                child: Stack(
+                  children: [
+                    PositionedDirectional(
+                      top: 0,
+                      start: -6,
+                      child: Icon(Icons.format_quote_rounded, size: 72, color: AppColors.gold.withValues(alpha: 0.14)),
+                    ),
+                    Center(
+                      child: Text(
+                        review.comment?.trim().isNotEmpty == true ? review.comment!.trim() : AppStrings.reviewNoComment,
+                        textAlign: TextAlign.center,
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.body.copyWith(color: AppColors.textOnPrimary, height: 1.7),
+                      ),
+                    ),
+                  ],
                 ),
-              const SizedBox(height: AppConstants.spacingSm),
-              GoldText(review.authorName, style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold)),
+              ),
             ],
           ),
         ),
@@ -151,7 +179,7 @@ class _Stars extends StatelessWidget {
         5,
             (index) => Icon(
           index < count ? Icons.star : Icons.star_border,
-          size: AppConstants.iconMd,
+          size: AppConstants.iconSm,
           color: AppColors.goldLight,
         ),
       ),

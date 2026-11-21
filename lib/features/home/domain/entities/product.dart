@@ -34,6 +34,9 @@ class Product extends Equatable {
   /// Set when a supplier sells it — ordered from them on WhatsApp, not the cart.
   final String? supplierId;
 
+  /// Copied from its category by the admin: hidden from male accounts.
+  final bool femaleOnly;
+
   const Product({
     required this.id,
     required this.categoryId,
@@ -56,6 +59,7 @@ class Product extends Equatable {
     this.discountEndTime,
     this.shippingPrice = 0,
     this.supplierId,
+    this.femaleOnly = false,
   });
 
   bool get isInStock => stock > 0;
@@ -101,6 +105,7 @@ class Product extends Equatable {
         discountEndTime: endTime,
         shippingPrice: shippingPrice,
         supplierId: supplierId,
+        femaleOnly: femaleOnly,
       );
 
   @override
@@ -108,6 +113,6 @@ class Product extends Equatable {
     id, categoryId, filterId, name, imageUrls, price, pricing,
     isOrderable, stock, description, ingredients, benefits, usage,
     isNew, sizes, colors, sizeGuide,
-    discountPercentage, discountEndTime, shippingPrice, supplierId,
+    discountPercentage, discountEndTime, shippingPrice, supplierId, femaleOnly,
   ];
 }

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 
 import '../media/receipt_uploader.dart';
+import '../router/app_router.dart';
 
 import '../../features/deals/data/repositories/live_promotions.dart';
 
@@ -50,8 +51,17 @@ void setupInjector() {
   getIt.registerLazySingleton<CatalogCache>(() => CatalogCache());
 
   getIt.registerLazySingleton<CatalogRepository>(
-    () => FirebaseCatalogRepository(db, getIt<CatalogCache>(), getIt<LivePromotions>()),
+    () => FirebaseCatalogRepository(
+      db,
+      getIt<CatalogCache>(),
+      getIt<LivePromotions>(),
+      () => getIt<FirebaseUserSessionGate>().isFemale,
+    ),
   );
+
+  // Who is signed in and their gender — the router, the home page and the
+  // catalog (female-only categories) all read the same one.
+  getIt.registerLazySingleton(() => FirebaseUserSessionGate(getIt<AccountRepository>()));
 
   getIt.registerLazySingleton<OrdersRepository>(
     () => FirebaseOrdersRepository(db, auth),

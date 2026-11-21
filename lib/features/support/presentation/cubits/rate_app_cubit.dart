@@ -12,11 +12,11 @@ class RateAppCubit extends SafeCubit<RateAppState> {
   Future<void> load() async {
     emit(state.copyWith(status: RateAppStatus.loading, failure: null));
     try {
-      final hasRated = await _repository.hasRated();
+      final next = await _repository.nextRatingAt();
       final reviews = await _repository.getReviews();
       emit(state.copyWith(
         status: RateAppStatus.ready,
-        hasRated: hasRated,
+        nextRatingAt: () => next,
         reviews: reviews,
       ));
     } catch (e) {
@@ -31,8 +31,6 @@ class RateAppCubit extends SafeCubit<RateAppState> {
 
   void updateComment(String comment) => emit(state.copyWith(comment: comment));
 
-  void attachImage(String path) => emit(state.copyWith(imagePath: path));
-
   Future<void> submit() async {
     if (!state.canSubmit) return;
 
@@ -41,12 +39,14 @@ class RateAppCubit extends SafeCubit<RateAppState> {
       await _repository.submitRating(
         stars: state.stars,
         comment: state.comment.trim().isEmpty ? null : state.comment.trim(),
-        imagePath: state.imagePath,
       );
       final reviews = await _repository.getReviews();
+      final next = await _repository.nextRatingAt();
       emit(state.copyWith(
         status: RateAppStatus.submitted,
-        hasRated: true,
+        stars: 0,
+        comment: '',
+        nextRatingAt: () => next,
         reviews: reviews,
       ));
     } catch (e) {

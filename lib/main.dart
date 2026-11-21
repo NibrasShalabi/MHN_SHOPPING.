@@ -35,7 +35,7 @@ Future<void> main() async {
   di.setupInjector();
   await MediaConfig.load(FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'default'));
 
-  final session = FirebaseUserSessionGate(GetIt.instance<AccountRepository>());
+  final session = GetIt.instance<FirebaseUserSessionGate>();
   runApp(MyApp(session: session));
 }
 

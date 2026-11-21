@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -77,11 +78,10 @@ class _RateAppPageState extends State<RateAppPage> {
           return ListView(
             padding: const EdgeInsets.all(AppConstants.spacingMd),
             children: [
-              // The form disappears once rated — rating is once per
-              // account, so leaving an inert form on screen would only
-              // invite a tap that can't succeed.
-              if (state.hasRated)
-                const _AlreadyRatedCard()
+              // Between monthly ratings the form gives way to the date it
+              // opens again, rather than a button that can't succeed.
+              if (state.nextRatingAt case final next?)
+                _NextRatingCard(next: next)
               else
                 _RatingForm(
                   state: state,
@@ -89,9 +89,6 @@ class _RateAppPageState extends State<RateAppPage> {
                   isSubmitting: isSubmitting,
                   onStars: cubit.setStars,
                   onComment: cubit.updateComment,
-                  // TODO(logic-phase): image_picker, then upload to R2 and
-                  // pass the resulting URL rather than a local path.
-                  onAttach: () => cubit.attachImage(''),
                   onSubmit: cubit.submit,
                 ),
 
@@ -130,7 +127,6 @@ class _RatingForm extends StatelessWidget {
   final bool isSubmitting;
   final ValueChanged<int> onStars;
   final ValueChanged<String> onComment;
-  final VoidCallback onAttach;
   final VoidCallback onSubmit;
 
   const _RatingForm({
@@ -139,7 +135,6 @@ class _RatingForm extends StatelessWidget {
     required this.isSubmitting,
     required this.onStars,
     required this.onComment,
-    required this.onAttach,
     required this.onSubmit,
   });
 
@@ -181,14 +176,6 @@ class _RatingForm extends StatelessWidget {
           ),
           const SizedBox(height: AppConstants.spacingMd),
           CustomButton(
-            label: state.imagePath == null ? AppStrings.addPhoto : AppStrings.addPhoto,
-            icon: Icons.photo_camera_outlined,
-            isOutlined: true,
-            width: double.infinity,
-            onPressed: isSubmitting ? null : onAttach,
-          ),
-          const SizedBox(height: AppConstants.spacingSm),
-          CustomButton(
             label: AppStrings.submitRating,
             icon: Icons.send_outlined,
             width: double.infinity,
@@ -201,8 +188,10 @@ class _RatingForm extends StatelessWidget {
   }
 }
 
-class _AlreadyRatedCard extends StatelessWidget {
-  const _AlreadyRatedCard();
+class _NextRatingCard extends StatelessWidget {
+  final DateTime next;
+
+  const _NextRatingCard({required this.next});
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +207,7 @@ class _AlreadyRatedCard extends StatelessWidget {
           const SizedBox(width: AppConstants.spacingMd),
           Expanded(
             child: Text(
-              AppStrings.alreadyRated,
+              AppStrings.nextRatingOn(DateFormat('d MMMM', 'ar').format(next)),
               style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
             ),
           ),

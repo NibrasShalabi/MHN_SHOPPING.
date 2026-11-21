@@ -46,7 +46,16 @@ class FirebaseCatalogRepository implements CatalogRepository {
   final FirebaseFirestore _db;
   final CatalogCache _cache;
 
-  FirebaseCatalogRepository(this._db, this._cache, this._promotions);
+  FirebaseCatalogRepository(this._db, this._cache, this._promotions, this._isFemale);
+
+  /// Asked on every read, not when caching: the cache is shared, and the
+  /// gender is known only after the first frame.
+  final bool Function() _isFemale;
+
+  bool _visible({required bool femaleOnly}) => !femaleOnly || _isFemale();
+
+  List<Product> _visibleProducts(Iterable<Product> products) =>
+      products.where((p) => _visible(femaleOnly: p.femaleOnly)).toList();
 
   /// Products are cached as stored; live deal prices are applied on the way
   /// out, so a deal starting or ending never waits for the cache to expire.
@@ -65,7 +74,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     await _fresh();
     final products = await _rawProductsByIds(productIds);
     await _promotions.ready;
-    return products.map(_promotions.apply).toList();
+    return _visibleProducts(products).map(_promotions.apply).toList();
   }
 
   @override
@@ -78,7 +87,8 @@ class FirebaseCatalogRepository implements CatalogRepository {
     await _fresh();
     final page = await _rawProducts(query: query, filterId: filterId, cursor: cursor, forceRefresh: forceRefresh);
     await _promotions.ready;
-    return ProductPageResult(products: page.products.map(_promotions.apply).toList(), nextCursor: page.nextCursor);
+    return ProductPageResult(
+        products: _visibleProducts(page.products).map(_promotions.apply).toList(), nextCursor: page.nextCursor);
   }
 
   @override
@@ -145,7 +155,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
     final key = CatalogCache.categoriesKey(scope, supplierId: supplierId);
     if (!forceRefresh) {
       final cached = _cache.read<CachedCategories>(key, CatalogCache.structureTtl);
-      if (cached != null) return cached;
+      if (cached != null) return _visibleCategories(cached);
     }
     try {
       // بدون orderBy — single field query ما تحتاج composite index
@@ -154,7 +164,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
       final snap = await query.get();
       final categories = snap.docs.map(_categoryFromDoc).toList();
       _cache.write(key, categories);
-      return categories;
+      return _visibleCategories(categories);
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
@@ -165,14 +175,14 @@ class FirebaseCatalogRepository implements CatalogRepository {
     await _fresh();
     if (!forceRefresh) {
       final cached = _cache.read<Category>(CatalogCache.categoryKey(categoryId), CatalogCache.structureTtl);
-      if (cached != null) return cached;
+      if (cached != null) return _visibleCategory(cached);
     }
     try {
       final doc = await _db.collection('categories').doc(categoryId).get();
       if (!doc.exists) throw const NotFoundException();
       final category = _categoryFromDoc(doc);
       _cache.write(CatalogCache.categoryKey(categoryId), category);
-      return category;
+      return _visibleCategory(category);
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }
@@ -269,6 +279,12 @@ class FirebaseCatalogRepository implements CatalogRepository {
     return banners.where((b) => b.isLiveAt(now)).toList();
   }
 
+  List<Category> _visibleCategories(List<Category> categories) =>
+      categories.where((c) => _visible(femaleOnly: c.femaleOnly)).toList();
+
+  /// A hidden category opened by link reads as missing.
+  Category _visibleCategory(Category c) => _visible(femaleOnly: c.femaleOnly) ? c : throw const NotFoundException();
+
   // ===== Private Mappers =====
 
   PromoBanner _bannerFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -291,6 +307,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
       id: doc.id,
       name: d['name'] as String? ?? '',
       logoUrl: d['logoUrl'] as String?,
+      coverUrl: d['coverUrl'] as String?,
       description: d['description'] as String? ?? '',
       phone: d['phone'] as String? ?? '',
       address: d['address'] as String? ?? '',
@@ -310,6 +327,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
         orElse: () => CatalogScope.store,
       ),
       supplierId: d['supplierId'] as String?,
+      femaleOnly: d['femaleOnly'] as bool? ?? false,
       filters: (d['filters'] as List<dynamic>? ?? [])
           .map((f) => ProductFilter(id: f['id'] as String, name: f['name'] as String))
           .toList(),
@@ -353,6 +371,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
       discountEndTime: d['discountEndTime'] != null ? (d['discountEndTime'] as Timestamp).toDate() : null,
       shippingPrice: (d['shippingPrice'] as num? ?? 0).toDouble(),
       supplierId: d['supplierId'] as String?,
+      femaleOnly: d['femaleOnly'] as bool? ?? false,
     );
   }
 }

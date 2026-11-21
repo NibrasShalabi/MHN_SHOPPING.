@@ -6,9 +6,10 @@ abstract class SupportRepository {
 
   Future<List<Review>> getReviews();
 
-  /// Whether this user has already rated. The one-rating rule is enforced
-  /// server side; this only decides what the screen shows.
-  Future<bool> hasRated();
+  /// When this user may rate again, or null when they may rate now. The
+  /// once-a-month rule is enforced by the security rules; this only decides
+  /// what the screen shows.
+  Future<DateTime?> nextRatingAt();
 
-  Future<void> submitRating({required int stars, String? comment, String? imagePath});
+  Future<void> submitRating({required int stars, String? comment});
 }

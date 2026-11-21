@@ -6,6 +6,9 @@ class Supplier extends Equatable {
   final String id;
   final String name;
   final String? logoUrl;
+
+  /// The wide picture on the card; the fire gradient without it.
+  final String? coverUrl;
   final String description;
 
   /// Digits with the country code, e.g. 963912345678.
@@ -17,6 +20,7 @@ class Supplier extends Equatable {
     required this.id,
     required this.name,
     this.logoUrl,
+    this.coverUrl,
     required this.description,
     this.phone = '',
     this.address = '',
@@ -24,5 +28,5 @@ class Supplier extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, name, logoUrl, description, phone, address, mapsUrl];
+  List<Object?> get props => [id, name, logoUrl, coverUrl, description, phone, address, mapsUrl];
 }

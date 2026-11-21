@@ -25,6 +25,9 @@ class Category extends Equatable {
   /// this category belongs to.
   final String? supplierId;
 
+  /// Hidden from male accounts (set in the admin).
+  final bool femaleOnly;
+
   const Category({
     required this.id,
     required this.name,
@@ -32,8 +35,9 @@ class Category extends Equatable {
     this.filters = const [],
     this.scope = CatalogScope.store,
     this.supplierId,
+    this.femaleOnly = false,
   });
 
   @override
-  List<Object?> get props => [id, name, imageUrl, filters, scope, supplierId];
+  List<Object?> get props => [id, name, imageUrl, filters, scope, supplierId, femaleOnly];
 }

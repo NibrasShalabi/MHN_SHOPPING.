@@ -367,7 +367,7 @@ class AppStrings {
   static const String rateAppComment = 'ملاحظاتك (اختياري)';
   static const String rateAppSubmit = 'إرسال التقييم';
   static const String rateAppThanks = 'شكراً لتقييمك';
-  static const String rateAppOnce = 'التقييم متاح مرة واحدة فقط';
+  static const String rateAppOnce = 'فيك تقيّم مرة بالشهر — وكل تقييم إلو نقاط';
   static const String selectRating = 'اختاري عدد النجوم';
 
   // ==================== متجر الولاء ====================
@@ -377,7 +377,7 @@ class AppStrings {
   static const String notEnoughPoints = 'نقاطك غير كافية';
   static const String redeemConfirm = 'سيتم خصم النقاط من رصيدك، هل أنت متأكدة؟';
   static const String redeemed = 'تم الاستبدال بنجاح';
-  static const String alreadyRated = 'قيّمت التطبيق مسبقاً';
+  static String nextRatingOn(String date) => 'شكراً لتقييمك! فيك تقيّم مرة تانية بـ $date';
 
   // ==================== الدعم ====================
   static const String supportTypeComplaint = 'شكوى';
@@ -390,8 +390,11 @@ class AppStrings {
   // ==================== التقييم والمراجعات ====================
   static const String yourRating = 'تقييمك';
   static const String reviewOptional = 'أضيفي تعليقاً (اختياري)';
-  static const String addPhoto = 'أضيفي صورة';
   static const String submitRating = 'إرسال التقييم';
+  static const String today = 'اليوم';
+  static String daysAgo(int n) => n == 1 ? 'مبارح' : n == 2 ? 'قبل يومين' : 'قبل $n ${n <= 10 ? 'أيام' : 'يوم'}';
+  static String monthsAgo(int n) => n == 1 ? 'قبل شهر' : n == 2 ? 'قبل شهرين' : 'قبل $n ${n <= 10 ? 'أشهر' : 'شهر'}';
+  static const String reviewNoComment = 'قيّم التطبيق بدون تعليق';
   static const String ratingSubmitted = 'شكراً لتقييمك';
   static const String customerReviews = 'آراء العملاء';
   static const String noReviewsYet = 'لا توجد مراجعات بعد';

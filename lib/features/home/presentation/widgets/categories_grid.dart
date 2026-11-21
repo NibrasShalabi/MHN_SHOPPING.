@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -134,11 +135,19 @@ class _CategoryCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      // TODO(logic-phase): swap for the category image from R2.
-                      child: const Icon(
-                        Icons.category_outlined,
-                        size: AppConstants.iconXl,
-                        color: AppColors.goldLight,
+                      // The admin's picture or icon; the name's first letter without one.
+                      child: SizedBox.square(
+                        dimension: AppConstants.iconXl,
+                        child: AppImage(
+                          category.imageUrl,
+                          fit: BoxFit.contain,
+                          placeholder: Center(
+                            child: Text(
+                              category.name.trim().isEmpty ? '؟' : category.name.trim().characters.first,
+                              style: AppTextStyles.heading1.copyWith(color: AppColors.goldLight, height: 1),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

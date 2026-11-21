@@ -19,20 +19,23 @@ class SupplierCover extends StatelessWidget {
     return SizedBox(
       height: height,
       width: double.infinity,
-      child: const Stack(
+      child: Stack(
         fit: StackFit.expand,
         children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment(0, -0.6),
-                radius: 1.1,
-                colors: [AppColors.flame, AppColors.scarlet, AppColors.crimson, AppColors.ember],
-                stops: [0.0, 0.3, 0.6, 1.0],
+          AppImage(
+            supplier.coverUrl,
+            placeholder: const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0, -0.6),
+                  radius: 1.1,
+                  colors: [AppColors.flame, AppColors.scarlet, AppColors.crimson, AppColors.ember],
+                  stops: [0.0, 0.3, 0.6, 1.0],
+                ),
               ),
             ),
           ),
-          DecoratedBox(
+          const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -42,9 +45,9 @@ class SupplierCover extends StatelessWidget {
               ),
             ),
           ),
-          PositionedDirectional(top: 12, end: 16, child: _Sparkle(size: 14)),
-          PositionedDirectional(top: 34, start: 22, child: _Sparkle(size: 9)),
-          PositionedDirectional(top: 20, start: 90, child: _Sparkle(size: 7)),
+          const PositionedDirectional(top: 12, end: 16, child: _Sparkle(size: 14)),
+          const PositionedDirectional(top: 34, start: 22, child: _Sparkle(size: 9)),
+          const PositionedDirectional(top: 20, start: 90, child: _Sparkle(size: 7)),
         ],
       ),
     );
