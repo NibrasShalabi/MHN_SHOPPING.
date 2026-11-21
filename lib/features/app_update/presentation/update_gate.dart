@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -28,7 +28,9 @@ class UpdateGate extends StatefulWidget {
 }
 
 class _UpdateGateState extends State<UpdateGate> {
-  final _repository = AppUpdateRepository(FirebaseFirestore.instance);
+  // From the injector: it holds the project's database ('default'), not
+  // FirebaseFirestore.instance, which is a different, empty one.
+  final _repository = GetIt.instance<AppUpdateRepository>();
   AppUpdateInfo? _info;
   UpdateNeed _need = UpdateNeed.none;
 

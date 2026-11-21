@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 
 import '../media/receipt_uploader.dart';
+import '../../features/app_update/data/app_update_repository.dart';
 import '../router/app_router.dart';
 
 import '../../features/deals/data/repositories/live_promotions.dart';
@@ -58,6 +59,8 @@ void setupInjector() {
       () => getIt<FirebaseUserSessionGate>().isFemale,
     ),
   );
+
+  getIt.registerLazySingleton(() => AppUpdateRepository(db));
 
   // Who is signed in and their gender — the router, the home page and the
   // catalog (female-only categories) all read the same one.
