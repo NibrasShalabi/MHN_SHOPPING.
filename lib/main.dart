@@ -17,7 +17,6 @@ import 'core/theme/app_scroll_behavior.dart';
 import 'core/widgets/offline_banner.dart';
 import 'features/loyalty/presentation/cubits/loyalty_balance_cubit.dart';
 import 'features/messages/presentation/cubits/messages_cubit.dart';
-import 'features/account/data/repositories/account_repository.dart';
 import 'features/cart/data/repositories/cart_repository.dart';
 import 'features/app_update/presentation/update_gate.dart';
 import 'features/cart/presentation/cubits/cart_cubit.dart';
