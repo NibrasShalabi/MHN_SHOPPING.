@@ -192,6 +192,8 @@ service cloud.firestore {
         allow write: if isAdmin() || (isAuth() && id == 'orderCounter');
     }
     match /sizeSets/{id} { allow read, write: if isAdmin(); }
+    // سجل نسخ التطبيق — بيكتبو الأدمن مع كل تحديث لـ config/app
+    match /appReleases/{id} { allow read, write: if isAdmin(); }
     match /paletteColors/{id} { allow read, write: if isAdmin(); }
     match /sizeGuides/{id} { allow read, write: if isAdmin(); }
     // طلبات اللياقة: الزبونة بتبعت طلبها تحت حسابها بس، بحالة "جديد"
