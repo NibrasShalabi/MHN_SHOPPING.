@@ -8,6 +8,9 @@ enum CheckoutStatus { initial, loadingAddresses, ready, submitting, success, fai
 class CheckoutState extends Equatable {
   final CheckoutStatus status;
   final Map<String, String> paymentAddresses;
+
+  /// Bucket path of the Sham Cash receive QR, shown above its number.
+  final String? shamCashQr;
   final ShippingRates shippingRates;
   final String? governorate;
   final String selectedMethod;
@@ -18,6 +21,7 @@ class CheckoutState extends Equatable {
   const CheckoutState({
     this.status = CheckoutStatus.initial,
     this.paymentAddresses = const {},
+    this.shamCashQr,
     this.shippingRates = const ShippingRates(),
     this.governorate,
     this.selectedMethod = 'trc20',
@@ -39,6 +43,7 @@ class CheckoutState extends Equatable {
   CheckoutState copyWith({
     CheckoutStatus? status,
     Map<String, String>? paymentAddresses,
+    String? shamCashQr,
     ShippingRates? shippingRates,
     String? governorate,
     String? selectedMethod,
@@ -50,6 +55,7 @@ class CheckoutState extends Equatable {
     return CheckoutState(
       status: status ?? this.status,
       paymentAddresses: paymentAddresses ?? this.paymentAddresses,
+      shamCashQr: shamCashQr ?? this.shamCashQr,
       shippingRates: shippingRates ?? this.shippingRates,
       governorate: governorate ?? this.governorate,
       selectedMethod: selectedMethod ?? this.selectedMethod,
@@ -61,6 +67,6 @@ class CheckoutState extends Equatable {
 
   @override
   List<Object?> get props => [
-    status, paymentAddresses, shippingRates, governorate, selectedMethod, hasReceipt, orderId, failure,
+    status, paymentAddresses, shamCashQr, shippingRates, governorate, selectedMethod, hasReceipt, orderId, failure,
   ];
 }

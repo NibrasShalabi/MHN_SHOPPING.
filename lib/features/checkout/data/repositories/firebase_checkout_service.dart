@@ -38,16 +38,20 @@ class CheckoutService {
   static const paymentMethods = ['trc20', 'bep20', 'erc20', 'sham_cash'];
 
   /// Enabled methods only, in display order — from config/payment_addresses,
-  /// which the admin edits. A method with no address or switched off is left out.
-  Future<Map<String, String>> getPaymentAddresses() async {
+  /// which the admin edits. A method with no address or switched off is left
+  /// out. [shamCashQr] is the bucket path of the Sham Cash receive QR.
+  Future<({Map<String, String> addresses, String? shamCashQr})> getPaymentAddresses() async {
     try {
       final data = await _readConfig('payment_addresses');
       final disabled = (data['disabled'] as List? ?? const []).cast<String>().toSet();
-      return {
-        for (final m in paymentMethods)
-          if ((data[m] as String?)?.trim() case final address? when address.isNotEmpty && !disabled.contains(m))
-            m: address,
-      };
+      return (
+        addresses: {
+          for (final m in paymentMethods)
+            if ((data[m] as String?)?.trim() case final address? when address.isNotEmpty && !disabled.contains(m))
+              m: address,
+        },
+        shamCashQr: data['sham_cash_qr'] as String?,
+      );
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? '', code: e.code);
     }

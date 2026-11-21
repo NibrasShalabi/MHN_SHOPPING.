@@ -27,13 +27,15 @@ class CheckoutCubit extends SafeCubit<CheckoutState> {
         _service.getShippingRates(),
         _service.getGovernorate(),
       ]);
-      final addresses = results[0] as Map<String, String>;
+      final payment = results[0] as ({Map<String, String> addresses, String? shamCashQr});
+      final addresses = payment.addresses;
       final rates = results[1] as ShippingRates;
       final governorate = results[2] as String?;
       if (isClosed) return;
       emit(state.copyWith(
         status: CheckoutStatus.ready,
         paymentAddresses: addresses,
+        shamCashQr: payment.shamCashQr,
         // The default may have been switched off by the admin.
         selectedMethod: addresses.containsKey(state.selectedMethod) || addresses.isEmpty
             ? state.selectedMethod

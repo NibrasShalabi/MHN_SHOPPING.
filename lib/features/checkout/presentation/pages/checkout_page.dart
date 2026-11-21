@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../currency/presentation/widgets/currency_sheet.dart';
 import '../../../cart/presentation/widgets/cart_amount.dart';
@@ -10,6 +11,8 @@ import '../../../cart/presentation/widgets/cart_totals.dart';
 import '../../domain/entities/order_breakdown.dart';
 import '../../../home/domain/entities/product.dart';
 import '../../../loyalty/presentation/cubits/loyalty_balance_cubit.dart';
+import '../../../../core/media/media_config.dart';
+import '../../../../core/media/app_image.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/route_names.dart';
@@ -280,6 +283,10 @@ class _PaymentDetails extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (checkoutState.isShamCash && checkoutState.shamCashQr != null) ...[
+            _ShamCashQr(path: checkoutState.shamCashQr!),
+            const SizedBox(height: AppConstants.spacingSm),
+          ],
           _AddressRow(address: checkoutState.selectedAddress),
           const SizedBox(height: AppConstants.spacingSm),
           Row(
@@ -359,6 +366,44 @@ class _ReceiptPicker extends StatelessWidget {
     );
   }
 }
+/// The Sham Cash receive QR — scanned from another phone, or opened in the
+/// browser to save it when paying from this one.
+class _ShamCashQr extends StatelessWidget {
+  final String path;
+
+  const _ShamCashQr({required this.path});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(AppStrings.shamCashScan, style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary)),
+        const SizedBox(height: AppConstants.spacingSm),
+        Container(
+          width: 230,
+          height: 230,
+          padding: const EdgeInsets.all(AppConstants.spacingSm),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+            border: Border.all(color: AppColors.gold, width: 2),
+          ),
+          child: AppImage(
+            path,
+            fit: BoxFit.contain,
+            placeholder: const Center(child: Icon(Icons.qr_code_2, size: 96, color: AppColors.surfaceDark)),
+          ),
+        ),
+        TextButton.icon(
+          icon: const Icon(Icons.download_outlined, color: AppColors.gold, size: AppConstants.iconMd),
+          label: Text(AppStrings.shamCashSaveQr, style: AppTextStyles.caption.copyWith(color: AppColors.gold)),
+          onPressed: () => launchUrl(Uri.parse(MediaConfig.url(path)), mode: LaunchMode.externalApplication),
+        ),
+      ],
+    );
+  }
+}
+
 class _AddressRow extends StatelessWidget {
   final String address;
 
