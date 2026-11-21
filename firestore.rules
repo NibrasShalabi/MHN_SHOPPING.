@@ -27,16 +27,15 @@ service cloud.firestore {
     function ratingReward() {
       return loyaltyRules().get('appRatingPoints', 0);
     }
-    // التقييم عم ينكتب بنفس العملية ولأول مرة
-    function isFirstRating(uid) {
-      return !exists(/databases/$(database)/documents/ratings/$(uid))
-        && existsAfter(/databases/$(database)/documents/ratings/$(uid));
+    // التقييم عم ينكتب بنفس العملية (مرة بالشهر — قاعدة ratings بتضمنها)
+    function ratedNow(uid) {
+      return getAfter(/databases/$(database)/documents/ratings/$(uid)).data.get('ratedAt', null) == request.time;
     }
     function isRatingRewardUpdate(uid) {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['loyaltyPoints'])
         && loyaltyRules().get('appRatingRuleEnabled', true) == true
         && request.resource.data.loyaltyPoints == resource.data.get('loyaltyPoints', 0) + ratingReward()
-        && isFirstRating(uid);
+        && ratedNow(uid);
     }
 
     function str(v, max) { return v is string && v.size() <= max; }
@@ -136,10 +135,22 @@ service cloud.firestore {
         && throttled('support', 2);
       allow read, update, delete: if isAdmin();
     }
+    // تقييم مرة كل 30 يوم — الحقول المسموحة بس، والوقت وقت السيرفر
+    function isRatingWrite() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['stars', 'comment', 'ratedAt', 'createdAt', 'isVisible', 'imageUrl'])
+        && d.stars is int && d.stars >= 1 && d.stars <= 5
+        && (d.comment == null || str(d.comment, 1000))
+        && d.ratedAt == request.time
+        && d.isVisible == false;
+    }
     match /ratings/{uid} {
       allow read: if isAuth();
-      allow create: if isOwner(uid) && !exists(/databases/$(database)/documents/ratings/$(uid));
-      allow update, delete: if isAdmin();
+      allow create: if isOwner(uid) && isRatingWrite();
+      allow update: if isAdmin() || (isOwner(uid) && isRatingWrite()
+        && request.time > resource.data.get('ratedAt', resource.data.get('createdAt', timestamp.date(1970, 1, 1)))
+             + duration.value(30, 'd'));
+      allow delete: if isAdmin();
     }
     match /reviews/{id} {
       allow read: if resource.data.isVisible == true || isAdmin();
@@ -170,14 +181,14 @@ service cloud.firestore {
     match /loyaltyTransactions/{id} {
       allow read: if isAdmin() || (isAuth() && resource.data.userId == request.auth.uid);
       allow create: if isAdmin() || (isAuth()
-        && id == 'rating_' + request.auth.uid
+        && id.matches('rating_' + request.auth.uid + '_[0-9]{6}')
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.points == ratingReward()
-        && isFirstRating(request.auth.uid));
+        && ratedNow(request.auth.uid));
       allow update, delete: if isAdmin();
     }
     match /config/{id} {
-       allow read: if isAuth() || id in ['loyaltyRules', 'stats', 'catalog'];
+       allow read: if isAuth() || id in ['loyaltyRules', 'stats', 'catalog', 'media'];
         allow write: if isAdmin() || (isAuth() && id == 'orderCounter');
     }
     match /sizeSets/{id} { allow read, write: if isAdmin(); }
