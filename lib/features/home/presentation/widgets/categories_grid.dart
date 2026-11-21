@@ -113,44 +113,14 @@ class _CategoryCard extends StatelessWidget {
               ),
             ),
 
-            const _CornerBrackets(),
-
             Column(
               children: [
+                // With a picture: it fills the plate edge to edge, fading into
+                // the label. Without one: the ember badge with the first letter.
                 Expanded(
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(AppConstants.spacingMd),
-                      decoration: BoxDecoration(
-                        gradient: AppColors.emberGradient,
-                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                        border: Border.all(
-                          color: AppColors.goldDark,
-                          width: AppConstants.borderThin,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.flame.withValues(alpha: 0.35),
-                            blurRadius: 18,
-                          ),
-                        ],
-                      ),
-                      // The admin's picture or icon; the name's first letter without one.
-                      child: SizedBox.square(
-                        dimension: AppConstants.iconXl,
-                        child: AppImage(
-                          category.imageUrl,
-                          fit: BoxFit.contain,
-                          placeholder: Center(
-                            child: Text(
-                              category.name.trim().isEmpty ? '؟' : category.name.trim().characters.first,
-                              style: AppTextStyles.heading1.copyWith(color: AppColors.goldLight, height: 1),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: category.imageUrl?.isNotEmpty == true
+                      ? _Picture(path: category.imageUrl!, fallback: _LetterBadge(name: category.name))
+                      : Center(child: _LetterBadge(name: category.name)),
                 ),
                 const _GoldRule(),
                 Container(
@@ -175,6 +145,9 @@ class _CategoryCard extends StatelessWidget {
                 ),
               ],
             ),
+
+            // On top, so a full picture doesn't cover the engraved corners.
+            const _CornerBrackets(),
           ],
         ),
       ),
@@ -240,6 +213,62 @@ class _GoldRule extends StatelessWidget {
             Colors.transparent,
           ],
           stops: [0.0, 0.2, 0.5, 0.8, 1.0],
+        ),
+      ),
+    );
+  }
+}
+
+/// The category picture across the whole upper plate, with a dark fade at
+/// the bottom so it blends into the name strip.
+class _Picture extends StatelessWidget {
+  final String path;
+  final Widget fallback;
+
+  const _Picture({required this.path, required this.fallback});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        AppImage(path, placeholder: Center(child: fallback)),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.transparent, Color(0x99000000)],
+              stops: [0.65, 1.0],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The name's first letter on an ember badge — a category without a picture.
+class _LetterBadge extends StatelessWidget {
+  final String name;
+
+  const _LetterBadge({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    final letter = name.trim().isEmpty ? '؟' : name.trim().characters.first;
+    return Container(
+      padding: const EdgeInsets.all(AppConstants.spacingMd),
+      decoration: BoxDecoration(
+        gradient: AppColors.emberGradient,
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        border: Border.all(color: AppColors.goldDark, width: AppConstants.borderThin),
+        boxShadow: [BoxShadow(color: AppColors.flame.withValues(alpha: 0.35), blurRadius: 18)],
+      ),
+      child: SizedBox.square(
+        dimension: AppConstants.iconXl,
+        child: Center(
+          child: Text(letter, style: AppTextStyles.heading1.copyWith(color: AppColors.goldLight, height: 1)),
         ),
       ),
     );
