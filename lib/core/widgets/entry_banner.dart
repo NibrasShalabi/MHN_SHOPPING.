@@ -138,15 +138,6 @@ class _Copy extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(banner.tagIcon, size: AppConstants.iconSm - 2, color: AppColors.goldLight),
-            const SizedBox(width: AppConstants.spacingXs),
-            Text(banner.tag, style: AppTextStyles.caption.copyWith(color: AppColors.goldLight, letterSpacing: 0.6)),
-          ],
-        ),
-        const SizedBox(height: AppConstants.spacingXs),
         GoldText(
           banner.title,
           style: AppTextStyles.heading1.copyWith(
@@ -155,6 +146,15 @@ class _Copy extends StatelessWidget {
             height: 1.1,
             shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 8, offset: const Offset(0, 2))],
           ),
+        ),
+        const SizedBox(height: AppConstants.spacingXs),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(banner.tagIcon, size: AppConstants.iconSm - 2, color: AppColors.goldLight),
+            const SizedBox(width: AppConstants.spacingXs),
+            Text(banner.tag, style: AppTextStyles.caption.copyWith(color: AppColors.goldLight, letterSpacing: 0.6)),
+          ],
         ),
         const SizedBox(height: AppConstants.spacingXs),
         Text(

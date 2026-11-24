@@ -82,13 +82,13 @@ class ProductCard extends StatelessWidget {
                   discountColor: AppColors.goldLight,
                   strikeColor: AppColors.textOnPrimary.withValues(alpha: 0.6),
                 ),
-                if (product.isLowStock) ...[
-                  const SizedBox(height: AppConstants.spacingXs),
-                  Text(
-                    AppStrings.lowStockCount(product.stock),
-                    style: AppTextStyles.caption.copyWith(color: AppColors.goldLight),
-                  ),
-                ],
+              //   if (product.isLowStock) ...[
+              //     const SizedBox(height: AppConstants.spacingXs),
+              //     Text(
+              //       AppStrings.lowStockCount(product.stock),
+              //       style: AppTextStyles.caption.copyWith(color: AppColors.goldLight),
+              //     ),
+              //   ],
               ],
             ),
           ),

@@ -111,13 +111,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             ],
                             const SizedBox(height: AppConstants.spacingSm),
                             Text(
-                              product.isInStock ? AppStrings.inStockCount(product.stock) : AppStrings.outOfStock,
+                              product.isInStock ? AppStrings.inStock : AppStrings.outOfStock,
                               style: AppTextStyles.body.copyWith(
-                                color: !product.isInStock
-                                    ? AppColors.error
-                                    : product.isLowStock
-                                        ? AppColors.warning
-                                        : AppColors.success,
+                                color: product.isInStock ? AppColors.success : AppColors.error
                               ),
                             ),
                             const SizedBox(height: AppConstants.spacingLg),

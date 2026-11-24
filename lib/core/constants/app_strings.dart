@@ -283,7 +283,7 @@ class AppStrings {
   // ==================== Suppliers ====================
   static const String suppliers = 'الموردون';
   static const String suppliersBannerTitle = 'موردونا';
-  static const String suppliersBannerBody = 'تسوّق من متاجر موثوقة داخل التطبيق';
+  static const String suppliersBannerBody = 'تسوّق من متاجر موثوقة  ';
   static const String suppliersBannerTag = 'متاجر معتمدة';
   static const String browseSuppliers = 'تصفّح الموردين';
 
@@ -429,7 +429,7 @@ class AppStrings {
   static const String contactUsBody = 'هل لديك سؤال؟ فريق الدعم جاهز لمساعدتك.';
 
 
-
+  static const String inStock = 'متوفر';
 
   // ==================== الدفع ====================
   static const String paymentMethod = 'طريقة الدفع';
@@ -458,7 +458,7 @@ class AppStrings {
 
   // ==================== شرار ونار ====================
   static const String dealsTitle = 'نار وشرار';
-  static const String dealsSubtitle = 'عروض حارقة لوقت محدود';
+  static const String dealsSubtitle = 'عروض حارقة لمدة 24 ساعة فقط ';
   static const String dealsButton = 'شوف العروض';
   static const String dealsBannerTag = 'لوقت محدود';
   static const String dealsEmpty = 'ما في عروض هلأ';
