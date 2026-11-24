@@ -134,7 +134,7 @@ class AppStrings {
   static const String selectColor = 'اختاري اللون';
   static const String price = 'السعر';
   static const String outOfStock = 'غير متوفر حالياً';
-  static String inStockCount(int count) => 'متوفر: $count';
+  static const String inStock = 'متوفر';
   static String lowStockCount(int count) => 'باقي $count فقط';
 
   // ==================== السلة ====================
@@ -429,7 +429,6 @@ class AppStrings {
   static const String contactUsBody = 'هل لديك سؤال؟ فريق الدعم جاهز لمساعدتك.';
 
 
-  static const String inStock = 'متوفر';
 
   // ==================== الدفع ====================
   static const String paymentMethod = 'طريقة الدفع';

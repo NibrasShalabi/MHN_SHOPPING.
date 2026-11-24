@@ -348,7 +348,7 @@ class FirebaseCatalogRepository implements CatalogRepository {
         orElse: () => PricingKind.money,
       ),
       isOrderable: d['isOrderable'] as bool? ?? true,
-      stock: d['stock'] as int? ?? 0,
+      stock: (d['stock'] as num?)?.toInt(),
       description: d['description'] as String?,
       ingredients: d['ingredients'] as String?,
       benefits: d['benefits'] as String?,

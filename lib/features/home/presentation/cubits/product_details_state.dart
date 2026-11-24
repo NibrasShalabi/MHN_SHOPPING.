@@ -30,7 +30,7 @@ class ProductDetailsState extends Equatable {
     this.priceChanged = false,
   });
 
-  bool get canIncrease => product != null && quantity < product!.stock;
+  bool get canIncrease => product != null && (product!.stock == null || quantity < product!.stock!);
   bool get canDecrease => quantity > 1;
 
   bool get hasRequiredVariants {

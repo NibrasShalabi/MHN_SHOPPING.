@@ -111,9 +111,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                             ],
                             const SizedBox(height: AppConstants.spacingSm),
                             Text(
-                              product.isInStock ? AppStrings.inStock : AppStrings.outOfStock,
+                              // The count shows only when few are left.
+                              !product.isInStock
+                                  ? AppStrings.outOfStock
+                                  : product.isLowStock
+                                      ? AppStrings.lowStockCount(product.stock!)
+                                      : AppStrings.inStock,
                               style: AppTextStyles.body.copyWith(
-                                color: product.isInStock ? AppColors.success : AppColors.error
+                                color: !product.isInStock
+                                    ? AppColors.error
+                                    : product.isLowStock
+                                        ? AppColors.warning
+                                        : AppColors.success,
                               ),
                             ),
                             const SizedBox(height: AppConstants.spacingLg),

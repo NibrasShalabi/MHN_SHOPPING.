@@ -45,6 +45,12 @@ class ProductCard extends StatelessWidget {
                       end: AppConstants.spacingXs,
                       child: _Pill(label: '-${product.discountPercentage!.toStringAsFixed(0)}%'),
                     ),
+                  if (product.isLowStock)
+                    PositionedDirectional(
+                      bottom: AppConstants.spacingXs,
+                      start: AppConstants.spacingXs,
+                      child: _Pill(label: AppStrings.lowStockCount(product.stock!)),
+                    ),
                   if (!product.isInStock)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(AppConstants.radiusSm),
@@ -82,13 +88,6 @@ class ProductCard extends StatelessWidget {
                   discountColor: AppColors.goldLight,
                   strikeColor: AppColors.textOnPrimary.withValues(alpha: 0.6),
                 ),
-              //   if (product.isLowStock) ...[
-              //     const SizedBox(height: AppConstants.spacingXs),
-              //     Text(
-              //       AppStrings.lowStockCount(product.stock),
-              //       style: AppTextStyles.caption.copyWith(color: AppColors.goldLight),
-              //     ),
-              //   ],
               ],
             ),
           ),

@@ -155,7 +155,9 @@ class CheckoutService {
           if (colors.isNotEmpty && !colors.contains(items[i].color?.name)) {
             throw ServerException(message: AppStrings.pickVariant(items[i].name));
           }
-          if ((p['stock'] as int? ?? 0) < wanted[items[i].productId]!) {
+          // No stock field = not counted: sold without a limit.
+          final stock = (p['stock'] as num?)?.toInt();
+          if (stock != null && stock < wanted[items[i].productId]!) {
             throw ServerException(message: 'نفد مخزون "${items[i].name}"');
           }
         }
@@ -187,6 +189,7 @@ class CheckoutService {
         // ===== ALL WRITES AFTER =====
         transaction.set(counterRef, {'lastOrderNumber': newNumber}, SetOptions(merge: true));
         for (int i = 0; i < items.length; i++) {
+          if (products[i]!['stock'] == null) continue; // not counted
           transaction.update(
             _db.collection('products').doc(items[i].productId),
             {'stock': FieldValue.increment(-items[i].quantity)},

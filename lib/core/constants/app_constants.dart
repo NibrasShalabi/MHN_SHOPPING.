@@ -94,7 +94,8 @@ class AppConstants {
   // Pagination — how close to the bottom before the next page is fetched
   static const double loadMoreThreshold = 400;
 
-  /// At or below this, the product card shows "باقي N فقط".
-  static const int lowStockThreshold = 5;
+  /// At or below this, the product shows "باقي N فقط" on its picture.
+  static const int lowStockThreshold = 10;
+
   static const double swiperAspectRatio = 2.2; // width / height
 }

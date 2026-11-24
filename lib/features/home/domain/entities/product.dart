@@ -1,5 +1,6 @@
-import '../../../../core/constants/app_constants.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../../../core/constants/app_constants.dart';
 import 'product_variants.dart';
 
 enum PricingKind { money, points }
@@ -13,7 +14,8 @@ class Product extends Equatable {
   final double price;
   final PricingKind pricing;
   final bool isOrderable;
-  final int stock;
+  /// Pieces left; null = not counted (sold without a limit).
+  final int? stock;
   final String? description;
   final String? ingredients;
   final String? benefits;
@@ -46,7 +48,7 @@ class Product extends Equatable {
     required this.price,
     this.pricing = PricingKind.money,
     this.isOrderable = true,
-    this.stock = 0,
+    this.stock,
     this.description,
     this.ingredients,
     this.benefits,
@@ -62,8 +64,11 @@ class Product extends Equatable {
     this.femaleOnly = false,
   });
 
-  bool get isInStock => stock > 0;
-  bool get isLowStock => isInStock && stock <= AppConstants.lowStockThreshold;
+  bool get isInStock => stock == null || stock! > 0;
+
+  /// Few left — the only time customers see a count ("باقي 7 فقط"), like
+  /// Temu and Shein. A product with plenty, or not counted, shows none.
+  bool get isLowStock => stock != null && stock! > 0 && stock! <= AppConstants.lowStockThreshold;
   bool get hasSizes => sizes.isNotEmpty;
   bool get hasColors => colors.isNotEmpty;
   bool get hasSizeGuide => sizeGuide.isNotEmpty;
