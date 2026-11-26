@@ -25,17 +25,15 @@ class AboutHero extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppConstants.spacingMd),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDark.withValues(alpha: 0.35),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.gold, width: AppConstants.borderThin),
-            ),
-            child: const Icon(
-              Icons.storefront_outlined,
-              size: AppConstants.iconLg,
-              color: AppColors.goldLight,
+          // The app's logo (same artwork as the launcher icon).
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+            child: Image.asset(
+              'assets/images/mhn_logo.png',
+              width: 150,
+              height: 150,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.medium,
             ),
           ),
           const SizedBox(height: AppConstants.spacingMd),
