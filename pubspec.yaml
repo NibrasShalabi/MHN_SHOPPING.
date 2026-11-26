@@ -128,16 +128,17 @@ flutter:
 
 # App icon — regenerate after changing the image: dart run flutter_launcher_icons
 # app_icon_foreground.png is the same artwork scaled into the adaptive-icon
-# safe zone, so round and squircle launchers don't cut the bag.
+# safe zone and feathered onto a blurred copy, so round and squircle
+# launchers keep the whole bag without a visible edge.
 flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
   image_path: assets/icon/app_icon.png
-  adaptive_icon_background: "#000000"
+  adaptive_icon_background: "#1A0608"
   adaptive_icon_foreground: assets/icon/app_icon_foreground.png
   web:
     generate: true
     image_path: assets/icon/app_icon.png
-    background_color: "#000000"
-    theme_color: "#000000"
+    background_color: "#1A0608"
+    theme_color: "#1A0608"
